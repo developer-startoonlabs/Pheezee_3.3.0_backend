@@ -1,0 +1,265 @@
+{
+  "Shoulder": [
+    {
+      "Flexion": [
+        {
+          "Deltoid": 600,
+          "Coracabrachialis": 689,
+          "Trapezius":834
+
+        }
+      ],
+      "Extension": [
+        {
+          "Latissimus Dorsi": 140,
+          "Trapezius":834
+        }
+      ],
+      "Abduction": [
+        {
+          "Deltoid": 708,
+          "Infraspinatus": 308,
+          "Supraspinatus":366,
+          "Subscapularis": 500
+
+        }
+      ],
+      "Adduction": [
+        {
+          "Pectoralis Major": 195,
+          "Teres Minor": 228
+        }
+      ]
+    }
+  ],
+  "Elbow": [
+    {
+      "Flexion":[
+        {
+          "Biceps": 236,
+          "Tricep": 148,
+          "Brachialis (Deep)": 499,
+          "Brachioradialis": 116
+        }
+      ],
+      "Extension": [
+        {
+          "Biceps": 236,
+          "Tricep": 148,
+          "Brachialis (Deep)": 482,
+          "Brachioradialis": 116
+        }
+      ],
+      "Isometric": [
+        {
+          "Biceps": 562,
+          "Brachialis(Deep)": 345,
+          "Brachioradialis": 545,
+          "Tricep": 417,
+          "Anconeus": 217
+        }
+      ]
+    }
+  ],
+  "Wrist": [
+    {
+      "Flexion": [
+        {
+          "Flexor Carpi Radialis": 93
+        }
+      ],
+      "Extension": [
+        {
+          "Extensor Digitorum": 303
+        }
+      ],
+      "Isometric": [
+        {
+          "Flexor Carpi Radialis": 417,
+          "Palmaris Longus": 438,
+          "Flexor Carpi Ulnaris": 507,
+          "Flexor Pollicis Longus (Deep)": 338,
+          "Flexor Digitorum Superficialis (Intermediate)": 602,
+          "Flexor Digitorum Profundus (Deep)": 417,
+          "Extensor Carpi Radialis Longus": 648,
+          "Extensor Carpi Radialis Brevis": 577,
+          "Extensor Digitorum": 599,
+          "Extensor Carpi Ulnaris": 524,
+          "Extensor Digiti Minimi": 509
+        }
+      ]
+    }
+  ],
+  "Forearm": [
+    {
+      "Supination": [
+        {
+          "Supinator (Deep)": 60
+        }
+      ],
+      "Pronation": [
+        {
+          "Pronator Quadratus (Deep)": 96
+        }
+      ]
+    }
+  ],
+  "Hip": [
+    {
+      "Flexion": [
+        {
+          "Tensor Fasciae Latae": 266,
+          "quadratus femoris": 276,
+          "Rectus Femoris":191
+        }
+      ],
+      "Extension": [
+        {
+          "Gluteus Maximus": 134,
+          "Semimembranosus": 629,
+          "Biceps femoris": 161
+        }
+      ],
+      "Abduction": [
+        {
+          "Gluteus Medius": 97,
+          "Biceps Femoris": 125,
+          "Adductor longus": 90
+        }
+      ],
+      "Adduction": [
+        {
+          "Adductor Magnus": 90
+        }
+      ]
+    }
+  ],
+  "Knee": [
+    {
+      "Flexion": [
+        {
+          "Gastrocnemius": 141,
+          "Rectus Femoris": 100,
+          "Biceps Femoris": 126,
+          "Vastus Lateralis": 205,
+          "Vastus Medialis" : 185,
+          "Sartorius": 255,
+          "popliteus": 411,
+          "Semitendinosus": 250,
+          "Semimembranosus": 341
+        }
+      ],
+      "Extension": [
+        {
+          "Rectus Femoris": 100,
+          "Biceps Femoris": 126,
+          "Gastrocnemius": 141,
+          "Vastus Lateralis": 205,
+          "Vastus Medialis": 185,
+          "Sartorius": 255,
+          "popliteus": 411,
+          "Vastus Intermedius": 305,
+          "Vastus Intermedius": 100
+        }
+      ]
+    }
+  ],
+  "Ankle": [
+    {
+      "Plantarflexion": [
+        {
+          "Soleus": 70,
+          "Gastrocnemius": 307
+        }
+      ],
+      "Dorsiflexion": [
+        {
+          "Tibialis Anterior": 272
+        }
+      ],
+      "Inversion": [
+        {
+          "Tibialis Anterior": 111
+        }
+      ],
+      "Eversion": [
+        {
+          "Peroneus Longus": 158
+        }
+      ]
+    }
+  ],
+  "Thoracic": [
+    {
+      "Flexion": [
+        {
+          "Spinalis Thoracis": 76
+        }
+      ],
+      "Extension": [
+        {
+          "Spinalis Thoracis": 62,
+          "longisimuss thoracic": 264
+
+        }
+      ],
+      "Lateral Flexion": [
+        {
+          "Spinalis Thoracis": 54
+        }
+      ],
+      "Rotation": [
+        {
+          "Spinalis Thoracis": 94
+        }
+      ]
+    }
+  ],
+  "Lumbar": [
+    {
+      "Flexion": [
+        {
+          "Rectus Abdominis": 127
+        }
+      ],
+      "Extension": [
+        {
+          "Quadratus Lumborum": 63,
+          "Iliocostalis Lumborum": 309
+        }
+      ],
+      "Lateral Flexion": [
+        {
+          "Psoas major": 48,
+          "Quadratus Lumborum": 67
+        }
+      ],
+      "Rotation": [
+        {
+          "Multifidus": 51
+        }
+      ]
+    }
+  ],
+  "Abdomen": [
+    {
+      "Flexion": [
+        {
+          "Rectus Abdominis": 84
+        }
+      ],
+      "Lateral Flexion": [
+        {
+          "Rectus Abdominis": 73,
+          "External Oblique": 307
+        }
+      ],
+      "Rotation": [
+        {
+          "External Oblique": 72,
+          "Internal Oblique":418
+        }
+      ]
+    }
+  ]
+}

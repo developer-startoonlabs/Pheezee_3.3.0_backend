@@ -1,0 +1,123 @@
+ // Top user Data
+ 
+ 
+ 
+ <div class="rounded">
+                                            <% if(topUsers.usersWithPatients.length> 0) { %>
+                                                <% topUsers.usersWithPatients.slice(0,2).map((e)=> {
+                                                    %>
+                                                    <div class="d-flex justify-content-between p-1 mb-1 border rounded">
+                                                        <div class="d-flex justify-content-start align-items-center w-50">
+                                                            <div class="logo d-flex justify-content-center align-items-center mx-2"
+                                                                style="width: 40px; height: 40px; border: 1px solid rgba(0, 0, 0, 0.349); border-radius: 50%;">
+                                                                <i class="fas fa-user" style="font-size: 1.2rem;"></i>
+                                                            </div>
+                                                            <div class="details">
+                                                    
+                                                                <p>
+                                                                    Dr. <%= e.phizioname %>
+                                                                </p>
+            
+                                                                <p class="clinic">
+                                                                    <% if(e.clinicname) { %>
+                                                                        <%= e.clinicname %>
+                                                                            <% }else{ %>
+                                                                                <%= "--" %>
+                                                                                    <% } %>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-end w-50">
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <%= e.numberOfPatients %>
+                                                                </h3>
+                                                                <h6 class="mb-0 text-muted"
+                                                                    style="font-weight: normal;">
+                                                                    PATIENTS
+                                                                </h6>
+                                                            </div>
+                                                            <% topUsers.usersWithSessions.map((el)=> { %>
+                                                                <% if(el._id==e.phizioemail) { %>
+                                                                    <div class="rounded border p-1 m-1">
+                                                                        <h3 class="mb-0 text-center">
+
+                                                                            <%= el.numberOfSessions %>
+
+                                                                        </h3>
+                                                                        <h6 class="mb-0 text-muted"
+                                                                            style="font-weight: normal;">
+                                                                            SESSIONS</h6>
+                                                                    </div>
+                                                                    <% } %>
+                                                                        <% }) %>
+                                                        </div>
+                                                    </div>
+                                                    <% })} else { %>
+                                                        <div
+                                                            class="d-flex justify-content-between border p-2 mb-2 rounded">
+                                                            <div class="">
+                                                                <h4 class="mb-0">
+                                                                    No data for the selected time range
+                                                                </h4>
+
+                                                            </div>
+                                                        </div>
+                                                        <% } %>
+
+
+                                        </div>
+                                        <div class="text-center"><a href="" class="">View All</a></div>
+                                        
+                                        
+                                        Account User 
+                                        
+                                        
+                                        <div class="d-flex align-items-center justify-content-start w-25"
+                                                        style="line-height: 1;">
+                                                        <div
+                                                            class="logo d-flex justify-content-center align-items-center pr-2 pl-1">
+                                                            <i class="fas fa-hospital-alt"
+                                                                style="font-size: 1.2rem;"></i>
+                                                        </div>
+                                                        <div class="details">
+                                                            <h4 class="mb-0" style="line-height: 1.2;">
+                                                                <% if(e.clinicname==null || e.clinicname=="" ) { %>
+                                                                    <%= "NO NAME" %>
+                                                                        <% } else { %>
+                                                                            <%= e.clinicname.toUpperCase() %>
+                                                                                <% } %>
+                                                            </h4>
+                                                            <p class="">
+
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="d-flex justify-content-end w-75">
+                                                        <div class="rounded border p-1 m-1">
+                                                            <h3 class="mb-0 text-center">
+                                                                <%= e.numberOfDevices %>
+                                                            </h3>
+                                                            <h6 class="mb-0 text-muted">DEVICES</h6>
+                                                        </div>
+                                                        <div class="rounded border p-1 m-1">
+                                                            <h3 class="mb-0 text-center">
+                                                                <%= e.numberOfUsers %>
+                                                            </h3>
+                                                            <h6 class="mb-0 text-muted">USERS</h6>
+                                                        </div>
+                                                        <div class="rounded border p-1 m-1">
+                                                            <h3 class="mb-0 text-center">
+                                                                <%= e.numberOfSessions %>
+                                                            </h3>
+                                                            <h6 class="mb-0 text-muted">SESSIONS</h6>
+                                                        </div>
+                                                        <div class="rounded border p-1 m-1">
+                                                            <h3 class="mb-0 text-center">
+                                                                <%= e.numberOfPatients %>
+                                                            </h3>
+                                                            <h6 class="mb-0 text-muted">PATIENTS</h6>
+                                                        </div>
+
+                                                    </div>

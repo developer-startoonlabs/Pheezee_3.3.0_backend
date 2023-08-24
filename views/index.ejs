@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Title</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body style="margin:0 auto; padding=0px;">
+    <div style="width:100%;height:80px;box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);background:#4ed282;">
+        <div style="float:left;height:100%;width:40%;">
+            <h1 style="color:white;margin:0;padding:20px;text-shadow: 1px 1px grey;">StartoonLabs Report</h1>
+        </div>
+        <div style="float:right;height:80px;width:60%;text-align:right;"><button id="getReport" style="width:20%;border-radius:75px;background:#32CD32;color:white;border:0px;">Get Report</button><input id="patientId" type="text" placeholder="patientId" style="width:20%;"><input id="phizioPassword" type="text" placeholder="phiziopassword"
+                style="width:20%;"><input id="phizioEmail" type="text" placeholder="phizioemail" style="width:20%;"></div>
+    </div>
+    <div id="searchView"></div>
+<div style="margin:0 auto; width:100%; height:300px;">
+    <canvas id="myChart" style="margin:0 auto; width:100%; height:600px;"> </canvas>
+        </div>
+</body>
+
+</html>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+
+
+        <script>
+      $(document).ready(function () {
+          $('#searchView').val()
+          $("#getReport").click(function () {
+              var patientId = $('#patientId').val();
+              var phizioEmail = $('#phizioEmail').val();
+              var phizioPassword = $('#phizioPassword').val();
+              if(!(patientId==""||patientId==null)) {
+                  var url = "/getreport/" + patientId+"/"+phizioEmail
+                function getReport(url) {
+  var win = window.open(url, '_blank');
+  win.focus();
+}
+getReport(url)
+
+              }
+              else{
+                  alert("patientId field should not be empty");
+                  return false;
+              }
+          });
+      });
+
+      var ctx = document.getElementById("myChart");
+      var chart = new Chart(ctx, {
+          // The type of chart we want to create
+          type: 'line',
+
+          // The data for our dataset
+          data: {
+              labels: [],
+              datasets: [{
+                  fill:false,
+                  label: "Total repetitions",
+                  backgroundColor: 'rgb(255, 99, 132)',
+                  borderColor: 'rgb(255, 99, 132)',
+                  data: [],
+              }
+              , {
+                  fill:false,
+                  label: "Strength",
+                  backgroundColor: 'rgb(255,165,0)',
+                  borderColor: 'rgb(255,165,0)',
+                  data: [],
+              }
+              ]
+          },
+
+          // Configuration options go here
+          options: {
+              responsive: true,
+              title: {
+                  display: true,
+                  text: 'Session Graph'
+              },
+              tooltips: {
+                  mode: 'index',
+                  intersect: false,
+              },
+              hover: {
+                  mode: 'nearest',
+                  intersect: true
+              },
+              scales: {
+                  xAxes: [{
+                      display: true,
+                      scaleLabel: {
+                          display: true,
+                          labelString: 'Sessions'
+                      }
+                  }],
+                  yAxes: [{
+                      display: true,
+                      scaleLabel: {
+                          display: true,
+                          labelString: 'Repetitions'
+                      }
+                  }]
+              },
+              plugins: {
+                  filler: {
+                      areas: [{
+                          from: 'start',
+                          to: 'end'
+                      }, {
+                          from: 3,
+                          to: 'origin'     // or 'start' (left or bottom) or 'end' (right or top)
+                      }]
+                  }
+              }
+          }
+      });
+
+      </script>

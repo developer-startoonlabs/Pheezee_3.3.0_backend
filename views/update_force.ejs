@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .page {
+            width: 21cm;
+            height: 30.1cm;
+            background-color: white;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 2cm;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .image-container {
+            position: relative;
+        }
+        .image {
+           width: 400px; /* Adjusted width */
+            height: 144px; /* Adjusted height */
+        }
+        .image-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .paragraph {
+            font-family: 'Roboto', sans-serif;
+            font-size:30px;
+            text-align: center;
+            /*font-weight: bold;*/
+            margin-right:0px;
+            margin-left:0px;
+        }
+    </style>
+    <title>A4 Size HTML Page with Image</title>
+</head>
+<body>
+    <div class="page">
+        <div class="image-container">
+            <img class="image" src="/icons/pheezeelogo.png" alt="Centered Image">
+        </div>
+        <p class="paragraph">Your current app version doesn’t work with the new report. Update your app via the Play Store to gain access to the report.</p>
+        <div class="image-container">
+             <a href="https://play.google.com/store/search?q=pheezee&c=apps&hl=en-IN">
+            <img class="image" src="/icons/playstore_log_upt.png" alt="Centered Image">
+            </a>
+        </div>
+    </div>
+</body>
+</html>

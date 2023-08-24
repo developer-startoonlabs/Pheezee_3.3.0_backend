@@ -1,0 +1,270 @@
+/* 
+*   First Row
+*/
+
+@media (min-width: 1400px) {
+	.firstRow,
+	.secondRow,
+	.thirdRow {
+		/*height: calc(100vh / 2.8) !important;*/
+	}
+}
+
+.firstRow .firstCard,
+.firstRow .firstCard .card-body {
+	height: 90%;
+	width: 100%;
+}
+
+.firstRow .firstCard div {
+	height: 100%;
+	width: 100%;
+}
+
+.firstRow .secondCard,
+.firstRow .secondCard .card-body {
+	background: transparent;
+	box-shadow: none !important;
+	width: 100%;
+	height: 100%;
+}
+
+.firstRow .secondCard .card-body .row {
+	width: 100%;
+	height: 45%;
+}
+
+.firstRow .secondCard .card-body .row div {
+	background-color: white;
+	box-shadow: 0px 1px 2px 1px rgb(154 154 204 / 22%);
+	width: 50%;
+	height: 100%;
+}
+
+.firstRow .thirdCard,
+.firstRow .thirdCard .card-body {
+	background: transparent;
+	box-shadow: none !important;
+	width: 100%;
+	height: 100%;
+}
+
+.firstRow .thirdCard .card-body .row {
+	width: 100%;
+	height: 45%;
+}
+
+.firstRow .thirdCard .card-body .row div {
+	background-color: white;
+	box-shadow: 0px 1px 2px 1px rgb(154 154 204 / 22%);
+	width: 50%;
+	height: 100%;
+}
+
+.firstRow .fourthCard {
+	width: 100%;
+	height: 90%;
+}
+
+.firstRow .fourthCard .card-body {
+	height: 100%;
+}
+
+/* .firstRow .fourthCard .card-body .row {
+	width: 100%;
+	height: 100%;
+} */
+
+.firstRow .fourthCard .card-body .revenueSecondRow {
+	background-color: white;
+	width: 100%;
+}
+
+.firstRow .firstCard h1,
+.firstRow .secondCard h1,
+.firstRow .thirdCard h1 {
+	font-size: 3rem;
+}
+
+.firstRow .firstCard h3,
+.firstRow .secondCard h3,
+.firstRow .thirdCard h3 {
+	font-size: 20px;
+}
+
+.secondRow {
+	background-color: white;
+	margin-bottom: 1rem;
+	width: 100%;
+	z-index: -11111;
+}
+
+.secondRow .deviceActivity, .secondRow .userActivity {
+	width: 100%;
+	height: 28%;
+	box-shadow: 0px 1px 2px 1px rgb(154 154 204 / 22%);
+	margin-top: 1vh;
+	margin-bottom: 1vh;
+}
+
+.secondRow h1 {
+	font-size: 3rem;
+}
+
+.thirdRow .topUsersHead,
+.thirdRow .topAccountsHead {
+	font-size: 3vh;
+}
+
+.thirdRow h3 {
+	font-size: 2em;
+}
+
+.thirdRow .totalPatients,
+.thirdRow .topAccounts .card,
+.thirdRow .topUsers .card,
+.thirdRow .topAccounts,
+.thirdRow .topUsers {
+	width: 100%;
+	height: 100%;
+}
+
+.thirdRow .topAccounts .card-body,
+.thirdRow .topUsers .card-body {
+	height: 100%;
+}
+
+.thirdRow .topAccounts .card-body .topAccountsHead,
+.thirdRow .topUsers .card-body .topUsersHead {
+	height: 20%;
+	padding-top: 0.5rem;
+}
+.thirdRow .topAccounts .card-body > .rounded,
+.thirdRow .topUsers .card-body > .rounded {
+	height: 65%;
+}
+.thirdRow .topAccounts .card-body > .text-center,
+.thirdRow .topUsers .card-body > .text-center {
+	height: 15%;
+}
+
+/* Device Report Page */
+
+.deviceReport .deviceActivityCard,
+.deviceReport .deviceActivityCard .card-body {
+	background-color: transparent;
+	box-shadow: none;
+	height: 100%;
+}
+
+.deviceReport .deviceActivityCard .card-body {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.deviceReport .deviceActivity div {
+	background-color: white;
+	box-shadow: 0px 1px 2px 1px rgb(154 154 204 / 22%);
+}
+
+.deviceReport .deviceActivity h1 {
+	font-size: 3.2rem;
+}
+
+.deviceReport .deviceActivity h3 {
+	font-size: 1.2em;
+	line-height: 1.2;
+}
+
+.deviceReport .deviceActivity h5 {
+	line-height: 1;
+}
+
+.tooltip-info {
+	padding: 0.2em 0.4em;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	background-color: rgb(0, 125, 209);
+	color: white;
+	font-size: 0.8em;
+	vertical-align: middle;
+	margin: 0 auto;
+	cursor: context-menu;
+	font-weight: 100;
+}
+
+/* User Report Page */
+
+.userReport .userActivityCard,
+.userReport .userActivityCard .card-body {
+	background-color: transparent;
+	box-shadow: none;
+	height: 100%;
+}
+
+.userReport .userActivityCard .card-body {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.userReport .userActivity div {
+	background-color: white;
+	box-shadow: 0px 1px 2px 1px rgb(154 154 204 / 22%);
+}
+
+.userReport .userActivity h1 {
+	font-size: 3.2rem;
+}
+
+.userReport .userActivity h3 {
+	font-size: 1.2em;
+	line-height: 1.2;
+}
+
+.userReport .userActivity h5 {
+	line-height: 1;
+}
+
+/* Reference */
+.reference {
+	line-height: 0.8;
+	font-size: 13px;
+}
+
+.reference div {
+	width: 11px;
+	height: 11px;
+	border: 1px solid #b4b4b4;
+	margin: auto 0.2em;
+}
+
+.reference .less {
+	background-color: rgb(241, 243, 244);
+}
+.reference .medium {
+	background-color: rgb(113, 201, 248);
+	border: 1px solid rgb(113, 201, 248);
+}
+.reference .high {
+	background-color: rgb(0, 125, 209);
+	border: 1px solid rgb(0, 125, 209);
+}
+
+/* Custom Select */
+.custom-select {
+	color: #b4b4b4;
+}
+
+/* SVG Elements */
+
+.wday,
+.month {
+	fill: #b4b4b4;
+}
+
+hr {
+	border-top: 2px solid rgba(0, 0, 0, 0.2);
+}

@@ -1,0 +1,3615 @@
+<%
+var today = new Date();
+var dd = String(today.getDate()).padStart(2, '0');
+var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+var yyyy = today.getFullYear();
+
+today = mm + '/' + dd + '/' + yyyy;
+let romScale = [
+                      {name:"knee",range:150},
+                      {name:"shoulder",range:360},
+                      {name:"ankle",range:80},
+                      {name:"wrist",range:160},
+                      {name:"elbow",range:305},
+                      {name:"hip",range:240},
+                      {name:"forearm",range:100},
+                      {name:"spine",range:100}
+                    ]
+
+let emg_normative = {
+                "wrist_flex":106,
+                "wrist_ext":369,
+                "elbow_flex":350,
+                "elbow_ext":237,
+                "shoulder_flex":862,
+                "shoulder_ext":213,
+                "shoulder_abduction":1088, 
+                "shoulder_adduction":284,
+                "forearm_pronation":139, 
+                "forearm_supination":69,
+                'hip_flex':9,
+                "hip_ext":9,
+                "hip_adduction":116,
+                "hip_abduction":9,
+                'knee_flex':147,
+                'knee_ext':101,
+                'ankle_plantarflex':92,
+                'ankle_dorsiflex':349,
+                'ankle_inversion':157,
+                'ankle_eversion':202,
+                'thoracic_flex':121,
+                'thoracic_lateralflex':75,
+                'thoracic_ext':100,
+                'thoracic_rot':176,
+                'lumbar_flex':314,
+                'lumbar_lateralflex':88,
+                'lumbar_ext':66,
+                'lumbar_rot':93,
+                'abdomen_flex':180,
+                'abdomen_rot':112,
+                'abdomen_lateralflex':111,
+}
+var romScale1 = {"kneeflexion":140,"kneeextension":140,"shoulderextension":45,"shoulderflexion":180,"shoulderabduction":180,"shoulderadduction":180,"shoulderlateral rotation":90,"shouldermedial rotation":70,"shoulderelevation":40,"shoulderdepression":10,"ankleinversion":40,"ankleeversion":20,"ankleplantarflexion":45,"ankledorsiflexion":20,"wristflexion":80,"wristextension":70,"wristulnar deviation":45,"wristradial deviation":20,"elbowflexion":145,"elbowextension":145,"hipflexion":125,"hipextension":10,"hipabduction":45,"hipadduction":10,"hiplateral rotation":45,"hipmedial rotation":45,"forearmpronation":90,"forearmsupination":90,"spineflexion":75,"spineextension":30,"spinelateral flexion":35,"spinerotation":30,"abdomenflexion":75,"abdomenextension":30,"abdomenlateral flexion":35,"abdomenrotation":30,"lumbarflexion":75,"lumbarextension":30,"lumbarlateral flexion":35,"lumbarrotation":30,"thoracicflexion":75,"thoracicextension":30,"thoraciclateral flexion":35,"thoracicrotation":30,"elbowlateral rotation":90,"elbowmedial rotation":70};
+
+    var left=0
+    var right=0;
+
+      function getSessionStatus(bodyPart , trueValue)
+      {
+        if( trueValue < bodyPart.range*0.333)
+        {
+          return "Bad" // red
+        }if( trueValue > bodyPart.range*0.666) return "Good" // greenb
+
+        return "Average"
+        // blue
+      }
+
+      function getTrueRange(maxangle,minangle)
+      {
+        return parseInt(maxangle)-parseInt(minangle);
+      }
+
+      function getSessionStatusInt(value)
+      {
+        if(value==0){
+          return "Good" // green
+        }
+        else if(value==1){
+          return "Average"
+          // blue
+        }
+        else{
+          return "Bad" // red
+        }
+      }
+  
+  function get_name(name)
+  {
+    result = name.substr(0,1).toUpperCase() + name.substr(1,name.length);
+    
+    while(result.substr(result.length-1,result.length) == " ")
+    {
+      result = result.substr(0,result.length-1);
+    }
+    
+    return result;
+  }
+  
+  function getTotalSessionTime()
+  {
+        let temp = 0;
+        report[0].sessiondetails.map((e,i)=>{
+           let min = parseInt(e.sessiontime.substring(0,2));
+           let sec = parseInt(e.sessiontime.substring(5,7));
+           let totalseconds  = (min*60)+sec;
+           temp+=totalseconds;
+        });
+
+        var h = Math.floor(temp / 3600);
+        var m = Math.floor(temp % 3600 / 60);
+        var s = Math.floor(temp % 3600 % 60);
+        var hDisplay = h > 0 ? h + (h == 1 ? "h" : " h:") : "";
+        var mDisplay = m > 0 ? m + (m == 1 ? "m:" : "m:") : "00m: ";
+        var sDisplay = s > 0 ? s + (s == 1 ? "s" : "s") :"00s";
+        return hDisplay + mDisplay + sDisplay; 
+      }
+
+      function get_date()
+      {
+        let temp = 0;
+    var first_part;
+    var second_part;
+
+     let Overall_session = JSON.parse(JSON.stringify(overallreport[0].sessiondetails));
+     
+     var sesssion_list=[];
+      var session_list_key={};
+
+    Overall_session.forEach((element)=>{
+          if(typeof(element.heldon)!='undefined')
+          {
+            if(!(element.heldon.substr(0,10) in session_list_key))
+            {
+              session_list_key[element.heldon.substr(0,10)] = 0;
+              sesssion_list.push(element.heldon.substr(0,10));
+            }
+          }
+         });
+
+    if(typeof(sesssion_list[sesssion_list.length-2])!='undefined')
+    {
+     first_part = new Date(sesssion_list[sesssion_list.length-2]).toDateString().split(' ').slice(1).join(' ');
+    second_part = new Date(sesssion_list[sesssion_list.length-2]).toDateString().substring(0,3);
+    }else
+    {
+    return "-";
+    }
+    
+        return first_part; 
+      }
+  
+
+  function get_session_recording(bodypart,exercisename,orientation,musclename,heldon)
+  {
+     let Overall_session = JSON.parse(JSON.stringify(overallreport[0].sessiondetails));
+     
+     let counter = 0;
+     let final=0;
+     Overall_session.forEach((element)=>{
+         if(element.bodypart.toLowerCase()==bodypart.toLowerCase() && element.exercisename.toLowerCase()==exercisename.toLowerCase() && element.orientation.toLowerCase()==orientation.toLowerCase() && element.musclename.toLowerCase()==musclename.toLowerCase()){
+          counter= counter+1;
+
+      if(element.heldon == heldon)
+      {
+        final = counter;
+        return final;
+      
+        
+      }
+          }
+         });
+    return final;
+       
+    
+  }
+  
+  function get_hold_time(holdtime)
+  {
+  
+    var secounds = holdtime.split(":");
+    var int_min = parseInt(secounds[0].replace('m',''));
+    var int_secounds = parseInt(secounds[1].replace('s',''));
+
+    if(int_min > 0){ 
+      return int_min + 'm'+ ':' + int_secounds + 's'
+    }else
+    {
+      return int_secounds + 's'
+    }
+  
+  }
+
+      function increasedRom(min,max,lastmin,lastmax)
+      {
+        var a = parseInt(max)-parseInt(min);
+        var b = parseInt(lastmax)-parseInt(lastmin);
+        var c =a-b
+        return c;
+      }
+
+      function Gained_Rom(max,min,i)
+      {
+        var a = parseInt(max)-parseInt(min);
+        var b = parseInt(lastsessions[i].maxangle)-parseInt(lastsessions[i].minangle);
+
+        result = a;
+
+        if(result>360)
+          {
+            result= 360;
+          }
+
+        if(result<0)
+        {
+          return 0
+        }else if(isNaN(result))
+        {
+          return 0
+        }
+        else{
+
+          return result;
+        }
+       
+      }
+      
+
+      function increasedEmg(max, lastmax)
+      {
+        return parseInt(max)-parseInt(lastmax);
+      }
+
+
+      function get_avgMaxEmg(heldon)
+      {
+        let vartemp="";
+        for(let i =0; i < python_variables.length;i++)
+        {
+
+          if(python_variables[i].download_time_stamp == heldon)
+          {
+            return Math.round(python_variables[i].avgmaxemg) 
+          }
+          // vartemp = python_variables[i].download_time_stamp
+        }
+        return "-"
+        
+      }
+      
+      // For getting max ROM
+      function get_MaxROM(heldon)
+      {
+        let vartemp="";
+        for(let i =0; i < python_variables.length;i++)
+        {
+
+          if(python_variables[i].download_time_stamp == heldon)
+          {
+            return Math.round(python_variables[i].rom_max)+"°"
+          }
+          // vartemp = python_variables[i].download_time_stamp
+        }
+        return "-"
+        
+      }
+
+      function get_avgMaxROM(heldon)
+      {
+        let vartemp="";
+        for(let i =0; i < python_variables.length;i++)
+        {
+
+          if(python_variables[i].download_time_stamp == heldon)
+          {
+            return Math.round(python_variables[i].rom_avg_max)+"°"
+          }
+          // vartemp = python_variables[i].download_time_stamp
+        }
+        return "-"
+        
+      }
+      
+      // For getting min ROM
+      function get_MinROM(heldon)
+      {
+        let vartemp="";
+        for(let i =0; i < python_variables.length;i++)
+        {
+
+          if(python_variables[i].download_time_stamp == heldon)
+          {
+            return Math.round(python_variables[i].rom_min)+"°"
+          }
+          // vartemp = python_variables[i].download_time_stamp
+        }
+        return "-"
+        
+      }
+
+
+      function get_avgMinROM(heldon)
+      {
+        let vartemp="";
+        for(let i =0; i < python_variables.length;i++)
+        {
+
+          if(python_variables[i].download_time_stamp == heldon)
+          {
+            return Math.round(python_variables[i].rom_avg_min)+"°"
+          }
+          // vartemp = python_variables[i].download_time_stamp
+        }
+        return "-"
+        
+      }
+
+     function get_Speed(heldon,activetime,reps)
+     {
+        let vartemp="";
+        var active_time_list = activetime.split(':');
+        var active_min = parseInt(active_time_list[0].replace('m',''));
+        var active_sec = parseInt(active_time_list[1].replace('s',''));
+
+        var active_time_total = active_min*60 + active_sec;
+        var result = parseInt(reps)/active_time_total;
+        result =Math.round(result * 100) / 100
+
+        if(isNaN(result))
+        {
+          return 0 + 'reps/s'
+        }else if(result=='Infinity'){
+          return '-' + 'reps/s';
+        }else {
+          return result + 'reps/s';
+        }
+        for(let i =0; i < python_variables.length;i++)
+        {
+
+          if(python_variables[i].download_time_stamp == heldon)
+          {
+            return python_variables[i].velocity + 'reps/s'
+          }
+          // vartemp = python_variables[i].download_time_stamp
+        }
+        return "-"
+        
+      }
+
+      function overallRom(max, min)
+      {
+        // Max and Min is negative
+        // if(parseInt(min)<0 && parseInt(max)<0)
+        // {
+        //   return 0;
+        // }
+
+        // if(parseInt(min)<0 && parseInt(max)>0)
+        // {
+        //   return parseInt(max);
+        // }
+
+
+        var result = parseInt(max)-parseInt(min);
+
+        if(result>360)
+        {
+          result = 360;
+        }
+
+        if(result>0){
+          return result;
+        }
+        else return 0;
+      }
+
+      function overallRompie(max, min)
+      {
+        // Max and Min is negative
+        
+
+      
+
+
+        var result = parseInt(max)-parseInt(min);
+
+        if(result>360)
+        {
+          result = 360;
+        }
+
+        if(result>0){
+          return result;
+        }
+        else return result;
+      }
+
+      
+  
+  function overallRom_goalreached(max, min,ideal,heldon)
+  {
+        // Max and Min is negative
+
+         for(let i =0; i < python_variables.length;i++)
+        {
+
+          if(python_variables[i].download_time_stamp == heldon)
+          {
+            max= python_variables[i].rom_max;
+            min= python_variables[i].rom_min;
+          }
+          // vartemp = python_variables[i].download_time_stamp
+        }
+
+        // if(parseInt(min)<0 && parseInt(max)<=0)
+        // {
+        //   return 0;
+        // }
+
+        // if(parseInt(min)>=parseInt(ideal))
+        // {
+        //     return 0;
+        // }
+
+        // if(parseInt(min)<0 && parseInt(max)>0)
+        // {
+        //   return parseInt(max);
+        // }
+    
+    
+
+
+        var result = parseInt(max)-parseInt(min);
+
+        if(result>360)
+        {
+          result = 360;
+        }
+
+        if(result>0){
+          return result;
+        }
+        else return 0;
+      }
+
+function get_holdangle(holdangle)
+{
+
+        if (parseInt(holdangle)>0){
+        return holdangle+'°';
+        }
+        else return "-";
+      }
+
+
+      function joint_range(body,exercisename)
+      {
+
+        if (romScale1.hasOwnProperty(body.concat(exercisename))) {
+        return romScale1[body.concat(exercisename)];
+        }
+        else return 0;
+      }
+
+      function pie_range(user_angle,range)
+      {
+        var result = parseInt(360)-parseInt(user_angle);
+
+        if(result < 0)
+        {
+          return 0;
+        }
+        else return result;
+      }
+
+        function getOverall_goalreached()
+        {
+       
+        let total_goal=0;
+        let counter=0;
+
+        over_goal_reached=[];
+        report[0].sessiondetails.map((e,i)=>{
+
+           report[0].sessiondetails.map((h,j)=>{
+
+           if(python_variables[j].download_time_stamp==e.heldon)
+            {
+              let range = joint_range(e.bodypart.toLowerCase(),e.exercisename.toLowerCase())
+
+              
+              let user_range = overallRom(python_variables[j].rom_max,python_variables[j].rom_min);
+              // console.log(user_range)
+              if(user_range>range)
+              {
+                user_range = range;
+                
+              }
+              if(range!=0)
+              {
+                goal_percentage = (user_range/range)*100;
+                
+              }else goal_percentage=100;
+            over_goal_reached.push(goal_percentage);
+
+            total_goal = total_goal + goal_percentage;
+            counter = counter+1;
+
+            }
+          });       
+         
+        });
+
+
+
+        if(counter>0)
+        {
+        return Math.round(total_goal/counter); 
+      }else return 0;
+    }
+
+       function goalreached(ideal,user)
+       {
+        if(user<ideal)
+        {
+       return Math.round((user/ideal)*100);
+       }
+       else
+        return 100;
+       
+      }
+
+
+
+function calcTime() 
+{
+
+
+  // Offset for Bombay City
+   var offset = +0;
+  // create Date object for current location
+  var d = new Date(report[0].sessiondetails[0].heldon);
+
+
+  // convert to msec
+  // subtract local time zone offset
+  // get UTC time in msec
+  var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+
+  // create new Date object for different city
+  // using supplied offset
+  var nd = new Date(utc + (3600000*offset));
+  var nd_array = nd.toLocaleString().split(',');
+  var time = nd_array[1];
+  var am_pm = time.split(" ");
+  var am_pm_string = am_pm[2];
+  var time_array  = time.split(":")
+  var result = time_array[0] + ":" + time_array[1]+ " "  +am_pm_string;
+
+  // return time as a string
+  return result;
+}
+function comparision_Rom(min,max,last_min,last_max)
+{
+      var a= max-min;
+      var b= last_max-last_min;
+      var c= a-b;
+      if(c>0)
+      {
+        return "There is an increment in the ROM compared to your previous session by " + c + "° .";
+      }  
+      else if(c<0)
+      {
+        c= b-a;
+        return "There is a decrement in the ROM compared to your previous session by " + c + "° .";
+      }
+      else
+      {
+        return "The ROM is been constant compared to your previous session."
+      }
+}
+function coordination(coordination,exercisename,side,bodypart)
+{
+  if(coordination>0)    
+  return "Your " + side+" "+ bodypart + " " + exercisename + " movement is " + coordination + "% " + "coordinated."
+ else
+ return "The coordination is very poor."
+}
+
+function control_(control,exercisename,side,bodypart)
+{
+  if(control>0)    
+  return "Your " + side+" "+ bodypart + " " + exercisename + " movement is " + coordination + "% " + "controlled."
+ else
+ return "The control is very poor."
+}
+
+function consistency(consist,exercisename,side,bodypart)
+{
+  if(consist>0)    
+  return "Your " + side+" "+ bodypart + " " + exercisename + " movement has a consistency of "+ consist + "% . " 
+ else
+ return "The consistency is very poor."
+}
+
+function comparision_Emg(max,last_max)
+{
+      var a= max-last_max;
+     
+      if(a>0)
+      {
+        return "There is an increment in the EMG compared to your previous session by " + a + " uV.";
+      }  
+      else if(a<0)
+      {
+        a=last_max-max;
+        return "There is a decrement in the EMG compared to your previous session by " + a + " uV.";
+      }
+      else
+      {
+        return "The EMG is been constant compared to your previous session."
+      }
+}
+function getline(time) 
+{
+  var secounds = time.split(":");
+   var int_min = parseInt(secounds[0].replace('m',''));
+   var int_secounds = parseInt(secounds[1].replace('s',''));
+  if(int_secounds>30 || int_min>1)
+  {
+    return "*Displayed graph is recorded for first 30 seconds only.";
+  }
+  return ' ';
+ 
+
+    
+}
+function get_recordedtime(time)
+{
+  var secounds = time.split(":");
+   var int_min = parseInt(secounds[0].replace('m',''));
+   var int_secounds = parseInt(secounds[1].replace('s',''));
+  if (int_min<10)
+  {
+    int_min="0"+int_min;
+  }
+  if(int_secounds<10 && int_min>=1)
+  {
+    int_secounds="0"+int_secounds;
+  }
+   if(int_min > 0){
+    return int_min + 'm'+ ':' + int_secounds + 's';
+   }else if(int_min <= 0 && int_secounds > 30)
+   {
+    return int_secounds + 's';
+  }else
+  {
+    return int_secounds + 's'
+  }
+
+  
+}
+
+
+
+
+
+
+//function for pheezee score starts here
+
+function pheezee_score(x,arr){
+
+//const len = arr.length;
+// console.log('pyvariables_1_eeshan',x);
+  //var statements =' ';
+  //var avg_arr = [];
+
+ let consist = Number(x.consistency);
+ let smooth = Number(x.smoothness);
+ let contrl = Number(x.controlled);
+ if(contrl>5){
+  contrl=5;
+ }
+ let coord = Number(x.coordination);
+ let avg_value = 0;
+
+ if (x.type_of=='ni'){
+
+avg_value = (consist+smooth+contrl+coord)/4;
+ avg_value = Math.round((avg_value/5) * 100)
+// console.log('Average Value',avg_value);
+ //avg_arr.push(avg_value);
+}
+
+ else{
+
+  avg_value= (consist+smooth+contrl)/3;
+  avg_value = Math.round((avg_value/5) * 100)
+  // console.log('Average Value',avg_value);
+ //avg_arr.push(avg_value);
+}
+
+// console.log('avg_value_eeshan',avg_value);
+return avg_value;
+}
+
+//function for removing duplicate starts here
+
+ function RemoveDupli(arr){
+     arr.map(function (x,i){
+
+    arr.map(function (y,j){
+        if (arr[j].bodypart==arr[i].bodypart && arr[j].orientation==arr[i].orientation && arr[j].exercisename==arr[i].exercisename && arr[j].musclename==arr[i].musclename && arr[i].sessiontype == 'Active'){
+            
+            if (arr[j].maxemg>arr[i].maxemg){
+                arr.splice(i,1);
+                //console.log('spliced i index',arr); 
+            }
+                else if(arr[j].maxemg<arr[i].maxemg) {
+                    arr.splice(j,1);
+                    //console.log('spliced index index',arr);
+                }
+            }
+        }
+)
+}
+)
+return arr;
+ }
+ 
+ 
+ function new_goal_reached(reports_value){
+   let session_data = reports_value;
+   
+  let current_session_min_rom = session_data.map(function(x) { return x.minangle; });
+  let current_session_max_rom = session_data.map(function(x) { return x.maxangle; });   
+  
+  let current_session_maxangleselected_rom = session_data.map(function(x) { return x.maxangleselected; });
+  let current_session_minangleselected_rom = session_data.map(function(x) { return x.minangleselected; });
+   let current_session_max_sub_min = current_session_max_rom.map(function(n, i) { return Math.abs(n - current_session_min_rom[i]); });
+  let current_target_max_sub_min = current_session_maxangleselected_rom.map(function(n, i) { return n - current_session_minangleselected_rom[i]; });
+  let goal_reached_array = current_session_max_sub_min.map(function(n, i) { return n / current_target_max_sub_min[i]; });
+    let goal_reached_arrays = goal_reached_array.map(function(value) {
+        if (isNaN(value)) {
+            return 1; // replace NaN with 0
+        } else {
+            return value; // keep non-NaN values as they are
+        }
+    });
+            console.log("goal_reached_array_before",goal_reached_arrays);
+         let goal_reached_array_before =  goal_reached_arrays.filter(n => n);
+        
+         let goal_reached_array_before_filter = goal_reached_array_before.map(num => num > 1  ? 1 : num);
+         console.log("goal_reached_array_before_filter",goal_reached_array_before_filter);
+         if(goal_reached_array_before_filter.length != 0){
+         let average = goal_reached_array_before_filter => goal_reached_array_before_filter.reduce((prev, curr) => prev + curr) / goal_reached_array_before_filter.length;
+         let final_output = Number(average(goal_reached_array_before_filter));
+         let perstage = final_output*100;
+         final_perstage =  Number(Math.round(perstage))
+        // console.log(final_perstage)
+         return final_perstage;
+        // return res.status(200).send(final_perstage.toFixed(0));
+         }else if(goal_reached_array_before_filter.length == 0){
+            final_perstage = Number(Math.round(0)); 
+            // return res.status(200).send(final_perstage.toFixed(0));
+            return final_perstage;
+         }
+  
+  // console.log("value_kranthi_kiran",current_session_min_rom);
+   
+   
+  // return 0;
+ }
+
+ //function for removin duplicate ends here
+
+
+// function for new statements hypermobility, muscle activity, repeat session starts here
+
+
+
+
+
+
+function eeshan_firstEMGtable(orientation,bodypart,exercisename,musclename,maxemg,arr,arr1,af) {
+  var current_side=orientation;
+  var affected_side=af;
+
+  var goodside = 0;
+  var cur_goodside_emg=0;
+  var goodside_emg=0;
+  var baseline_emg=0;
+  var baseline_goodside=0;
+  var arrow_id="";
+  var arrow_color="";
+  var new_emg_level;
+  var new_emg_uv="-";
+
+    for(let i=0; i<arr.length; i++){
+  if(arr[i].orientation != orientation && arr[i].bodypart==bodypart &&  arr[i].exercisename==exercisename && arr[i].musclename==musclename ){
+    cur_goodside_emg=Number(arr[i].maxemg);
+  }
+}
+
+  if(arr1!=0 )
+  {
+
+if(affected_side == current_side ) { 
+  for(let j=0; j<arr1.length; j++){
+  if(arr1[j].bodypart==bodypart &&  arr1[j].exercisename==exercisename && arr1[j].musclename==musclename ){
+    if(arr1[j].orientation==orientation ){
+         baseline_emg=Number(arr1[j].maxemg); 
+    }
+
+    if(arr1[j].orientation != orientation ){
+      goodside_emg=Number(arr1[j].maxemg);
+    }
+   }
+  }
+    if(cur_goodside_emg > goodside_emg){
+     goodside_emg=cur_goodside_emg;
+    }
+
+    if(goodside_emg !=0){
+       goodside = Math.floor((Number(maxemg)/goodside_emg)*100);
+         baseline_goodside=Math.floor((baseline_emg/goodside_emg)*100);
+    }
+   if(goodside >100){goodside="Healthy"}
+   if(baseline_goodside > 100){baseline_goodside="Healthy"}    
+
+} 
+
+else if(affected_side != current_side ) {
+  for(let j=0; j<arr1.length; j++){
+    if(arr1[j].orientation==orientation && arr1[j].bodypart==bodypart &&  arr1[j].exercisename==exercisename && arr1[j].musclename==musclename ){
+         baseline_emg=Number(arr1[j].maxemg);
+    }
+  }
+}
+  
+
+
+}
+if(goodside_emg > 0){new_emg_uv=goodside_emg+" uV"}
+if(Number(baseline_emg)>Number(maxemg)){arrow_id="Red-Downward"; arrow_color="#D22424";}else{arrow_id="Green-Upward"; arrow_color="#000000";}
+if(baseline_emg == 0){baseline_emg="-"};
+if(goodside_emg == 0){goodside_emg="-"}
+if(goodside == 0){goodside="-"}
+if(baseline_goodside == 0){baseline_goodside="-"}
+
+  return {
+innerfirst: goodside,
+innersecond: goodside_emg,
+innerthird: baseline_emg,
+innerbasegood: baseline_goodside,
+innerarrow: arrow_id,
+innerarrowcol: arrow_color,
+innernew_emg_uv:new_emg_uv,
+  };
+}
+
+function lastsessionemg(lastsession,maxemg){
+  let session_data = lastsession;
+  let current_session_max_rom = session_data.map(function(x) { return x.maxemg; });
+  current_session_max_rom.push(maxemg);
+  console.log("lastsession_kranthi",current_session_max_rom);
+  return current_session_max_rom;
+}
+
+
+
+function firstROMtable(orientation,bodypart,exercisename,musclename,arr,arr1,maxangle,minangle,maxselected){
+  var baseline_goodside_rom=0;
+  var goodside_rom=0;
+  var baseline_rom=0;
+  var cur_rom=0;
+  var rom_arrow_id="";
+  var rom_arrow_color=""; 
+
+ 
+  if(( maxangle>0 && minangle>0 )|| (maxangle<0 && minangle<0 ) ){    
+    cur_rom=Math.abs(maxangle)-Math.abs(minangle);
+    cur_rom = Math.abs(cur_rom);
+  } else{
+    cur_rom=Math.abs(maxangle);
+  }
+
+  goodside_rom=Math.floor((Number(cur_rom)/Number(maxselected))*100);
+  if( goodside_rom>100 ){ goodside_rom="Healthy"}
+
+  if(arr1!=0 ){
+    arr1.map(function (y,j){
+
+  if(arr1[j].orientation==orientation && arr1[j].bodypart==bodypart &&  arr1[j].exercisename==exercisename && arr1[j].musclename==musclename && exercisename!='Isometric'){
+    if((arr1[j].maxangle>0 && arr1[j].minangle>0)|| (arr1[j].maxangle<0 && arr1[j].minangle<0 ) ){             
+      baseline_rom=Math.abs(arr1[j].maxangle)-Math.abs(arr1[j].minangle);
+    } else{
+      baseline_rom=Math.abs(arr1[j].maxangle);
+    }
+   baseline_goodside_rom=Math.floor((baseline_rom/Number(maxselected))*100)
+  if( baseline_goodside_rom>100 ){baseline_goodside_rom="Healthy"}
+  } 
+})
+
+  }
+
+  if(cur_rom < baseline_rom){rom_arrow_id="Red-Downward"; rom_arrow_color="#D22424";}else{rom_arrow_id="Green-Upward"; rom_arrow_color="#00B286";}
+return{
+  innerbaserom:baseline_rom,
+  innergoodrom:goodside_rom,
+  innerbasegoodrom: baseline_goodside_rom,
+  innercurrom: cur_rom,
+  innerromarrow: rom_arrow_id,
+  innerromarrowcol: rom_arrow_color,
+};
+}
+
+
+function lastsessionrom(lastsession,maxangle,minangle){
+  let session_data = lastsession;
+  let current_range_gained;
+  let last_range_gained;
+  let arrROM=[];
+
+  session_data.map(function(x,i){
+
+  if((x.maxangle>0 && x.minangle>0)|| (x.maxangle<0 && x.minangle<0 )){ 
+    last_range_gained=Math.abs(Math.abs(x.maxangle)-Math.abs(x.minangle));
+}
+
+else{
+  last_range_gained=Math.abs(x.maxangle);
+}
+arrROM.push(Number(last_range_gained));
+})
+
+
+if((maxangle>0 && minangle>0)|| (maxangle<0 && minangle<0 )){ 
+  current_range_gained=Math.abs(Math.abs(maxangle)-Math.abs(minangle));
+}
+else{
+  current_range_gained=Math.abs(maxangle);
+}
+
+arrROM.push(Number(current_range_gained));
+console.log("current_range_gained",arrROM)
+  return arrROM;
+}
+function firstWeekFunction(orientation,bodypart,exercisename,musclename,heldon,arr,arr1){
+  var week_date1 =new  Date(heldon);
+  var week_date2 =0;
+  var diff_In_Weeks;
+  for(let j=0; j<arr1.length; j++){
+    if(arr1[j].orientation==orientation && arr1[j].bodypart==bodypart &&  arr1[j].exercisename==exercisename && arr1[j].musclename==musclename && exercisename!='Isometric'){   
+       week_date2 =new  Date(arr1[j].heldon);
+    }
+    break;
+  }
+  if(week_date2==0 )
+  { diff_In_Weeks = 0; } else{
+  var diff_In_Time =  week_date1.getTime() - week_date2.getTime();
+  var diff_In_Days = Math.ceil (diff_In_Time / (1000 * 3600 * 24));
+ diff_In_Weeks =  Math.floor(diff_In_Days/ 7);
+  //diff_In_Weeks=week_date2;
+  }
+return {
+  firstweek: diff_In_Weeks,
+  };
+}
+
+function eeshan_firstEMGtable(orientation,bodypart,exercisename,musclename,maxemg,arr,arr1,af) {
+  var current_side=orientation;
+  var affected_side=af;
+
+  var goodside = 0;
+  var cur_goodside_emg=0;
+  var goodside_emg=0;
+  var baseline_emg=0;
+  var baseline_goodside=0;
+  var arrow_id="";
+  var arrow_color="";
+  var new_emg_level;
+  var new_emg_uv="-";
+
+    for(let i=0; i<arr.length; i++){
+  if(arr[i].orientation != orientation && arr[i].bodypart==bodypart &&  arr[i].exercisename==exercisename && arr[i].musclename==musclename ){
+    cur_goodside_emg=Number(arr[i].maxemg);
+  }
+}
+
+  if(arr1!=0 )
+  {
+
+if(affected_side == current_side ) { 
+  for(let j=0; j<arr1.length; j++){
+  if(arr1[j].bodypart==bodypart &&  arr1[j].exercisename==exercisename && arr1[j].musclename==musclename ){
+    if(arr1[j].orientation==orientation ){
+         baseline_emg=Number(arr1[j].maxemg); 
+    }
+
+    if(arr1[j].orientation != orientation ){
+      goodside_emg=Number(arr1[j].maxemg);
+    }
+   }
+  }
+    if(cur_goodside_emg > goodside_emg){
+     goodside_emg=cur_goodside_emg;
+    }
+
+    if(goodside_emg !=0){
+       goodside = Math.floor((Number(maxemg)/goodside_emg)*100);
+         baseline_goodside=Math.floor((baseline_emg/goodside_emg)*100);
+    }
+   if(goodside >100){goodside="Healthy"}
+   if(baseline_goodside > 100){baseline_goodside="Healthy"}    
+
+} 
+
+else if(affected_side != current_side ) {
+  for(let j=0; j<arr1.length; j++){
+    if(arr1[j].orientation==orientation && arr1[j].bodypart==bodypart &&  arr1[j].exercisename==exercisename && arr1[j].musclename==musclename ){
+         baseline_emg=Number(arr1[j].maxemg);
+    }
+  }
+}
+  
+
+
+}
+if(goodside_emg > 0){new_emg_uv=goodside_emg+" uV"}
+if(Number(baseline_emg)>Number(maxemg)){arrow_id="Red-Downward"; arrow_color="#D22424";}else{arrow_id="Green-Upward"; arrow_color="#00B286";}
+if(baseline_emg == 0){baseline_emg="-"};
+if(goodside_emg == 0){goodside_emg="-"}
+if(goodside == 0){goodside="-"}
+if(baseline_goodside == 0){baseline_goodside="-"}
+
+  return {
+innerfirst: goodside,
+innersecond: goodside_emg,
+innerthird: baseline_emg,
+innerbasegood: baseline_goodside,
+innerarrow: arrow_id,
+innerarrowcol: arrow_color,
+innernew_emg_uv:new_emg_uv,
+  };
+}
+
+function hypermobility(arr,arr1)
+{
+  console.log("current_session_kranthi",arr);
+  console.log("last_session_kranthi",arr1);
+  
+  
+ 
+  try {
+    console.log("current_session_kranthi","Working");
+  if (arr1!=0){
+    
+    let Statments="";
+    var date1 = new  Date(arr1[0].heldon);
+    console.log("current_session_kranthi",date1);
+    var date2 = new  Date(arr[0].heldon);
+    var Difference_In_Time = date2.getTime() - date1.getTime();
+    var Difference_In_Days = Math.ceil(Difference_In_Time / (1000 * 3600 * 24));
+    
+    
+    arr = getnewtable(arr);
+    //arr = RemoveDupli(arr);
+    arr1 = getnewtable(arr1);
+    //arr1 = RemoveDupli(arr1);
+//console.log("Current session uniquie max",arr);
+//console.log("Last session uniquie max",arr1);
+
+arr.map(function (x,i){
+    arr1.map(function (y,j){
+        
+        
+        if (arr1[j].bodypart==arr[i].bodypart &&  arr1[j].exercisename==arr[i].exercisename && arr1[j].musclename==arr[i].musclename && arr[i].exercisename!='Isometric'){
+
+            
+          if(arr1[j].orientation==arr[i].orientation ){
+        
+            var current_normal_rom=arr[i].maxangleselected-arr[i].minangleselected;
+            //console.log( " current_normal_rom",current_normal_rom);
+
+
+            //algorithm for getting good ROM  for current session
+
+            if((arr[i].maxangle>0 && arr[i].minangle>0)|| (arr[i].maxangle<0 && arr[i].minangle<0)){
+                
+              var current_range_gained=Math.abs(Math.abs(arr[i].maxangle)-Math.abs(arr[i].minangle));
+          }
+          
+          else{
+              var current_range_gained=Math.abs(arr[i].maxangle);
+          }
+          
+          
+         // algorithm for getting good ROM  for last session
+          if((arr1[j].maxangle>0 && arr1[j].minangle>0)|| (arr1[j].maxangle<0 && arr1[j].minangle<0)){
+              
+              var last_range_gained=Math.abs(Math.abs(arr1[j].maxangle)-Math.abs(arr1[j].minangle));
+              //console.log("last_range_gained",last_range_gained);
+          }
+          
+          else{
+              var last_range_gained=Math.abs(arr1[j].maxangle);
+              //console.log("last_range_gained",last_range_gained);
+          }
+            
+            
+            
+            
+            
+            var current_ROMValue =  (Number(current_range_gained)/Number(current_normal_rom) * 100);
+            
+            var  last_ROMValue = (Number(last_range_gained)/Number(current_normal_rom) * 100);
+            var range_gained_change = Math.floor(current_ROMValue)-Math.floor(last_ROMValue);
+            
+            var joint_exercise_muscle = "\n  For "+ arr[i].bodypart + " joint " + arr[i].exercisename + " movement,\n";
+    
+            
+            
+            
+          
+             var current_EMG=arr[i].maxemg;
+             //console.log("current_EMG",current_EMG);
+             
+             var last_EMG=arr1[j].maxemg;
+             //console.log("last_EMG",last_EMG);
+             
+             var EMG_value_change = Math.floor(current_EMG)-Math.floor(last_EMG);
+             //console.log("EMG_value_change",EMG_value_change);
+            
+            
+
+            Statments=Statments+joint_exercise_muscle;
+            if(Number(current_normal_rom)!=0){
+
+            if ( range_gained_change<0){
+            if(current_ROMValue<100 && last_ROMValue<100){
+
+                let ROMStat = "\n The joint mobility of "+arr[i].orientation+" side decreased from " + Math.floor(last_ROMValue) + "% to " + Math.floor(current_ROMValue) +"% of healthy ROM in " + Difference_In_Days + " days. " 
+            Statments=Statments+ROMStat;}
+
+            else if(current_ROMValue<100 && last_ROMValue>100){
+
+              let ROMStat = "\n The joint mobility of "+arr[i].orientation+" side decreased from healthy to " + Math.floor(current_ROMValue) +"% of healthy ROM in " + Difference_In_Days + " days. " 
+          Statments=Statments+ROMStat;}
+
+          else if(current_ROMValue>100 && last_ROMValue>100){
+
+            let ROMStat = "\n The joint mobility of "+arr[i].orientation+" side is healthy.";
+            Statments=Statments+ROMStat;     
+                    
+            }
+          }
+            
+            else if (range_gained_change>0){
+
+              if(current_ROMValue<100 && last_ROMValue<100){
+                
+              let ROMStat = "\n The joint mobility of "+arr[i].orientation+" side increased from " + Math.floor(last_ROMValue) + "% to " + Math.floor(current_ROMValue) +"% of healthy ROM in " + Difference_In_Days + " days."
+            
+              Statments=Statments+ROMStat;}
+
+              else if(current_ROMValue>100 && last_ROMValue<100){
+                
+                let ROMStat = "\n The joint mobility of "+arr[i].orientation+" side increased from " + Math.floor(last_ROMValue) + "% of healthy ROM to healthy ROM in " + Difference_In_Days + " days."
+              
+                Statments=Statments+ROMStat;}
+
+                else if(current_ROMValue>100 && last_ROMValue>100){
+                
+                let ROMStat = "\n The joint mobility of "+arr[i].orientation+" side is healthy.";
+                
+                  Statments=Statments+ROMStat;}  
+
+            }
+
+            else{
+              let ROMStat = "\n The joint mobility of "+arr[i].orientation+" side did not change";
+            
+              Statments=Statments+ROMStat;
+            }
+              }
+          if ( EMG_value_change<0){
+          
+          EMGStat = "\n The EMG of "+arr[i].orientation+" side decreased from "+ Number(last_EMG) + "uV to " + Number(current_EMG) + "uV in " + Difference_In_Days + " days.";
+          Statments=Statments+EMGStat;
+          
+          }
+          else if (EMG_value_change>0){
+          EMGStat = "\n The EMG of "+arr[i].orientation+" side increased from "+ Number(last_EMG) + "uV to " + Number(current_EMG) + "uV in " + Difference_In_Days + " days.";
+          Statments=Statments+EMGStat;
+          }
+          else{
+            EMGStat = "\n The EMG of "+arr[i].orientation+" side did not change";
+            Statments=Statments+EMGStat;
+          }
+
+
+
+
+        }
+        
+        //end of same side loop
+
+        //start of opposite side loop
+        
+         if ( arr[i].orientation=='Left' && arr1[j].orientation=="Right" ){
+        
+           
+          var last_ref_EMG=arr1[j].maxemg;
+          var current_EMG=arr[i].maxemg;
+          //console.log('last_ref_EMG',last_ref_EMG);
+          console.log('current_EMG',current_EMG);
+          var current_ref_EMG_change =  (Number(current_EMG)/Number(last_ref_EMG) * 100);
+          //console.log('current_ref_EMG_change',current_ref_EMG_change);
+
+
+          
+          //var EMGStat = "\n The current max EMG of "+arr[i].orientation+" side is "  + Math.floor(current_ref_EMG_change)+"% of its reference side. "
+          //Statments=Statments+EMGStat;
+
+          if (current_ref_EMG_change<100){
+
+          
+            var EMGStat = "\n The current EMG of "+arr[i].orientation+" side is weaker than its reference side.";
+          }
+  
+          else{
+  
+            var  EMGStat = "\n The EMG of "+arr[j].orientation+" side is weaker than its reference side.";
+  
+          }
+
+
+
+
+
+          if((arr[i].maxangle>0 && arr[i].minangle>0)|| (arr[i].maxangle<0 && arr[i].minangle<0)){
+                
+            var current_ROM=Math.abs(arr[i].maxangle)-Math.abs(arr[i].minangle);
+        }
+        
+        else{
+            var current_ROM=Math.abs(arr[i].maxangle);
+        }
+        
+        
+        
+        if((arr1[j].maxangle>0 && arr1[j].minangle>0)|| (arr1[j].maxangle<0 && arr1[j].minangle<0)){
+            
+            var last_ref_ROM=Math.abs(arr1[j].maxangle)-Math.abs(arr1[j].minangle);
+            console.log("last_range_gained",last_range_gained);
+        }
+        
+        else{
+            var last_ref_ROM=Math.abs(arr1[j].maxangle);
+            console.log("last_range_gained",last_range_gained);
+        }
+
+        
+          //console.log('last_ref_ROM',last_ref_ROM);
+          //console.log('current_ROM',current_ROM);
+          var current_ref_ROM_change =  (Number(current_ROM)/Number(last_ref_ROM) * 100);
+          //console.log('current_ref_ROM_change',current_ref_ROM_change);
+        
+          if (current_ref_ROM_change<100){
+
+          
+          var ROMStat = "\n The current ROM of "+arr[i].orientation+" side is weaker than its reference side.";
+        }
+
+        else{
+
+          var ROMStat = "\n The current ROM of "+arr[i].orientation+" side is stronger than its reference side.";
+
+        }
+          
+          Statments=Statments+EMGStat+ROMStat;
+            
+          
+      }
+        }
+}
+  )
+}
+)
+  console.log('Statements',Statments);
+  return Statments;
+}
+
+
+}
+catch(err) {
+  let Statments2 = err;
+  console.log("Statments2",Statments2);
+  return Statments2;
+}
+}
+
+
+
+
+
+function patientage(dob){
+  let dateofbirth = dob;
+
+
+  if(dateofbirth.length > 3){
+  console.log("dob",dateofbirth)
+  var from = dateofbirth.split("/");
+var birthdateTimeStamp = new Date(from[2], from[1] - 1, from[0]);
+var cur = new Date();
+var diff = cur - birthdateTimeStamp;
+// This is the difference in milliseconds
+var currentAge = Math.floor(diff/31557600000);
+  return Number(currentAge);
+  }
+  else {
+    return dateofbirth;
+  }
+}
+
+function getnewtable(data){
+  // console.log("Testing_kranthi_data",data);
+  function removeDuplicates(inputArray) {
+    let outputArray = [];
+  
+    inputArray.forEach((item) => {
+      const duplicateItem = outputArray.find(
+        (i) =>  i.bodypart === item.bodypart && i.exercisename === item.exercisename && i.orientation === item.orientation && i.musclename === item.musclename
+      );
+  
+      if (duplicateItem) {
+        if (item.maxemg > duplicateItem.maxemg) {
+          outputArray = outputArray.map((i) =>
+            i === duplicateItem ? item : i
+          );
+        }
+      } else {
+        outputArray.push(item);
+      }
+    });
+  
+    return outputArray;
+  }
+  let return_value = removeDuplicates(data)
+  // console.log( "return value",return_value);
+  return return_value;
+}
+
+function formatDate(dateString) {
+  const months = {
+    Jan: '01',
+    Feb: '02',
+    Mar: '03',
+    Apr: '04',
+    May: '05',
+    Jun: '06',
+    Jul: '07',
+    Aug: '08',
+    Sep: '09',
+    Oct: '10',
+    Nov: '11',
+    Dec: '12'
+  };
+
+  const parts = dateString.split(' ');
+  const month = months[parts[0]];
+  const day = parts[1];
+  const year = parts[2];
+
+  let formattedDate = `${day}-${month}-${year}`;
+  
+  if(formattedDate == "undefined-undefined-undefined"){
+    formattedDate = "-"
+  }
+  
+  return formattedDate;
+}
+
+function formatDate2(dateString) {
+  // Split the date string by '/'
+  const dateParts = dateString.split('/');
+
+  // Reorder the date parts and join them with '-'
+  const formattedDate = dateParts[0] + '-' + dateParts[1] + '-' + dateParts[2];
+  
+  
+
+  return formattedDate;
+}
+
+function image_function(gender,injured){
+  let url;
+  let gender_side = gender;
+  let injured_side = injured;
+  console.log("666666666666666666666666666666",gender_side)
+ 
+  if(gender_side == "male" || gender_side == "m"){
+    if(injured_side == "Left"){
+      url = "/icons/body_img/male_left_body.jpeg"
+    }
+    if(injured_side == "Right"){
+       url = "/icons/body_img/male_right_body.jpeg"
+    }
+    if(injured_side == "Bi-Lateral"){
+      url = "/icons/body_img/male_bilateral_body.jpeg"
+    }
+     if(injured_side === undefined ){
+      url = "/icons/body_img/male_body_not.jpeg"
+    }
+  }
+  if(gender_side == "female" || gender_side == "f"){
+    if(injured_side == "Left"){
+      url = "/icons/body_img/female_left_body.jpeg"
+    }
+    if(injured_side == "Right"){
+       url = "/icons/body_img/female_right_body.jpeg"
+    }
+    if(injured_side == "Bi-Lateral"){
+      url = "/icons/body_img/female_bilateral_body.jpeg"
+    }
+     if(injured_side === undefined){
+      url = "/icons/body_img/female_body_not.jpeg"
+    }
+    
+  }
+  
+  
+  
+  
+  return url;
+}
+
+function text_function(gender,injured){
+  let url;
+  let gender_side = gender;
+  let injured_side = injured;
+  if(gender_side == "male" || gender_side == "m"){
+    if(injured_side == "Left"){
+      url = "Left Side (Affected side)"
+    }
+    if(injured_side == "Right"){
+       url = "Right Side (Affected side)"
+    }
+    if(injured_side == "Bi-Lateral"){
+      url = "Bi-Lateral (Affected side)"
+    }
+    if(injured_side === undefined){
+       url = "*Please Update (Affected side)"
+    }
+    
+  }
+   if(gender_side == "female" || gender_side == "f"){
+    if(injured_side == "Left"){
+      url = "Left Side (Affected side)"
+    }
+    if(injured_side == "Right"){
+       url = "Right Side (Affected side)"
+    }
+    if(injured_side == "Bi-Lateral"){
+      url = "Bi-Lateral (Affected side)"
+    }
+    if(injured_side === undefined){
+       url = "*Please Update (Affected side)"
+    }
+    
+  }
+  
+  return url;
+}
+
+
+
+
+function adherence(helod_date, report_date, date_of_joining){
+  let return_value;
+  let date_of_joining_data = date_of_joining;
+  // Input date string
+    var inputDate = date_of_joining_data;
+    
+    // Split the input date string into day, month, and year
+    var dateArray = inputDate.split("-");
+    var day = dateArray[0];
+    var month = dateArray[1];
+    var year = dateArray[2];
+    
+    // Format the date in "YYYY-MM-DD" format
+    var new_start_formattedDate = year + "-" + month + "-" + day;
+  let array_heldon_date = helod_date;
+  let array_report_date = report_date;
+  var dateObj = new Date(array_report_date);
+  var year = dateObj.getFullYear();
+  var month = String(dateObj.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  var day = String(dateObj.getDate()).padStart(2, '0');
+  var formattedDate = year + '-' + month + '-' + day;
+  
+  
+    
+  if(array_heldon_date != "0"){
+  let heldon_date_values_session =  array_heldon_date.map(function(x){return x.heldon.split(" ") [0]})
+  let heldon_date_values_arr=[...new Set(heldon_date_values_session)];
+      heldon_date_values_arr.push(formattedDate);
+      
+      function removeDatesWithin7Days(arrayOfDates) {
+          const dates = arrayOfDates.map(dateString => new Date(dateString));
+        
+          for (let i = 1; i < dates.length; i++) {
+            const diffInMs = Math.abs(dates[i] - dates[i - 1]);
+            const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+        
+            if (diffInDays < 7) {
+              dates.splice(i, 1);
+              i--; // Adjust the index after removal
+            }
+          }
+        
+          // Convert dates to formatted strings
+          const formattedDates = dates.map(date => date.toISOString().split('T')[0]);
+        
+          return formattedDates;
+        }
+        
+        // Example usage
+        const dates = heldon_date_values_arr;
+        const filteredDates = removeDatesWithin7Days(dates);
+        
+      
+      let start_date =  new_start_formattedDate;
+      let end_date = filteredDates[filteredDates.length - 1];
+      const date1 = new Date(start_date);
+      const date2 = new Date(end_date);
+
+      // Calculate the time difference in milliseconds
+      const timeDiff = Math.abs(date2.getTime() - date1.getTime());
+      
+      // Convert milliseconds to days
+      const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+      
+      let number_of_week = daysDiff/7;
+      
+      let nummber_of_exersises = filteredDates.length;
+      let percentage = nummber_of_exersises/number_of_week*100;
+      
+      if(percentage >= "100.00"){
+        percentage = 100.00;
+      }
+      
+      if(percentage == "Infinity"){
+        percentage = 100.00;
+      }
+  return_value = Math.round(percentage);
+  console.log("555555555555555555555555555",array_heldon_date);
+  }else if(array_heldon_date == "0"){
+    return_value = "100";
+  }
+  
+  console.log("5555555555555555555555555555555555555555",return_value);
+  
+  return return_value;
+
+}
+
+
+
+
+
+function hypermobility_no(current_session,arr2){
+  console.log("current_session_kranthi",current_session);
+  console.log("previous_session_kranthi",arr2);
+  let result = current_session.map(function(x) { return x.sessiondetails; });
+  let arr = result.flat();
+  const lastsession_array = arr2;
+  const isAllZero = lastsession_array.every(item => item === 0);
+
+
+
+
+
+if(isAllZero == true){
+ 
+
+  let Statments = "";
+  arr = getnewtable(arr);
+  //arr = RemoveDupli(arr);
+  
+
+  arr.map(function (x,i){
+    
+ 
+    
+
+
+  
+  
+    //Flexion Starts here 
+
+    if(x.exercisename == 'Flexion'){
+
+    
+
+    if (x.musclename=='Deltoid'){
+      normEMG = 680;
+      EMG = Number(x.maxemg);
+    
+     let EMGval= Math.floor((EMG/normEMG) * 100) ;
+     if (EMGval!=0){
+     if (EMGval<100){
+     Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;
+     }
+     else {
+      Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+     }
+    }
+  }
+
+  if (x.musclename=='Flexor Carpi Radialis' ){
+    normEMG = 108;
+    EMG = Number(x.maxemg);
+
+
+   let EMGval= Math.floor((EMG/normEMG) * 100);
+   if (EMGval!=0){
+   if (EMGval<100 ){
+    Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;    }
+    else {
+     Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+    }
+  }
+}
+
+if (x.musclename=='Biceps'){
+  normEMG = 236;
+  EMG = Number(x.maxemg);
+
+ let EMGval= Math.floor((EMG/normEMG) * 100);
+ if (EMGval!=0){
+ if (EMGval<100){
+  Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;  }
+  else {
+   Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+  }
+}
+}
+
+if (x.musclename=='Tensor Fasciae Latae'){
+  normEMG = 266;
+  EMG = Number(x.maxemg);
+
+ let EMGval= Math.floor((EMG/normEMG) * 100);
+ if (EMGval!=0){
+ if (EMGval<100){
+  Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;  }
+  else {
+   Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+  }
+}
+}
+
+
+// if (x.musclename=='Tensor Fasciae Latae'){
+//   normEMG = 266;
+//   EMGval = Number(x.maxemg);
+//   if (EMGval!=0){
+
+// let EMGval= Math.floor((EMGval/normEMG) * 100);
+// if (EMGval<100){
+//   Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;  }
+//   else {
+//   Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+//   }
+// }
+// }
+
+if (x.musclename=='Spinalis Thoracis'){
+  normEMG = 76;
+  EMGval = Number(x.maxemg);
+  console.log(EMG);
+ let EMGval= Math.floor((EMGval/normEMG) * 100);
+ if (EMGval!=0){
+ if (EMGval<100){
+  Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;  }
+  else {
+   Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+  }
+}
+}
+
+if (x.musclename=='Rectus Abdominis'  && x.bodypart=='Lumbar'){
+  normEMG = 127;
+  EMG = Number(x.maxemg);
+  
+  console.log(EMG);
+ let EMGval= Math.floor((EMG/normEMG) * 100);
+ if (EMGval!=0){
+ if (EMGval<100){
+  Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;  }
+  else {
+   Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+  }
+}
+}
+
+if (x.musclename=='Rectus Abdominis' && x.bodypart=='Abdomen'){
+  normEMG = 84;
+  EMG = Number(x.maxemg);
+  
+  console.log(EMG);
+ let EMGval= Math.floor((EMG/normEMG) * 100);
+ if (EMGval!=0){
+ if (EMGval<100){
+  Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;  }
+  else {
+   Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+  }
+}
+}
+
+
+}
+
+
+    // Flexion Ends here 
+
+    // Extension Starts here 
+
+    if(x.exercisename=='Extension')
+    {
+
+    if (x.musclename=='Latissimus Dorsi'){
+      normEMG = 140;
+      EMG = Number(x.maxemg);
+      console.log(EMG);
+    let EMGval= Math.floor((EMG/normEMG) * 100);
+    if (EMGval!=0){
+    if (EMGval<100){
+      Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;      }
+      else {
+       Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+      }
+    }
+    }
+
+    if (x.musclename=='Extensor Digitrum' ){
+      normEMG = 303;
+      EMG = Number(x.maxemg);
+      console.log(EMG);
+     let EMGval= Math.floor((EMG/normEMG) * 100);
+     if (EMGval!=0){
+     if (EMGval<100){
+      Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;      }
+      else {
+       Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+      }
+    }
+    }
+
+    if (x.musclename=='Triceps'){
+      normEMG = 148;
+      EMG = Number(x.maxemg);
+      console.log(EMG);
+     let EMGval= Math.floor((EMG/normEMG) * 100);
+     if (EMGval!=0){
+     if (EMGval<100){
+      Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;      }
+      else {
+       Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+      }
+    }
+    }
+    
+    if (x.musclename=='Gluteus Maximus' ){
+      normEMG = 134;
+      EMG = Number(x.maxemg);
+      console.log(EMG);
+     let EMGval= Math.floor((EMG/normEMG) * 100);
+     if (EMGval!=0){
+     if (EMGval<100){
+      Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;      }
+      else {
+       Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+      }
+    }
+    }
+    
+    if (x.musclename=='Rectus Femoris' ){
+      normEMG = 100;
+      EMG = Number(x.maxemg);
+      console.log(EMG);
+     let EMGval= Math.floor((EMG/normEMG) * 100);
+     if (EMGval!=0){
+     if (EMGval<100){
+      Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;      }
+      else {
+       Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+      }
+    }
+    }
+    
+    if (x.musclename=='Spinalis Thoracis'){
+      normEMG = 61;
+      EMG = Number(x.maxemg);
+      console.log(EMG);
+     let EMGval= Math.floor((EMG/normEMG) * 100);
+     if (EMGval!=0){
+     if (EMGval<100){
+      Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;      }
+      else {
+       Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+      }
+    }
+    }
+    
+    if (x.musclename=='Quadratus Lumborum'){
+      normEMG = 63;
+      EMG = Number(x.maxemg);
+      console.log(EMG);
+     let EMGval= Math.floor((EMG/normEMG) * 100);
+     if (EMGval!=0){
+     if (EMGval<100){
+      Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;      }
+      else {
+       Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+      }
+    }
+    }
+
+  }
+
+
+    // Extension Ends here 
+    
+
+ 
+
+  if (x.musclename=='Deltoid' && x.exercisename=='Abduction'){
+    normEMG = 708;
+    EMG = Number(x.maxemg);
+    console.log(EMG);
+  let EMGval= Math.floor((EMG/normEMG) * 100);
+  if (EMGval!=0){
+  if (EMGval<100){
+    Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;    }
+    else {
+     Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+    }
+  }
+
+  }
+
+  if (x.musclename=='Pectoralis Major' && x.exercisename=='Adduction'){
+    normEMG = 195;
+    EMG = Number(x.maxemg);
+    console.log(EMG);
+  let EMGval= Math.floor((EMG/normEMG) * 100);
+  if (EMGval!=0){
+  if (EMGval<100){
+    Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;    }
+    else {
+     Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+    }
+  }
+
+  }
+
+
+
+
+if (x.musclename=='Supinator (Deep)' && x.exercisename=='Supination'){
+  normEMG = 60;
+  EMG = Number(x.maxemg);
+  console.log(EMG);
+ let EMGval= Math.floor((EMG/normEMG) * 100);
+ if (EMGval!=0){
+ if (EMGval<100){
+  Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is '+  EMGval +' % of its ideal value.' ;  }
+  else {
+   Statments = Statments +' The peak EMG for ' + x.orientation +'  ' + x.musclename + '  '+ x.exercisename+ ' movement is healthy.' ;
+  }
+}
+}
+
+
+  var current_normal_rom=x.maxangleselected-x.minangleselected;
+
+  if(x.exercisename!='Isometric'){
+
+  
+
+  if(((x.maxangle>0 && x.minangle>0)|| (x.maxangle<0 && x.minangle<0)) && (Math.abs(x.maxangle)>Math.abs(x.minangle)) ){
+              
+    var current_range_gained=Math.abs(x.maxangle)-Math.abs(x.minangle);
+
+}
+
+else{
+    var current_range_gained=Math.abs(x.maxangle);
+ 
+}
+
+var current_ROMValue =  Math.floor((Number(current_range_gained)/Number(current_normal_rom) * 100));
+
+if(current_ROMValue!=0){
+  if (current_ROMValue>100){
+    Statments = Statments + 'The joint mobility for '+ x.musclename + ' '+ x.exercisename+ ' movement is  healthy.';
+  }
+  else{
+Statments = Statments + 'The joint mobility for '+ x.musclename + ' '+ x.exercisename+ ' movement is '+ current_ROMValue+" % of its healthy value. ";
+  }
+  }
+}
+
+
+
+
+
+
+  console.log('Statements',Statments);
+    
+}
+)
+  
+
+  return Statments;
+ 
+}
+}
+  %>
+
+<% if (typeof details === 'string' ) { %>
+<h2><%=details %></h2>
+<%} else if ( report[0].sessiondetails.length < 1 ){%>
+<h2>no records for today</h2>
+<%} else {%> <%const getPainScale = scale => {for (let i = 1; i <= 5; i++) {%>
+<% if(scale == i) { %>
+<img
+  src="/icons/<%= i %>.png"
+  style="background-color: yellow; border-radius: 100%"
+/>
+<% } else { %>
+<img
+  src="/icons/<%= i %>.png"
+  style="background-color: white; border-radius: 50%"
+/>
+<% } %> <%}};%> <%const getMMTGrading = grade => {for(var i=1; i <= 9; i++) {
+var x = i;
+var y = parseInt(grade.substring(0,1));
+var length = grade.length;
+if(y==1 && length==1){
+  y=1;
+}
+else if(y==1 && length>1){
+  y=2;
+}
+else if(length>1){
+  y=y*2;
+}
+else{
+  y=y+(y-1);
+}
+if(x!=1){
+  if(x%2==0){x=x/2;}
+  else{x=Math.round((x/2));}
+}
+%> <% if((grade.toString().substring(0,1).toLowerCase() === x.toString().toLowerCase()) && i==y) { %>
+<span
+  style="border: 1px #aaa solid; border-radius: 60%; padding: 0px; background-color: yellow;"
+  >&nbsp;<% if((i%2==0 && i>1) || i==2){%><%=x+"+"%><%} else if(i>1){%><%=x%><%}else{ %><%=x%><%}%>&nbsp;</span
+>
+<% } else { %>
+<span
+  style="border: 1px #aaa solid; border-radius: 60%; padding: 0px;  background-color: white;"
+  >&nbsp;<% if((i%2==0 && i>1) || i==2){%><%=x+"+"%><%} else if(i>1){%><%=x%><%}else{ %><%=x%><%}%>&nbsp;</span
+>
+<% } %> <% } }%>
+<html>
+  <head>
+    <link rel="stylesheet" href="/stylesheets/new_thermal_style.css" />
+    <link rel="stylesheet" href="/stylesheets/main.css" />
+
+    <script src="https://www.amcharts.com/lib/4/core.js"></script>
+    <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script type="text/javascript" src="/loading-bar.js"></script>
+<link rel="stylesheet" type="text/css" href="/loading-bar.css"/>
+<!--Rating Library-->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+
+
+
+  </head>
+  <style>
+
+   canvas{
+
+width:100pt !important;
+height:100pt !important;
+
+}
+</style>
+  <body>
+
+    <div class="page">
+        <output id="pievalue" style="display:none"><%=adherence(session_array_values, new Date(report[0].sessiondetails[0].heldon).toDateString().split(' ').slice(1).join(' '),formatDate2(details[0].phiziopatients[0].dateofjoin))%></output>
+      
+
+            <div class="header" style="height: 170px; display:flex; justify-content:space-around; align-items:center;"> 
+          <img src="/icons/thermal_pt/icon_new_thermal.png" style="width:120px; height:120px; border-radius:6px;">
+          <div style="font-size: 62px; color: #FFFFFF; font-weight:800px font-style:bold font-family: 'Roboto';">
+            <b>PHEEZEE REPORT</b>
+          </div>
+      </div>
+      
+      
+      
+            <div style="postion:relative; height: 270px;  display:flex; padding:0 50px 0;align-items:center; background-color:#FFFFFF !important; margin-top:80px;">
+        
+        <% if ( details[0].cliniclogo!= null ) { %>
+        <img src="<%= details[0].cliniclogo%>" style="width:200px; height:200px; border:1.4px solid:#002647; border-radius:5px;">
+         <%} else {%>
+         <img src="/icons/SVG/Defaultlogo.svg" style="width:200px; height:200px; border:1.4px solid:#002647; border-radius:5px;">
+         <%} %> 
+         
+         
+         
+         
+      <div style="width:auto; left:30px; position:relative;">
+        <% if (  typeof(details[0].clinicname) === "undefined" ) { %>
+        <p style="color:#000000;font-size:60px; font-family: 'Avenir'; font-weight:700px; letter-spacing: 4px;"><b>*Update clinic name*</b></p>
+         <%} else {%>
+         <p style="color:#000000 ; font-size:60px; font-family: 'Avenir'; font-weight:700px; letter-spacing: 4px;"><b><%= details[0].clinicname %></b></p>
+         <%} %> 
+         <% if (  typeof(details[0].phizioname) === "undefined" ) { %>
+        <p style="color:#000000 ; font-size:50px; font-family: 'Avenir'; font-weight:500px; letter-spacing: 3px;"><b>*Update Doctor Name*</b></p>
+         <%} else {%>
+         <p style="color:#000000; font-size:50px; font-family: 'Avenir'; font-weight:500px; letter-spacing: 3px;"><b>Dr.<%= details[0].phizioname %></b></p>
+         <%} %> 
+         <% if (  typeof(details[0].degree) === "undefined" ) { %>
+        <p style="color:#000000; font-size:40px; font-family: 'Avenir'; top:4pt;  font-weight:500px; letter-spacing: 1.5px;"><b>*Update Speciality*</b></p>
+         <%} else {%>
+         <p style="color:#000000;font-size:40px; font-family: 'Avenir';top:4pt; letter-spacing: 1.5px;"> <%= details[0].degree %></p>
+         <%} %> 
+         
+         
+         
+         
+         
+      </div>
+      </div>
+      
+  
+            <div style="postion:relative; height: auto;  display:flex; background-color:#FFFFFF !important; margin-top:80px;">
+            <div id="add-cont"
+                style="display: flex; flex-direction: row; align-items: center; justify-content: space-between ;padding: 0px;  width: inherit; height: 19px; left: 0px; margin-top: 22px;">
+            
+                <div class="add-col" style="width: 200px; height: 0px; border: 3px solid #CDCDCD;"></div>
+                <div id="add-name"
+                    style=" font-family: 'Avenir'; font-weight: 700; font-size: 45px; line-height: 19px; color: #000000; letter-spacing: 2px;"><b>&nbsp Patient's Details &nbsp</b>
+                  </div>
+                <div class="add-col" style="width: 210px; height: 0px; border: 3px solid #CDCDCD;"></div>
+            
+            </div>
+            </div>
+            
+           
+             <style>
+             .angry-child{
+               display: flex; align-items:center;
+             }
+      .angry-grid {
+         display: grid; 
+         top:20px;
+         position:relative;
+         grid-template-rows: 1fr 1fr 1fr;
+         grid-template-columns: 35%  65%;
+         padding-left:15px;
+         padding-right:10px;
+         gap: 0px;
+         height: 295px;
+         width: 100%;
+         margin-top: 50px;
+         
+      }
+        
+      #item-0 {
+      
+        
+         grid-row-start: 1;
+         grid-column-start: 1;
+         grid-row-end: 2;
+         grid-column-end: 2;
+         
+      }
+      #item-1 {
+      
+      
+         grid-row-start: 1;
+         grid-column-start: 2;
+      
+         grid-row-end: 2;
+         grid-column-end: 3;
+         
+      }
+      #item-2 {
+      
+         
+         grid-row-start: 2;
+         grid-column-start: 1;
+      
+         grid-row-end: 3;
+         grid-column-end: 2;
+         
+      }
+      #item-3 {
+      
+     
+         grid-row-start: 2;
+         grid-column-start: 2;
+      
+         grid-row-end: 3;
+         grid-column-end: 3;
+         
+      }
+      #item-4 {
+      
+        
+         grid-row-start: 3;
+         grid-column-start: 1;
+      
+         grid-row-end: 4;
+         grid-column-end: 2;
+         
+      }
+      #item-5 {
+      
+   
+         grid-row-start: 3;
+         grid-column-start: 2;
+      
+         grid-row-end: 4;
+         grid-column-end: 3;
+         
+      }
+      
+      
+    
+      
+      </style>
+         
+            <div class="angry-grid" style="width:inherit !important">
+              <div class="angry-child" id="item-0"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 30px; line-height: 35px; color: #000000; letter-spacing: 2px;"><b>Patient name</b></p></div>
+              <div class="angry-child" id="item-1"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 35px; line-height: 35px; color: #000000; letter-spacing: 2px;"><b><%= get_name(details[0].phiziopatients[0].patientname)%></b></p></div>
+              <div class="angry-child" id="item-2"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 30px; line-height: 35px; color: #000000; letter-spacing: 2px;"><b>Patient ID</b></p></div>
+              <div class="angry-child" id="item-3"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 35px; line-height: 35px; color: #000000; letter-spacing: 2px;"><b><%= details[0].phiziopatients[0].patientid %></b></p></div>
+              <div class="angry-child" id="item-4"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 30px; line-height: 35px; color: #000000; letter-spacing: 2px;"><b>Phone no.</b></p></div>
+              <div class="angry-child" id="item-5"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 35px; line-height: 35px; color: #000000; letter-spacing: 2px;"><b><%=details[0].phiziopatients[0].patientphone %></b></p></div>
+
+
+            </div>
+            
+            
+            <style>
+             .angry-child_t{
+               display: flex; align-items:center;
+             }
+      .angry-grid_t {
+         display: grid; 
+         top:20px;
+         position:relative;
+         grid-template-rows: 1fr 1fr ;
+         grid-template-columns: 35%  65%;
+         padding-left:15px;
+         padding-right:10px;
+         gap: 0px;
+         height: 180px;
+         width: 100%;
+         
+      }
+        
+      #item-0_t {
+      
+        
+         grid-row-start: 1;
+         grid-column-start: 1;
+         grid-row-end: 2;
+         grid-column-end: 2;
+         
+      }
+      #item-1_t {
+      
+      
+         grid-row-start: 1;
+         grid-column-start: 2;
+      
+         grid-row-end: 2;
+         grid-column-end: 3;
+         
+      }
+      #item-2_t {
+      
+         
+         grid-row-start: 2;
+         grid-column-start: 1;
+      
+         grid-row-end: 3;
+         grid-column-end: 2;
+         
+      }
+      #item-3_t {
+      
+     
+         grid-row-start: 2;
+         grid-column-start: 2;
+      
+         grid-row-end: 3;
+         grid-column-end: 3;
+         
+      }
+      
+      
+      
+    
+      
+      </style>
+         
+            <div class="angry-grid_t" style="width:inherit !important">
+              <div class="angry-child_t" id="item-0_t"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 30px; line-height: 35px; color: #000000; letter-spacing: 2px;"><b>Affected Side</b></p></div>
+              <div class="angry-child_t" id="item-1_t"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 35px; line-height: 35px; color: #000000; letter-spacing: 2px;"><b><%=details[0].phiziopatients[0].patientinjured %></b></p></div>
+              <div class="angry-child_t" id="item-2_t"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 30px; line-height: 40px; color: #000000; letter-spacing: 2px; "><b>Condition</b></p></div>
+              <div class="angry-child_t" id="item-3_t"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 35px; line-height: 35px; color: #000000; letter-spacing: 2px;"><b><%=details[0].phiziopatients[0].patientcasedes %>&nbsp-&nbsp<%=details[0].phiziopatients[0].patientcondition %></b></p></div>
+            
+            </div>
+            
+            
+            <div style="postion:relative;margin-top:60px; height: auto;  display:flex; background-color:#FFFFFF !important; ">
+            <div id="add-cont"
+                style="display: flex; flex-direction: row; align-items: center; justify-content: space-between ;padding: 0px;  width: inherit; height: 19px; left: 0px; margin-top: 22px;">
+            
+                <div class="add-col" style="width: 200px; height: 0px; border: 3px solid #CDCDCD;"></div>
+                <div id="add-name"
+                    style=" font-family: 'Avenir';  font-weight: 700; font-size: 45px; line-height: 19px; color: #000000; letter-spacing: 2px;"><b>&nbsp Session Details &nbsp</b>
+                   </div>
+                <div class="add-col" style="width: 210px; height: 0px; border: 3px solid #CDCDCD;"></div>
+            
+            </div>
+            </div>
+            
+            
+            
+                      <style>
+                      .angry-child-a{
+               display: flex; align-items:center;
+             }
+          .angry-grid-a {
+             display: grid; 
+             top:20px;
+             position:relative;
+              margin-top: 50px;
+             grid-template-rows: 1fr 1fr 1fr 1fr;
+             grid-template-columns: 1fr 1fr 1fr;
+             padding-left:20px;
+            padding-right:10px;
+             
+             gap: 0px;
+             height: 430px;
+             
+          }
+            
+          #item-0a {
+          
+            
+             grid-row-start: 1;
+             grid-column-start: 1;
+          
+             grid-row-end: 2;
+             grid-column-end: 2;
+             
+          }
+          #item-1a {
+          
+         
+             grid-row-start: 1;
+             grid-column-start: 2;
+          
+             grid-row-end: 2;
+             grid-column-end: 3;
+             
+          }
+          #item-2a {
+          
+           
+             grid-row-start: 2;
+             grid-column-start: 1;
+          
+             grid-row-end: 3;
+             grid-column-end: 2;
+             
+          }
+          #item-3a {
+          
+   
+             grid-row-start: 2;
+             grid-column-start: 2;
+          
+             grid-row-end: 3;
+             grid-column-end: 3;
+             
+          }
+          #item-4a {
+          
+             grid-row-start: 3;
+             grid-column-start: 1;
+          
+             grid-row-end: 4;
+             grid-column-end: 2;
+             
+          }
+          #item-5a {
+          
+             grid-row-start: 3;
+             grid-column-start: 2;
+          
+             grid-row-end: 4;
+             grid-column-end: 3;
+             
+          }
+          #item-6a {
+          
+             grid-row-start: 4;
+             grid-column-start: 1;
+          
+             grid-row-end: 5;
+             grid-column-end: 2;
+             
+          }
+          #item-7a {
+          
+             grid-row-start: 4;
+             grid-column-start: 2;
+          
+             grid-row-end: 5;
+             grid-column-end: 3;
+             
+          }
+          #item-8a {
+          
+             grid-row-start: 1;
+             grid-column-start: 3;
+          
+             grid-row-end: 5;
+             grid-column-end: 4;
+             
+          }
+          </style>
+           <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        
+        let pie_value = document.getElementById("pievalue");
+        let pie_number = pie_value.value;
+            pie_number = Number(pie_number)
+        let total = 100 - pie_number;
+        var data = google.visualization.arrayToDataTable([
+          ['Task', 'Hours per Day'],
+          ['Work',     pie_number],
+          ['Eat',      total],
+        ]);
+
+        var options = {
+            legend: 'none',
+            width: "220",
+            height:"220",
+            pieHole: 0.8,
+          colors: ['#002647', '#a9a9a9' ],
+          is3D: false,
+            pieSliceText: 'none',
+            pieSliceBorderColor: '#a9a9a9',
+            enableInteractivity: false,
+            chartArea: {
+                left: "3%",
+                top: "3%",
+                height: "94%",
+                width: "94%",
+                backgroundColor: 'transparent'
+            },
+
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+        chart.draw(data, options);
+      }
+      
+    </script>
+          
+          <div class="angry-grid-a">
+            <div class="angry-child-a" id="item-0a"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 30px; line-height: 19px; color: #000000; letter-spacing: 2px;"><b>Session Date</b></p></div>
+            <div class="angry-child-a" id="item-1a"><p style="font-family: 'Avenir'; font-weight: 700; font-size: 30px; line-height: 19px; color: #000000;  letter-spacing: 2px;"><%=formatDate(new Date(report[0].sessiondetails[0].heldon).toDateString().split(' ').slice(1).join(' '))%></p></div>
+            <div class="angry-child-a" id="item-2a"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 30px; line-height: 19px; color: #000000; letter-spacing: 2px;">Session no.</p></div>
+            <div class="angry-child-a" id="item-3a"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 30px; line-height: 19px; color: #000000; letter-spacing: 2px;"><%= sessionNo %></p></div>
+            <div class="angry-child-a" id="item-4a"><p style="font-family: 'Avenir'; font-weight: 700; font-size: 30px; line-height: 19px; color: #000000;  letter-spacing: 2px;">Date of Joining</p></div>
+            <div class="angry-child-a" id="item-5a"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 30px; line-height: 19px; color: #000000; letter-spacing: 2px;"><%=formatDate2(details[0].phiziopatients[0].dateofjoin)%></p></div>
+            <div class="angry-child-a" id="item-6a"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 30px; line-height: 19px; color: #000000; letter-spacing: 2px;">Last Session</div>
+            <div class="angry-child-a" id="item-7a"><p style="font-family: 'Avenir';  font-weight: 700; font-size: 30px; line-height: 19px; color: #000000; letter-spacing: 2px;"><%=formatDate(get_date())%></div>
+            <div class="angry-child-a" id="item-8a" style="flex-direction:column; padding-top:70px;"><div><div id="piechart"></div></div><p style="font-family: 'Avenir'; font-weight: 700; font-size: px; line-height: 19px; color: #000000; margin-top:25px; letter-spacing: 2px; position:relative; bottom:140px;"><%=adherence(session_array_values,new Date(report[0].sessiondetails[0].heldon).toDateString().split(' ').slice(1).join(' '),formatDate2(details[0].phiziopatients[0].dateofjoin))%>%</p><p style="font-family: 'Avenir'; font-style: normal; font-weight: 700; font-size: 25px; line-height: 19px; color: #000000; margin-top:10px; letter-spacing: 2px;">Adherence</p></div>
+            
+          
+          </div>
+          
+          <div id="add-cont"
+                style="display: flex; flex-direction: row; align-items: center; justify-content: space-between ;padding: 0px;  width: inherit; height: 19px; left: 0px; margin-top: 150px;">
+            
+                <div class="add-col" style="width: 200px; height: 0px; border: 3px solid #CDCDCD;"></div>
+                <div id="add-name"
+                    style=" font-family: 'Avenir';  font-weight: 700; font-size: 45px; line-height: 19px; color: #000000; letter-spacing: 2px;"><b>Progress Summary</b>
+                  </div>
+                <div class="add-col" style="width: 180px; height: 0px; border: 3px solid #CDCDCD;"></div>
+            
+            </div>
+          </div>
+          
+          
+          
+          
+          
+          
+          
+          
+          <div class ="page">
+            
+             <div style="postion:relative;margin-top:10px; height: auto;  display:flex; background-color:#FFFFFF !important; ">
+            
+            <style>
+          .human-body {
+                width: 290px;
+                position: relative;
+                /*padding-top: 50px;*/
+                height: 800px;
+                display: block;
+                margin: 40px auto;
+            }
+    
+            </style>
+            
+              
+        
+            
+            
+            
+            
+            </div>
+          
+          
+            
+            <div class="human-body">
+              
+              
+              <img src="<%= image_function(details[0].phiziopatients[0].patientgender.toLowerCase(), details[0].phiziopatients[0].patientinjured)%>" style="position: absolute; width:400px; height:800px;top:5pt; bottom:5pt;">
+              
+              
+                    
+          </div>
+      
+         <p style="font-family: 'Avenir'; font-weight: 700; font-size: 30px; line-height: 19px; color: #000000; margin-top:50px; letter-spacing: 2px; text-align: center;"><%= text_function(details[0].phiziopatients[0].patientgender.toLowerCase(), details[0].phiziopatients[0].patientinjured)%></p>
+            
+            
+         
+         
+            
+      </div>
+      
+     
+      
+      
+   
+
+
+      
+      
+
+ 
+
+     
+
+
+
+
+
+
+   
+     
+        
+      
+      <!-- Report Details -->
+   
+      <!-- <P><%=getnewtable(report[0].sessiondetails)%></P>  -->
+    
+    
+      
+
+
+   
+
+
+    <!-- PAGE 2 -->
+    <% console.log("To test the file")%>
+    
+ 
+
+
+    
+
+      
+      <!--PAGE 2/3 based on number of sessions-->
+
+    <!-- ----------------- -->
+    <!-- starts loop for patient details  -->
+    <!-- --------------------------- -->
+    <% report[0].sessiondetails.map((e,i)=>{ %>
+    
+
+  <div class="page" style="position:relative;">
+    
+      <div class="header" style="height: 170px; display:flex; justify-content:center; align-items:center;"> 
+         
+          <div style="font-size: 45px; color: #FFFFFF; font-weight:800px font-style:bold font-family: 'Roboto';  display:flex; flex-direction:column;justify-content:center; align-items:center;">
+            <b><p><%=e.bodypart%> | <%=e.musclename%> | <%=e.exercisename%></p></b>
+             <p><%=e.orientation.substr(0,5)%> (<%=e.bodyorientation%>) </p>
+             
+          </div>
+      </div>
+      
+       <div style="postion:relative; height: 270px;  display:flex; padding:0 50px 0;align-items:center; background-color:#FFFFFF !important;">
+        
+        
+          <img src="/icons/SVG/<%=e.bodypart.toLowerCase()%><%=e.exercisename.toLowerCase()%><%=e.orientation.substr(0,5).toLowerCase()%>.svg" style="width:220px; height:220px; border:2.0px solid #BEBEBE; border-radius:5px;">
+         
+        
+         
+         
+      <div style="width:auto; left:30px; position:relative;">
+        <% if ( e.exercisename != "Isometric" ) { %>
+          <p style="color:#062545; font-size:40px; font-family: 'Roboto'; font-weight:500px">Range : <%=e.minangle%>° to <%=e.maxangle%>°</p>
+         <%} %>  
+         
+         <p style="color:#062545; font-size:40px; font-family: 'Roboto'; font-weight:500px">Peak EMG : <%=e.maxemg%>uV</p>
+         <p style="color:#062545; font-size:40px; font-family: 'Roboto'; font-weight:500px">Repetitions : <%=e.numofreps%></p>
+         
+         
+      </div>
+      </div>
+      
+      
+
+     <p id="add-name" style=" font-family: 'Roboto'; font-style: normal; font-weight: 700; text-align:center; font-size: 40px; line-height: 19px; color: #707070; margin-top:60px; margin-bottom:40px;">
+                     Progress Summary</p>
+
+
+<% if(lastsessions_array[i]!=0) { %> 
+        <output id="elementId<%=i%>" style="display: none;"><%=lastsessionemg(lastsessions_array[i],e.maxemg)%></output>
+        <output id="elementId2<%=i%>" style="display: none;"><%=lastsessionrom(lastsessions_array[i],e.maxangle,e.minangle)%></output>
+        <output id="emgId<%=i%>" style="display: none;"><%=eeshan_firstEMGtable(e.orientation,e.bodypart,e.exercisename,e.musclename,e.maxemg,report[0].sessiondetails,lastsession_array_new,details[0].phiziopatients[0].patientinjured).innersecond%></output>
+        <% } %>
+
+
+
+
+<% if(lastsessions_array[i]!=0) { %> 
+                    <% if((get_session_recording(e.bodypart,e.exercisename,e.orientation,e.musclename,e.heldon)) > 1) { %>
+                    
+                  <div>
+
+         
+                    
+                    
+             <div id="emg" style="position: relative; width: inherit; top:50px;height: 400px; border: 1.4px solid white !important; border-radius: 10px; padding: 3px 0 0; box-sizing: border-box;">
+
+                <div style="position: relative; width:inherit;margin-top: 0; z-index: 1; display:flex; align-items: center; justify-content:center">
+                    <!--<div style="width:21.2px; height: 15.7px; display:flex; align-items: center; justify-content: center;">-->
+                    <!--    <img src="/icons/new-images/EMG.png" alt="" style=" height: 100%; width: 100%;">-->
+                    <!--</div>-->
+                    <!--<div style=" font-family: 'Avenir'; font-style: normal; font-weight: 700; font-size: 22px;height: 24px; line-height: 24px;color: #012E57; margin-left: 10px;">EMG</div>-->
+                </div>
+                <div id="topemg-graph<%=i%>" style="width: inherit; height: 400px; margin-top: 0px;"></div>
+                <p style="position: absolute; z-index: 1;width: 40px; top:0px; bottom: 20px; margin-left:100px; text-align: right;font-family: 'Avenir';font-style: normal;font-weight: 600;font-size: 35px;text-align: center;color: #000000;;"><b>EMG&nbsp<%=e.maxemg%>&nbspuV</b></p>
+                <div style="position: absolute; z-index: 1; top:126px; margin-left: 30px;font-family: 'Avenir';font-style: normal;font-weight: 400;font-size: 18px;text-align: center;color: #012E57;"><%=eeshan_firstEMGtable(e.orientation,e.bodypart,e.exercisename,e.musclename,e.maxemg,report[0].sessiondetails,lastsession_array_new,details[0].phiziopatients[0].patientinjured).innersecond%><br><span style="font-size: 16px;">Healthy</span></div>
+                <div style="position: absolute; z-index: 1;top:286px; margin-left:200px;font-family: 'Avenir'; font-style: normal; font-weight: 400; font-size: 20px;  color: #A6A6A6;">Baseline</div>
+                <div style="position: absolute; z-index: 1; top: 286px; margin-left: 585px;font-family: 'Avenir';font-style: normal;font-weight: 400;font-size: 20px;text-align: center;color: #595959;">Week&nbsp<%=firstWeekFunction(e.orientation,e.bodypart,e.exercisename,e.musclename,e.heldon,report[0].sessiondetails,lastsessions_array[i]).firstweek%></div>
+          
+                    <script>
+
+
+
+                      google.charts.load('current', {
+                          'packages': ['corechart']
+                      });
+                    
+                        google.charts.setOnLoadCallback(drawChart);
+                    
+                      
+                    
+                    
+                      function drawChart() {
+
+                        
+                        let last_EMG_Arr=document.getElementById("elementId<%=i%>");
+                        let numberArray=last_EMG_Arr.value;
+
+                        let last_arry=[];
+
+                        var myArray=numberArray.split(",");
+                        for( let i=0; i<myArray.length; i++)
+                        {
+                          last_arry.push(Number(myArray[i]));
+                        }
+
+                        let good_out=document.getElementById("emgId<%=i%>");
+                        let goodemg_out=good_out.value;
+                        if(goodemg_out=="-"){goodemg_out=0;}
+                        goodemg_out=Number(goodemg_out);
+                
+
+                          var datatopemg = new google.visualization.DataTable();
+                          datatopemg.addColumn('number', 'x');
+                          datatopemg.addColumn('number', 'y');
+                          datatopemg.addColumn('number', 'color band 0');
+                          datatopemg.addColumn('number', 'color band 1');
+                          datatopemg.addColumn('number', 'color band 2');
+                          datatopemg.addColumn('number', 'color band 3');
+                    
+                
+
+                          var y = last_arry;
+                          if(y.length > 2){
+                          datatopemg.addRow([0, , goodemg_out,y[0] ,y[y.length-1],0]);
+                          datatopemg.addRow([1, y[0], goodemg_out,y[0] ,y[y.length-1],0]);
+                          for (var i = 2; i <y.length; i++) {
+                              datatopemg.addRow([i, y[i-1], goodemg_out, , y[y.length-1],0]);
+                          }
+                          datatopemg.addRow([y.length, y[y.length-1], goodemg_out, , y[y.length-1],y[y.length-1]]);
+                          datatopemg.addRow([y.length+1, , goodemg_out, , , 0]);
+                          maxshow=y.length+1;
+                        }
+
+                          if(y.length < 3){
+                          maxshow=4;
+                          datatopemg.addRow([0, , goodemg_out,y[0] , y[y.length-1],0]);
+                          datatopemg.addRow([1, y[0], goodemg_out,y[0] , y[y.length-1],0]);
+                          datatopemg.addRow([2, (y[0]+y[1])/2, goodemg_out, , y[y.length-1],0]);
+                          datatopemg.addRow([3, y[1], goodemg_out, ,y[y.length-1],y[y.length-1]]);
+                          datatopemg.addRow([4, , goodemg_out, , , 0]);
+                        }
+
+                    
+                    
+                          var optionstopemg = {
+                              //height: 200,
+                              //width: 600,
+                              isStacked: true,
+                              backgroundColor: 'transparent',
+                              bar: {groupWidth: '1'} ,
+                              legend: {
+                                    //position: 'bottom',
+                                    alignment: 'start',
+                                    textStyle: {
+                                        fontSize: 14
+                                    },
+                                },
+                              hAxis: {
+                                  //ticks: [0, 20, 40],
+                                  // ticks: [0,1,2,3,4] ,
+                                  titleTextStyle: {
+                                      italic: false
+                                  },
+                                  textStyle: {
+                                  color: 'white' 
+                                  },
+                                  //title: 'Time (s)',
+                                  format: '# ',
+                                  viewWindow: {
+                                  min: 0, 
+                                  max: maxshow 
+                                  },
+                                  gridlines: {
+                                      color: 'transparent'
+                                  },
+                                  baselineColor: 'black'
+                    
+                              },
+                              chartArea: {
+                                  left: 90,
+                                  top: 30,
+                                  height: 250,
+                                  width: "80%",
+                                  backgroundColor: 'transparent'
+                                  
+                              },
+                    
+                              vAxis: {
+                                  //ticks: [0, 200, 400],
+                                  textStyle: {
+                                  color: 'white' 
+                                  },
+                                  format: '# ',
+                                  viewWindow: {
+                                  min: 0, 
+                                  },
+                                  gridlines: {
+                                      color: 'transparent'
+                                  },
+                                  baselineColor: 'black'
+                              },
+                              enableInteractivity: false,
+                    
+                    
+                              series: {
+                                  0: {
+                                    visibleInLegend: false,
+                                      type: 'line',
+                                      curveType: 'function',
+                                      lineWidth: 2,
+                                      color: '#000000'
+                    
+                                  },
+                                  1: {
+                                      lineDashStyle: [6, 4],
+                                      type: 'line',
+                                      lineWidth: 0.4,
+                                      color: '#1E1E1E', 
+                                      visibleInLegend: false,                   
+                                  },
+                                  2: {
+                                    visibleInLegend: false,
+                                       lineDashStyle: [6, 4],
+                                      type: 'line',
+                                      lineWidth: 0.4,
+                                      color: '#E6E6E6',                    
+                                  },
+                                  3: {
+                                       lineDashStyle: [6, 4],
+                                      type: 'line',
+                                      lineWidth: 0.4,
+                                      color: '#E6E6E6',
+                                      visibleInLegend: false,                    
+                                  },
+                                  4: {
+                                    visibleInLegend: false,
+                                      type: 'bars',
+                                      // lineWidth: 0.5,
+                                      color: 'white',   
+                                      // width: 2
+                                  },
+                    
+                    
+                              }
+                          };
+                      
+                    
+                    
+                      var charttopemg = new google.visualization.LineChart(document.getElementById('topemg-graph<%=i%>'));
+                       
+                       charttopemg.draw(datatopemg, optionstopemg);
+                      }
+  
+                    </script>
+              </div>
+                  <% } %>
+                                
+               </div>
+               <% } %>
+               
+               
+              <% if(lastsessions_array[i]==0) { %> 
+                
+                  <div id="chartemg<%=i%>"
+                        style="height: 400px;z-index:0 ;width: inherit;box-sizing: border-box;margin-top: 15px;"></div>
+                    <% } %>
+                    
+                    
+                    
+
+<div style="display:none;">
+  
+
+
+<!-- ENDING THE EXP1 -->
+    <!-- Starting EXP2 -->
+    <div style="height: 195pt;display: flex">
+   <!--ROM Graph-->
+      <div style="width: 424.1pt;height: 195pt;background-color:#FFFFFF !important;border: 3px solid #D4D4D4;position: relative; top:-2.5pt;border-width:  3px 3px 3px 0px;" >
+      <p style="color:#062545;font-family: 'Avenir';font-size: 14pt;position: relative;padding-left: 22pt;padding-top: 20pt;">Range of Motion (°)</p>
+          <div id="chartrom<%=i%>" class="chart" style="width: 410pt;height: 120pt;"></div>
+          <p style="color:#062545;font-family: 'Avenir';font-size: 10pt;position: relative;padding-left: 12pt;padding-bottom: 12pt;"> </p>
+        
+          <p style="color:#062545;font-family: 'Avenir';font-size: 10pt;position: relative;padding-left: 22pt;padding-bottom: 20pt;"><%=getline(e.sessiontime)%></p>
+        
+      </div>
+      
+                <!--ROM Details-->
+
+       <div style="width: 180pt;height: 195pt;">
+      
+      
+
+       <center>
+     <!-- <div id="rom_pie" class="chart" style="width: 100pt;height: 100pt;position: absolute;top:100pt;"></div> -->
+
+           <div id="rom_pie<%=i+1%>" style="height: 180pt; width: 180pt;position: relative;top:15pt;left:5pt;">
+
+
+          </div>
+         <p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 14pt;position: relative;top:-160pt;left:7pt;">ROM Details</p> 
+
+        <table class="table2" style=" border-collapse: collapse;position: relative;top:-30pt;">
+          
+          <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 10px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Time Recorded</td>
+              <td style="padding-left: 50px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=get_recordedtime(e.sessiontime)%></td> <!--Time Calculating for 30 sec-->
+              
+              </tr>
+            
+            <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 10px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Range Gained</td>
+              <td id="ranged_gained<%=i%>" style="padding-left: 50px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=Gained_Rom(e.maxangle,e.minangle,i)%>°</td>
+            </tr>
+            <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 10px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Initial ROM</td>
+              <td style="padding-left: 50px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=get_MinROM(e.heldon)%></td>
+            </tr>
+            <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 0px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Final ROM</td>
+              <td style="padding-left: 50px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=get_MaxROM(e.heldon)%></td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 20px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Target ROM</td>
+              <td style="padding-left: 30px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=e.minangleselected%>° to <%=e.maxangleselected%>°</td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 20px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Normal ROM</td>
+              <td style="padding-left: 30px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'">0° to <%=joint_range(e.bodypart.toLowerCase(),e.exercisename.toLowerCase())%>°</td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 30px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Repetitions</td>
+              <td style="padding-left: 50px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"></td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 30px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Rep Speed</td>
+              <td style="padding-left: 25px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=get_Speed(e.heldon,e.activetime,e.numofreps)%> </td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 30px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Hold Time</td>
+              <td style="padding-left: 30px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=get_hold_time(e.holdtime)%></td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 30px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Hold Angle</td>
+              <td style="padding-left: 50px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=get_holdangle(e.holdangle) %></td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 30px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Active Time</td>
+              <td style="padding-left: 30px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=e.activetime%></td>
+              </tr>
+        
+
+        </table>
+      </center>
+      </div>
+        
+     
+      </div>
+      <!-- Ending EXP2 -->
+      
+      <!-- Starting EXP3 -->
+      <div style="height: 145pt;width:424pt;display: flex;position: relative;top:-2pt;border: 3px solid #D4D4D4; border-width:  0px 3px 0px 0px;">
+    
+
+        <!--Goal reached -->
+        <div style="width: 168pt;height: 146pt;border: 3px solid #D4D4D4;position: relative; border-width:  0px 3px 3px 0px;top:-1pt;" >
+         <p style="color:#062545 !important;position: relative;top:5pt;text-align: center;font-size:14pt; font-family: 'Avenir';">Goal Reached</p>
+         <hr style="float:left;width:110pt;border: 1.5px solid #FFFFFF !important; opacity: 0">
+           <div style="position:relative;left:40pt;height:90pt;width:90pt;top:-20pt;"
+      class="ldBar label-center"
+      data-value="<%=goalreached(joint_range(e.bodypart.toLowerCase(),e.exercisename.toLowerCase()),overallRom_goalreached(e.maxangle,e.minangle,joint_range(e.bodypart.toLowerCase(),e.exercisename.toLowerCase()),e.heldon))%>"
+      data-preset="circle"
+      ></div>
+         
+        </div>
+
+        <!-- Python Variables table -->
+        <div style="width: 254pt;height: 145pt;border: 3px solid #D4D4D4; border-width:  0px 0px 3px 0px;display: flex;flex-direction: column;" >
+          <div style="width:100%;height:25%;border: 3px solid #D4D4D4; border-width:  0px 0px 3px 0px;">
+           <p style="color:#062545 !important;font-size:14pt; font-family: 'Avenir';position:relative;top:6pt;left:8pt;">Consistency </p>
+         <div id="consistency_rating<%=i%>" style="position:relative;left: 53%;font-size:16pt;bottom:12pt"></div>
+          </div>
+
+          <div style="width:100%;height:25%;border: 3px solid #D4D4D4; border-width:  0px 0px 3px 0px;">
+          <p style="color:#062545 !important;font-size:14pt; font-family: 'Avenir';position:relative;top:6pt;left:8pt;">Control </p>
+           <div id="controlled_rating<%=i%>" style="position:relative;left: 53%;font-size:16pt;bottom:12pt"></div>
+          </div>
+
+          <div style="width:100%;height:25%;border: 3px solid #D4D4D4; border-width:  0px 0px 0px 0px;">
+          <p style="color:#062545 !important;font-size:14pt; font-family: 'Avenir';position:relative;top:6pt;left:8pt;">Smoothness</p>
+          <div id="smoothness_rating<%=i%>" style="position:relative;left: 53%;font-size:16pt;bottom:12pt"></div>
+          </div>
+
+          <div style="width:100%;height:25%;border: 3px solid #D4D4D4; border-width:  3px 0px 0px 0px;">
+          <p style="color:#062545 !important;font-size:14pt; font-family: 'Avenir';position:relative;top:6pt;left:8pt;">Co-Ordination</p>
+          <div id="coordination_rating<%=i%>" style="position:relative;left: 53%;font-size:16pt;bottom:12pt"></div>
+          </div>
+
+        </div>
+
+      </div>
+        <!-- Starting EXP3 -->
+
+      <!-- Starting EXP4 -->
+        <!--Remarks -->
+        <div style="width: 424pt;height: 197pt;border: 3px solid #D4D4D4;border-width:  0px 3px 0px 0px;position: relative;top:-2pt;" >
+
+        
+    <p style="color:#062545;font-family: 'Avenir';font-size: 14pt;text-align: center;position: relative;top:12pt;">Physio Remarks</p>
+    
+    <p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 10pt;position:absolute;left:22.5pt;bottom: 170px;">MMT</p>
+    <p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 14pt;position:absolute;left:147.5pt;bottom: 170px;"><%=e.mmtgrade%></p>
+
+    <p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 10pt;position:absolute;left:263.31pt;bottom: 170px;">Type</p>
+    <p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 14pt;position:absolute;left:364.31pt;bottom: 170px;"><%= e.sessiontype%></p>
+    
+    
+    <!--<p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 10pt;position:absolute;left:22.5pt;bottom: 130px;"><b>TherapistName:</b></p>-->
+    <!--<p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 10pt;position:absolute;left:95.5pt;bottom: 130px;"></p>-->
+    
+    <p style="color:#062545;font-family: 'Avenir';font-size: 10pt;position:absolute;left:22.5pt; right: 22.5pt; bottom: 80px; word-break: break-all; white-space: normal; line-height: 2.5rem;"><%= e.commentsession %></p>
+
+      <hr style="width:146pt;height:1px;border-width:0;color:#D4D4D4 !important;background-color:#D4D4D4 !important;position:absolute;left:22.5pt;top:52pt;">
+      <hr style="width:146pt;height:1px;border-width:0;color:#D4D4D4 !important;background-color:#D4D4D4 !important;position:absolute;left:262.5pt;top:52pt;">
+      
+      <hr style="width:386pt;height:1px;border-width:0;color:#D4D4D4 !important;background-color:#D4D4D4 !important;position:absolute;top:82pt;left:22.5pt;">
+      <hr style="width:386pt;height:1px;border-width:0;color:#D4D4D4 !important;background-color:#D4D4D4 !important;position:absolute;top:113pt;left:22.5pt;">
+      <hr style="width:386pt;height:1px;border-width:0;color:#D4D4D4 !important;background-color:#D4D4D4 !important;position:absolute;top:144pt;left:22.5pt;">
+    
+     
+        </div>
+        
+      <!-- Starting EXP4 -->        
+       <!-- Footer for Page-3 --> 
+
+    <div style="width: 100%;height: 29pt;background-color:#062444 !important;float:bottom;position:absolute;bottom:0pt">
+    <p style="color:#FFFFFF !important;text-align: center;font-size:11pt; font-family: 'Avenir';position:relative;top:6pt"><%if(details[0].phiziopatients[0].patientgender.toLowerCase() == 'male' || details[0].phiziopatients[0].patientgender.toLowerCase() == 'm'){%>Mr. <%}else {%> Ms. <%}%> <%= details[0].phiziopatients[0].patientname.substr(0,1).toUpperCase()%><%= details[0].phiziopatients[0].patientname.substr(1,details[0].phiziopatients[0].patientname.length)%> </p></div>
+     <p style="color:#FFFFFF !important;text-align: right;font-size:11pt; font-family: 'Avenir';position:absolute;bottom:5pt;right:5pt;"> Page <%if(report[0].sessiondetails.length < 13) { %> <%=i+2%>/<%=report[0].sessiondetails.length+2%> <% } %> <%if(report[0].sessiondetails.length >= 13) { %> <%=i+3%>/<%=report[0].sessiondetails.length+3%> <% } %> </p>
+      
+      <p style="color:#FFFFFF !important;text-align: left;font-size:11pt; font-family: 'Avenir';position:absolute;bottom:5pt;left: 5pt;">Report downloaded on <%= new Date(today).toDateString().split(' ').slice(1).join(' ')%> </p>
+
+  
+  
+      </div>
+      </div>
+
+
+<script>
+
+google.charts.load('current', {packages: ['corechart', 'line']});
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(drawBackgroundColor);
+google.charts.load('current', {packages: ['corechart', 'bar']});
+
+// Co-Ordination Start
+var coordination_value = 0;
+<% report[0].sessiondetails.map((h,j)=>{ %>
+
+
+if('<%=python_variables[j].download_time_stamp%>' == '<%= e.heldon%>')
+{
+  var coordination_value=Math.round(<%=python_variables[j].coordination%>);
+  var overall_range_gained_30sec = <%=python_variables[j].velocity%>
+  document.getElementById("ranged_gained<%=i%>").innerHTML = overall_range_gained_30sec + '°';
+
+}
+//e.heldon == download_time_s.lengthtamp[j]
+
+<%});%>
+
+
+if(coordination_value ==1){
+document.getElementById("coordination_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+} else if(coordination_value ==2){
+document.getElementById("coordination_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+} else if(coordination_value ==3){
+document.getElementById("coordination_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+} else if(coordination_value ==4){
+document.getElementById("coordination_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span>'
+}else if(coordination_value ==5){
+document.getElementById("coordination_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span>'
+}
+else{
+document.getElementById("coordination_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}
+coordination_value=0;
+// Ending Co-Ordination
+
+
+//
+
+var consistency_value = 0;
+<% report[0].sessiondetails.map((h,j)=>{ %>
+
+
+if('<%=python_variables[j].download_time_stamp%>' == '<%= e.heldon%>')
+{
+  var consistency_value=Math.round(<%=python_variables[j].consistency%>);
+  var overall_range_gained_30sec = <%=python_variables[j].velocity%>
+  document.getElementById("ranged_gained<%=i%>").innerHTML = overall_range_gained_30sec + '°';
+
+}
+//e.heldon == download_time_s.lengthtamp[j]
+
+<%});%>
+
+
+if(consistency_value ==1){
+document.getElementById("consistency_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+} else if(consistency_value ==2){
+document.getElementById("consistency_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+} else if(consistency_value ==3){
+document.getElementById("consistency_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+} else if(consistency_value ==4){
+document.getElementById("consistency_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span>'
+}else if(consistency_value ==5){
+document.getElementById("consistency_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span>'
+}
+else{
+document.getElementById("consistency_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}
+consistency_value=0;
+
+//
+var smoothness_value = 0;
+<% report[0].sessiondetails.map((h,j)=>{ %>
+
+
+if('<%=python_variables[j].download_time_stamp%>' == '<%= e.heldon%>')
+{
+  smoothness_value=Math.round(<%=python_variables[j].smoothness%>);
+}
+//e.heldon == download_time_s.lengthtamp[j]
+
+<%});%>
+// Smoothness Element
+
+
+
+if(smoothness_value ==1){
+document.getElementById("smoothness_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}else if(smoothness_value ==2){
+document.getElementById("smoothness_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}else if(smoothness_value ==3){
+document.getElementById("smoothness_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}else if(smoothness_value ==4){
+document.getElementById("smoothness_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span>'
+}else if(smoothness_value ==5){
+document.getElementById("smoothness_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span>'
+}else{
+document.getElementById("smoothness_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked "></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}
+smoothness_value = 0;
+
+
+// Control Element
+var controlled_value=0;
+
+<% report[0].sessiondetails.map((h,j)=>{ %>
+
+
+if('<%=python_variables[j].download_time_stamp%>' == '<%= e.heldon%>')
+{
+  controlled_value=Math.round(<%=python_variables[j].controlled%>);
+}
+//e.heldon == download_time_s.lengthtamp[j]
+
+<%});%>
+
+
+
+if(controlled_value ==1){
+document.getElementById("controlled_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}else if(controlled_value ==2){
+document.getElementById("controlled_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}else if(controlled_value ==3){
+document.getElementById("controlled_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}else if(controlled_value ==4){
+document.getElementById("controlled_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span>'
+}else if(controlled_value >=5){
+document.getElementById("controlled_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span>'
+}else{
+document.getElementById("controlled_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}
+controlled_value=0;
+//
+activity_list_temp=[];
+let get_emg_raw<%=i+1%> = [];
+let get_rom_raw<%=i+1%> = [];
+<% report[0].sessiondetails.map((h,j)=>{ %>
+
+
+if('<%= download_time_stamp[j]%>' == '<%= e.heldon%>')
+{
+  get_emg_raw<%=i+1%> = "<%= download_result_emg[j]%>"; 
+  get_rom_raw<%=i+1%> = "<%= download_result_rom[j]%>";
+}
+//e.heldon == download_time_s.lengthtamp[j]
+
+<%});%>
+
+
+
+//get_emg_raw<%=i+1%> = "<%= download_result_emg[i]%>"; 
+emg_data_string<%=i+1%> = get_emg_raw<%=i+1%>.toString().split(",");
+emg_data_int<%=i+1%>= emg_data_string<%=i+1%>.map(Number);
+
+
+
+//get_rom_raw<%=i+1%> = "<%= download_result_rom[i]%>"; 
+rom_data_string<%=i+1%> = get_rom_raw<%=i+1%>.toString().split(",");
+rom_data_int<%=i+1%>= rom_data_string<%=i+1%>.map(Number);
+
+function drawBackgroundColor() {
+
+
+
+
+    var data<%=i+1%> = new google.visualization.DataTable();
+    data<%=i+1%>.addColumn('number', 'x');
+    data<%=i+1%>.addColumn('number', 'EMG');
+    data<%=i+1%>.addColumn('number', 'color band 1');
+    data<%=i+1%>.addColumn('number', 'color band 2');
+
+
+    for(var i = 0; i < 1500; i++){
+    
+      var emg_max_done=<%=e.maxemg%>;
+      var emg_target=Number(<%=e.maxemgselected%>);
+
+      if(emg_max_done > emg_target){
+       emg_target=0;
+      }else{
+        emg_target=emg_target-emg_max_done;
+      }
+
+
+    data<%=i+1%>.addRows([
+  [i*0.02,emg_data_int<%=i+1%>[i], emg_max_done, emg_target]
+    ]);
+
+    if(i>emg_data_int<%=i+1%>.length){break;}
+
+  }
+
+    var options = {
+     
+
+      isStacked: true,
+       legend: 'none',
+      hAxis: {
+        titleTextStyle: {italic: false},
+        textStyle: {
+        fontWeight: 'bold',
+         fontSize: 0,
+         color: 'white'
+      },
+        // title: 'Time (s)',
+        format:'# ',
+        gridlines: {
+          color: 'transparent'
+        },
+        baselineColor: 'white'
+
+      },
+       chartArea: {
+        left:50,
+        top:20,
+        height: 300,
+        width: "90%",
+      backgroundColor: {
+          stroke: 'black',
+          strokeWidth: 3
+        },
+      
+
+      },
+      
+      vAxis: {
+        textStyle: {
+        fontWeight: 'bold',
+        fontSize: 0,
+         color: 'white'
+      },
+        viewWindowMode: 'explicit',
+      viewWindow: {
+          min: 0,
+      },
+        format:'# ',
+        gridlines: {
+          color: 'transparent'
+        },
+        baselineColor: 'white'
+      },
+      colors:['#4471C4'],
+      enableInteractivity: false,  
+
+      series: {
+                    0: {
+                        type: 'line',
+                        lineWidth: 6,
+                        color: 'black'
+
+                    },
+                    1: {
+                        areaOpacity: 1,
+                        color: '#FFFAE0',
+                        lineWidth: 0,
+                        type: 'area',
+                        visibleInLegend: false,
+                        enableInteractivity: false
+                    },
+                    2: {
+                        areaOpacity: 1,
+                        color: '#DAF2D5',
+                        lineWidth: 0,
+                        type: 'area',
+                        visibleInLegend: false,
+                        enableInteractivity: false
+                    },
+
+
+                }
+
+    };
+
+    var chart<%=i+1%> = new google.visualization.LineChart(document.getElementById('chartemg<%=i%>'));
+    chart<%=i+1%>.draw(data<%=i+1%>, options);
+
+
+    //
+     var datarom<%=i+1%> = new google.visualization.DataTable();
+    datarom<%=i+1%>.addColumn('number', 'X');
+    datarom<%=i+1%>.addColumn('number', 'ROM');
+    datarom<%=i+1%>.addColumn('number', 'ROMmin');
+    datarom<%=i+1%>.addColumn('number', 'ROMmax');
+
+    for(var i = 0; i < 1500; i++){
+  
+
+
+  datarom<%=i+1%>.addRows([
+[i*0.02,rom_data_int<%=i+1%>[i],<%=e.minangleselected%>,<%=e.maxangleselected%>]
+  ]);
+  if(i>rom_data_int<%=i+1%>.length){break;}
+}
+
+  var optionsrom = {
+     legend: 'none',
+    hAxis: {
+
+      titleTextStyle: {italic: false},
+      // title: 'Time (s)',
+      format:'# ',
+      gridlines: {
+        color: 'transparent'
+      },
+      baselineColor: '#D4D4D4'
+    },
+    chartArea: {
+      right:10,
+      top:10,
+      width:"85%",
+      height:"75%",
+    backgroundColor: {
+        stroke: '#D4D4D4',
+        strokeWidth: 1
+      }
+    },
+    vAxis: {
+      format:'# ',
+      gridlines: {
+        color: 'transparent'
+      },
+      baselineColor: '#D4D4D4'
+    },
+    colors:['#4471C4','#FDD602','#FDD602'],
+
+    enableInteractivity: false 
+
+  };
+
+    var chartrom<%=i+1%> = new google.visualization.LineChart(document.getElementById('chartrom<%=i%>'));
+    chartrom<%=i+1%>.draw(datarom<%=i+1%>, optionsrom);
+
+var overall_range_gained_30sec = 0;
+<% report[0].sessiondetails.map((h,j)=>{ %>
+
+
+if('<%=python_variables[j].download_time_stamp%>' == '<%= e.heldon%>')
+{
+  var overall_range_gained_30sec = <%=python_variables[j].velocity%>
+  document.getElementById("ranged_gained<%=i%>").innerHTML = overall_range_gained_30sec+ '°';
+
+}
+//e.heldon == download_time_s.lengthtamp[j]
+
+<%});%>
+
+    var over_all = overall_range_gained_30sec + '°'
+    var pie_param = 360 - parseInt(overall_range_gained_30sec);
+    if(pie_param>360){
+      pie_param=360;
+    }
+     var data_pie<%=i+1%> = google.visualization.arrayToDataTable([
+        ['Left', 'Right'],
+        [over_all,     overall_range_gained_30sec],
+        [' ',  pie_param]
+      ]);
+
+
+
+      var chart_pie<%=i+1%> = new google.visualization.PieChart(document.getElementById('rom_pie<%=i+1%>'));
+
+    
+      if(overall_range_gained_30sec<30)
+      {
+
+        if(overall_range_gained_30sec<15)
+        {
+          var options = {
+        pieSliceTextStyle: { color: '#FFFFFF',fontSize: 5}, 
+        colors: ['#00B386', '#D4D4D4'],
+        pieSliceText: 'label',
+        legend: 'none',
+        enableInteractivity: false };
+        }else
+        {
+
+        var options = {
+        pieSliceTextStyle: { color: '#FFFFFF',fontSize: 7}, 
+        colors: ['#00B386', '#D4D4D4'],
+        pieSliceText: 'label',
+        legend: 'none',
+        enableInteractivity: false };
+        }
+    }else
+    {
+      var options = {
+        pieSliceTextStyle: { color: '#FFFFFF',fontSize: 11}, 
+        colors: ['#00B386', '#D4D4D4'],
+        pieSliceText: 'label',
+        legend: 'none',
+        enableInteractivity: false 
+      };
+
+    }
+
+      chart_pie<%=i+1%>.draw(data_pie<%=i+1%>, options);
+
+
+      // Activity chart
+         <% if(typeof e.activity_list != 'undefined' && parseInt(e.activity_list.length)>0){%>
+
+
+  var data_bar = new google.visualization.DataTable();
+  var prev_min,prev_hour;
+  var prev_engagement;
+    data_bar.addColumn('timeofday', 'Time');
+    data_bar.addColumn('number', 'Motivation Level');
+    var activity_len = parseInt("<%=e.activity_list.length%>");
+
+   
+   
+
+
+    <% e.activity_list.map((x,y)=>{ %>
+
+      
+
+var activity_date = "<%=x.timestamp%>";
+      var activity_engagement = parseInt("<%=x.engagement%>");
+      var activity_date_split = activity_date.split(":");
+      var activity_hour = parseInt(activity_date_split[0]);
+      var activity_min = parseInt(activity_date_split[1]);
+      var activity_sec = parseInt(activity_date_split[2]);
+     if(!({activity_engagement:activity_engagement,activity_date:activity_date} in activity_list_temp)){
+activity_list_temp.push({activity_engagement:activity_engagement,activity_date:activity_date});
+}
+  
+
+       data_bar.addRows([
+      [{v: [activity_hour, activity_min]}, activity_engagement]
+    ]);
+
+       if(Date.parse('01/01/2011 '+activity_hour+':'+activity_min) > Date.parse('01/01/2011 '+prev_hour+':'+prev_min))
+       {
+
+ 
+
+        while(Date.parse('01/01/2011 '+activity_hour+':'+activity_min) > Date.parse('01/01/2011 '+prev_hour+':'+prev_min))
+        {
+
+          if(activity_min==0)
+          {
+            activity_min = 60;
+            activity_hour = activity_hour-1;
+          }
+          activity_min=activity_min-1;
+           data_bar.addRows([
+      [{v: [activity_hour, activity_min]}, prev_engagement]
+    ]);
+        }
+
+
+       }
+
+     
+
+       
+        prev_min = parseInt(activity_date_split[1]);
+        prev_hour = parseInt(activity_date_split[0]);
+        prev_engagement = activity_engagement;
+
+<%});%>
+
+
+          activity_list_temp.map((x,y)=>{ 
+
+      
+
+var activity_date = x.activity_date;
+      var activity_engagement = parseInt(x.activity_engagement);
+      var activity_date_split = activity_date.split(":");
+      var activity_hour = parseInt(activity_date_split[0]);
+      var activity_min = parseInt(activity_date_split[1]);
+      var activity_sec = parseInt(activity_date_split[2]);
+
+  
+
+       data_bar.addRows([
+      [{v: [activity_hour, activity_min]}, activity_engagement]
+    ]);
+
+       if(Date.parse('01/01/2011 '+activity_hour+':'+activity_min) > Date.parse('01/01/2011 '+prev_hour+':'+prev_min))
+       {
+
+ 
+
+        while(Date.parse('01/01/2011 '+activity_hour+':'+activity_min) > Date.parse('01/01/2011 '+prev_hour+':'+prev_min))
+        {
+
+          if(activity_min==0)
+          {
+            activity_min = 60;
+            activity_hour = activity_hour-1;
+          }
+          activity_min=activity_min-1;
+           data_bar.addRows([
+      [{v: [activity_hour, activity_min]}, prev_engagement]
+    ]);
+        }
+
+
+       }
+
+     
+
+       
+        prev_min = parseInt(activity_date_split[1]);
+        prev_hour = parseInt(activity_date_split[0]);
+        prev_engagement = activity_engagement;
+
+});
+  //   console.log("activity list");
+  //   console.log(activity_list_temp);
+
+
+
+    
+
+    var options_bar = {
+       legend: 'none',
+      backgroundColor:
+      {
+        stroke: '#D4D4D4'
+      },
+      bar:{
+      groupWidth:"100%"
+      },
+      hAxis: {
+        
+        titleTextStyle: {italic: false},
+        title: 'Timestamp',
+        format: 'HH:mm ',
+        gridlines: {
+          color: 'transparent'
+        }
+      },chartArea: {
+        top:5,
+        right:8,
+        width:"85%",
+        height:"70%",
+      backgroundColor: {
+          stroke: '#D4D4D4',
+          strokeWidth: 1
+        }
+      },
+       vAxis: {
+        ticks:[0,1],
+        titleTextStyle: {italic: false},
+        format:'short',
+        title: 'Engagement',
+         gridlines: {
+          color: 'transparent'
+        }
+        },enableInteractivity: false
+    };
+
+    var chart_activity = new google.visualization.ColumnChart(
+      document.getElementById('chart_div_activity'));
+
+    chart_activity.draw(data_bar, options_bar);
+       <%}%>
+
+  }
+
+
+
+
+</script>
+
+      <%});%>
+   
+<!--PAGE 3-->
+
+   <div class="page">
+      
+
+            <div class="header" style="height: 170px; display:flex; justify-content:space-around; align-items:center;"> 
+         
+          <div style="font-size: 50px; color: #FFFFFF; font-weight:800px font-style:bold font-family: 'Avenir';"><b>ADDITIONAL COMMENTS</b>
+             
+          </div>
+      </div>
+      <div style="height:90px; margin-top:120px;">
+          <p style="float:left;margin-left:2.5%;margin-top:50px;font-size:13px;font-weight:5px;color: #012E57 !important;font-size:25pt; font-family: 'Avenir';">Next Session: _______________________________</p>
+          <p style="float:right;margin-right:2.5%;margin-top:150px;font-size:13px;font-weight:5px;color: #012E57 !important;font-size:25pt; font-family: 'Avenir';">_________________________________</p>
+          <p style="float:right;margin-right:2.5%;margin-top:20px;font-size:13px;font-weight:5px;color: #012E57 !important;font-size:20pt; font-family: 'Avenir';">Signature with Seal <br> T&C apply*
+          </p>
+          <!--<p style="float:right;margin-top:120px;font-size:13px;font-weight:5px;color: #CDCDCD !important;font-size:20pt; font-family: 'Avenir'; align:'right";>T&C apply*</p>-->
+          
+     
+          <!--<p style="float:right;margin-right:2.5%;margin-top:20px;font-size:13px;font-weight:5px;color: #CDCDCD !important;font-size:20pt; font-family: 'Avenir';">T&C apply*</p>-->
+
+      </div>
+      
+       <div style="postion:relative;margin-top:380px; height: auto;  display:flex; background-color:#FFFFFF !important; ">
+            <div id="add-cont"
+                style="display: flex; flex-direction: row; align-items: center; justify-content: space-between ;padding: 0px;  width: inherit; height: 19px; left: 0px; margin-top: 22px;">
+            
+                <div class="add-col" style="width: 20px; height: 0px;"></div>
+                <div id="add-name"
+                    style=" font-family: 'Avenir';  font-weight: 700; font-size: 25px; line-height: 25px; color: #012E57; letter-spacing: 2px;"><b>&nbsp *This report is not valid for medico-legal purposes.&nbsp</b>
+                   </div>
+                <!--<div class="add-col" style="width: 210px; height: 0px; border: 3px solid #CDCDCD;"></div>-->
+            
+            </div>
+            </div>
+    
+      <div style="postion:relative;margin-top:120px; height: auto;  display:flex; background-color:#FFFFFF !important; ">
+            <div id="add-cont"
+                style="display: flex; flex-direction: row; align-items: center; justify-content: space-between ;padding: 0px;  width: inherit; height: 19px; left: 0px; margin-top: 22px;">
+            
+                <div class="add-col" style="width: 210px; height: 0px; border: 3px solid #CDCDCD;"></div>
+                <div id="add-name"
+                    style=" font-family: 'Avenir';  font-weight: 700; font-size: 40px; line-height: 19px; color: #000000; letter-spacing: 2px;"><b>&nbsp End of the Report &nbsp</b>
+                   </div>
+                <div class="add-col" style="width: 210px; height: 0px; border: 3px solid #CDCDCD;"></div>
+            
+            </div>
+            </div>
+         
+            
+      </div>
+
+
+
+      
+
+
+
+
+
+   </body>
+ 
+</html>
+
+<% } %>

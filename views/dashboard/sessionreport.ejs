@@ -1,0 +1,344 @@
+<% layout('layout/template') %>
+	<% let totalNumberOfSessions=0; let totalNumberOfSessionsTwo=0; patientSessionDataByUserId.sort((a, b)=>
+		b.numberOfPatientSessions
+		-a.numberOfPatientSessions )
+		patientSessionDataByClinic.sort((a, b)=> b.numberOfPatientSessions
+		-a.numberOfPatientSessions )
+		patientSessionDataByDate.sort((a,b) => new Date(b._id) - new Date(a._id))
+		let sessionArrayByUserID = []; let sessionArrayByClinic = []; let sessionArrayByDate = []; let sessionDate = []
+		patientSessionDataByUserId.map((e, i)=> {
+		sessionArrayByUserID.push(e.numberOfPatientSessions);
+		totalNumberOfSessions += e.numberOfPatientSessions;
+		})
+		patientSessionDataByClinic.map((e,i) => {
+		if(i!=0){
+		sessionArrayByClinic.push(e.numberOfPatientSessions)
+		}
+		})
+		patientSessionDataByDate.map((e, i) => {
+		sessionArrayByDate.push(e.numberOfPatientSessions)
+		sessionDate.push(e._id)
+		totalNumberOfSessionsTwo += e.numberOfPatientSessions;
+		})
+
+		%>
+
+		<div class="page-header">
+			<h2 class="pageheader-title">Dashboard | Session Report</h2>
+			<p class="pageheader-text">
+				Nulla euismod urna eros, sit amet scelerisque torton lectus vel mauris
+				facilisis faucibus at enim quis massa lobortis rutrum.
+			</p>
+
+			<div class="page-breadcrumb">
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb">
+						<li class="breadcrumb-item">
+							<a href="#" class="breadcrumb-link">Dashboard</a>
+						</li>
+						<li class="breadcrumb-item active" aria-current="page">
+							Session Report
+						</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Total Sessions</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<%= totalNumberOfSessions %>
+							</h1>
+						</div>
+						<div class="metric-label
+						d-inline-block
+						float-right
+						text-success
+						font-weight-bold">
+							<!-- <span><i class="fa fa-fw fa-arrow-up"></i></span><span>5.86%</span> -->
+						</div>
+					</div>
+					<!-- <div id="sparkline-revenue"></div> -->
+				</div>
+			</div>
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Total Sessions Today</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<% date=new Date().toISOString().slice(0, 10);
+									if(date===patientSessionDataByDate[0]._id) { %>
+									<%= patientSessionDataByDate[0].numberOfPatientSessions %>
+										<% } else { %>
+											<%= 0 %>
+												<% } %>
+							</h1>
+						</div>
+						<div class="
+						metric-label
+						d-inline-block
+						float-right
+						text-success
+						font-weight-bold
+					">
+							<!-- <span><i class="fa fa-fw fa-arrow-up"></i></span><span>5.86%</span> -->
+						</div>
+					</div>
+					<!-- <div id="sparkline-revenue2"></div> -->
+				</div>
+			</div>
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Maximum Sessions by Login ID</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<%= patientSessionDataByUserId[0].numberOfPatientSessions %>
+							</h1>
+						</div>
+						<!-- <div class="metric-label d-inline-block float-right text-secondary font-weight-bold">
+							<span>-2.00%</span>
+						</div> -->
+					</div>
+					<!-- <div id="sparkline-revenue4"></div> -->
+				</div>
+			</div>
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Maximum Sessions by Clinic</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+
+								<%= patientSessionDataByClinic[0].numberOfPatientSessions %>
+							</h1>
+						</div>
+						<!-- <div class="metric-label d-inline-block float-right text-secondary font-weight-bold">
+								<span>-2.00%</span>
+							</div> -->
+					</div>
+					<!-- <div id="sparkline-revenue4"></div> -->
+				</div>
+			</div>
+		</div>
+
+
+		<div class="row">
+
+			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+				<div class="card">
+					<div class="row justify-content-between card-header align-items-center" style="margin: auto 0">
+						<h3 class="mb-0 py-3">Pheezee Session Analysis</h3>
+					</div>
+					<!--<div id="chartOne"></div>-->
+					<div class="card-body p-0">
+						<div class="table-responsive" id="by-user-id-table">
+							<table class="table">
+								<thead class="bg-light">
+									<tr class="border-0">
+										<th class="border-0">Sr. No.</th>
+										<!-- <th class="border-0">Image</th> -->
+										<th class="border-0">Date</th>
+										<th class="border-0">Total No of Sessions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<% patientSessionDataByDate.map((e, i)=> { %>
+										<tr>
+											<td>
+												<%= i+1 %>
+											</td>
+											<td>
+												<%= e._id %>
+											</td>
+
+											<td>
+												<%= e.numberOfPatientSessions %>
+											</td>
+
+										</tr>
+										<% }) %>
+											<tr>
+												<td colspan="9">
+													<a href="#" class="btn btn-outline-light float-right">View
+														Details</a>
+												</td>
+											</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<div class="text-center border-top" style="margin: auto 0">
+						<button class="btn my-2 px-5" id="btnToExpand">More</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+				<div class="card">
+					<div class="row justify-content-between card-header align-items-center" style="margin: auto 0">
+						<h3 class="mb-0 py-3">Pheezee Session Analysis By UserID</h3>
+					</div>
+					<!--<div id="chartTwo"></div>-->
+					<div class="card-body p-0">
+						<div class="table-responsive" id="by-user-id-table">
+							<table class="table">
+								<thead class="bg-light">
+									<tr class="border-0">
+										<th class="border-0">Sr. No.</th>
+										<!-- <th class="border-0">Image</th> -->
+										<th class="border-0 text-left">User Email</th>
+										<th class="border-0">Total No of Sessions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<% patientSessionDataByUserId.map((e, i)=> { %>
+										<tr>
+											<td>
+												<%= i+1 %>
+											</td>
+											<td class="text-left">
+												<%= e._id %>
+											</td>
+
+											<td>
+												<%= e.numberOfPatientSessions %>
+											</td>
+
+										</tr>
+										<% }) %>
+											<tr>
+												<td colspan="9">
+													<a href="#" class="btn btn-outline-light float-right">View
+														Details</a>
+												</td>
+											</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="text-center border-top" style="margin: auto 0">
+						<button class="btn my-2 px-5" id="btnToExpand">More</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+				<div class="card">
+					<div class="row justify-content-between card-header align-items-center" style="margin: auto 0">
+						<h3 class="mb-0 py-3">Pheezee Session Analysis By Clinic</h3>
+					</div>
+					<!--<div id="chartThree"></div>-->
+					<div class="card-body p-0">
+						<div class="table-responsive" id="by-user-id-table">
+							<table class="table">
+								<thead class="bg-light">
+									<tr class="border-0">
+										<th class="border-0">Sr. No.</th>
+										<!-- <th class="border-0">Image</th> -->
+										<th class="border-0 text-left">Clinic Name</th>
+										<th class="border-0">Total No of Sessions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<% patientSessionDataByClinic.map((e, i)=> { if(e._id != null && e._id != "") {%>
+										<tr>
+											<td>
+												<%= i+1 %>
+											</td>
+											<td class="text-left">
+												<%= e._id %>
+											</td>
+
+											<td>
+												<%= e.numberOfPatientSessions %>
+											</td>
+
+										</tr>
+										<% }}) %>
+											<tr>
+												<td colspan="9">
+													<a href="#" class="btn btn-outline-light float-right">View
+														Details</a>
+												</td>
+											</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="text-center border-top" style="margin: auto 0">
+						<button class="btn my-2 px-5" id="btnToExpand">More</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+			document.addEventListener("DOMContentLoaded", theDomHasLoaded, false);
+			function theDomHasLoaded(e) {
+				var chart = c3.generate({
+					bindto: '#chartOne',
+					data: {
+						columns: [
+							['Last 30 days records', ...'<%= sessionArrayByDate.slice(0, 30) %>'.split(',')]
+						]
+					},
+					axis: {
+						axis: {
+							x: {
+								type: 'timeseries',
+								tick: {
+									values: ["<%= sessionDate.slice(1, 30) %>".split(',')]
+								}
+							}
+						}
+					}
+				});
+				var chart = c3.generate({
+					bindto: '#chartTwo',
+					data: {
+						columns: [
+							['Number of Sessions by User ID', ...'<%- sessionArrayByUserID %>'.split(',')],
+						]
+					},
+					axis: {
+						x: {
+							tick: {
+								format: function (x) { return x }
+							}
+						}
+					}
+				});
+
+			}
+
+			var elements = document.querySelectorAll('.card-body.p-0');
+			var buttons = document.querySelectorAll('#btnToExpand');
+			Array.from(buttons).forEach((button, index) => {
+				Array.from(elements).forEach((element, idx) => {
+					if (index == idx) {
+						if (element.style.overflowY == "" || element.style.overflowY == "hidden") {
+							button.addEventListener('click', function () {
+								element.style.overflowY = 'scroll';
+								// button.innerHTML = "Less";
+							})
+						}
+						console.log(element.style.overflowY);
+						if (element.style.overflowY == "scroll" || button.innerHTML == "Less") {
+							button.addEventListener('click', function () {
+								element.style.overflowY = '';
+								// button.innerHTML = "More";
+							})
+						}
+					}
+				})
+			})
+		</script>

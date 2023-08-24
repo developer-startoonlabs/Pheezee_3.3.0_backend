@@ -1,0 +1,54 @@
+[{
+    "Wrist": {
+      "Flexion": 16,
+      "Extension": 17
+    },
+    "Shoulder": {
+      "Flexion": 9,
+      "Extension": 13,
+      "Adduction": 12,
+      "Abduction": 12
+    },
+    "Elbow": {
+      "Flexion": 14,
+      "Extension": 14
+    },
+    "Forearm": {
+      "Supination": 15,
+      "Pronation": 14
+    },
+    "Hip": {
+      "Flexion": 14,
+      "Extension": 12,
+      "Adduction": 13,
+      "Abduction": 0
+    },
+    "Knee": {
+      "Flexion": 16,
+      "Extension": 16
+    },
+    "Ankle": {
+      "Plantarflexion": 18,
+      "Dorsiflexion": 18,
+      "Inversion": 15,
+      "Eversion": 17
+    },
+    "Thoracic": {
+      "Flexion": 11,
+      "Extension": 12,
+      "Lateral Flexion": 11,
+      "Rotation": 0
+    },
+    "Lumbar": {
+        "Flexion": 11,
+        "Extension": 12,
+        "Lateral Flexion": 11,
+        "Rotation": 0
+      },
+      "Abdomen": {
+        "Flexion": 11,
+        "Extension": 12,
+        "Lateral Flexion": 11,
+        "Rotation": 0
+      }
+  }]

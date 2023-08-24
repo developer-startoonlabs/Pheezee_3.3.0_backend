@@ -1,0 +1,82 @@
+<html lang="en">
+  <head>
+     <!--Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<style>
+body {
+  background: white;
+}
+
+.content {
+  max-width: 1500px;
+  margin: auto;
+  margin-top: 15rem;
+  background: white;
+  padding: 10px;
+}
+</style>
+
+
+     <!--Bootstrap CSS -->
+     
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    
+    <link rel="stylesheet" type="text/css" href="../stylesheets/styles.css" />
+    
+    <title>Device-Add-Status</title>
+    
+  </head>
+  <body>
+    
+    <div  style="float: center; margin-top: 1.5rem;">
+      <a type="button" class="btn  btn-lg"  href="../dashboard/get_doc_msgs"><b>Device</b></a>
+    </div>
+    
+    <div class="content">
+        <div  style="display:inline-block;">
+            <img src="../icons/edit_icon.png" alt="img"/>
+        </div>
+        <div class="" style="display:inline-block;">
+    <h3 class="mb-4 pb-2 pb-md-0 mb-md-5" style="color:#007BFF; width: 900;">Device Registration</h3>
+                  <form method="POST" action="/post-edit" >
+      
+                    <div class="row">
+                      <div class="col">
+                        <div class="form-outline">
+                          <label class="form-label" for="firstName" ><b>Device Mac Id</b></label>
+                          <input type="text" id="firstName" name="macId" class="form-control" />
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label select-label"><b>Choose option</b></label>
+                        <select class="select form-control" name="status">
+                          <option value="Null">Choose option</option>
+                          <option value="Sold">Sold</option>
+                          <option value="Demo">Demo</option>
+                          <option value="Clinical">Clinical</option>
+                          <option value="Development">Development</option>
+                          <option value="Production">Production</option>
+                        </select>
+                        
+      
+                      </div>
+                      
+                    </div>
+                    <div class="mt-4 pt-2">
+                      <input class="btn btn-primary btn-lg" type="submit" value="Submit" />
+                    </div>
+      
+                  </form>
+</div>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+  </body>
+</html>

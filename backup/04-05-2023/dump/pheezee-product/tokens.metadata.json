@@ -1,0 +1,1 @@
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"pheezee-product.tokens"},{"v":2,"key":{"token":1},"name":"token_1","ns":"pheezee-product.tokens","background":true}],"uuid":"6b5063744efc4c1d896639bd963f1f4b"}

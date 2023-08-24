@@ -1,0 +1,2190 @@
+<% layout('layout/template') %>
+
+
+
+    <% let activeDevices=0; let inactiveDevices=0; let faultyDevices=0; let totalPatients=0; let
+        dailyDeviceActivityTimeStampArray=[]; let dataByWeek={}; deviceActivity.recentDeviceHealthData.map((element,
+        index)=> {
+        if(((new Date() - new Date(element.lastHealthArrayElement.time_stamp))/(1000 * 3600 * 24)) > 30){
+        inactiveDevices++;
+        }else{
+        activeDevices++;
+        }
+        if(element.lastHealthArrayElement.health_info !== undefined) {
+        if(element.lastHealthArrayElement.health_info.u_lsm_ini == 1 ||
+        element.lastHealthArrayElement.health_info.l_lsm_ini == 1 ||
+        element.lastHealthArrayElement.health_info.gain_amplifier == 1 ||
+        element.lastHealthArrayElement.health_info.atiny_init_status == 1 ||
+        element.lastHealthArrayElement.health_info.adc_status == 1 ||
+        element.lastHealthArrayElement.health_info.u_lsm_regi == 1 ||
+        element.lastHealthArrayElement.health_info.l_lsm_regi == 1 ||
+        element.lastHealthArrayElement.health_info.ble_status == 1 ||
+        element.lastHealthArrayElement.health_info.charger_status == 1 ||
+        element.lastHealthArrayElement.health_info.pow_btn_status == 1 ||
+        element.lastHealthArrayElement.health_info.over_current_protection_status
+        == 1 ||
+        element.lastHealthArrayElement.health_info.main_ldo_status == 1 ||
+        element.lastHealthArrayElement.health_info.over_current_protection_status
+        == 1 ||
+        element.lastHealthArrayElement.health_info.u_lesm_read == 1 ||
+        element.lastHealthArrayElement.health_info.l_lsm_read == 1 ||
+        element.lastHealthArrayElement.health_info.atiny_read_status == 1 ||
+        element.lastHealthArrayElement.health_info.u_mag_ini == 1 ||
+        element.lastHealthArrayElement.health_info.u_mag_ini == 1 ||
+        element.lastHealthArrayElement.health_info.u_mag_read == 1 ||
+        element.lastHealthArrayElement.health_info.l_mag_read == 1 ) {
+        faultyDevices++;
+        
+        }
+        }}); 
+        let dateOfJoin = []; let numberOfPatientsJoined = [];
+        patientSummary.map((e, i) => {
+        totalPatients += e.numberOfPatients;
+        dateOfJoin.push(e._id.split('/').reverse().join('-'));
+        numberOfPatientsJoined.push(e.numberOfPatients);
+        })
+        dailyDeviceActivity.map((element) => {
+        dailyDeviceActivityTimeStampArray.push(new Date(element.timeStamps).getTime());
+        })
+        let numberOfUsersByWeek = 0, numberOfPatientsByWeek = 0, numberOfSessionsByWeek = 0;
+        let numberOfReportsByWeek = 0, numberOfReportsByMonth = 0, numberOfReportsByFiveMonths = 0,
+        numberOfReportsByOneYear = 0, numberOfReportsByFiveYear = 0;
+        let numberOfUsersByMonth = [], numberOfPatientsByMonth = [], numberOfSessionsByMonth = 0;
+        let numberOfUsersByFiveMonths = [], numberOfPatientsByFiveMonths = [], numberOfSessionsByFiveMonths = 0;
+        let numberOfUsersByOneYear = [], numberOfPatientsByOneYear = [], numberOfSessionsByOneYear = 0;
+        let numberOfUsersByFiveYear = [], numberOfPatientsByFiveYear = [], numberOfSessionsByFiveYear = 0;
+        overallData.dataByWeek.map((e) => {
+        numberOfUsersByWeek += e.numberOfUsers;
+        numberOfPatientsByWeek += e.numberOfPatients;
+        numberOfSessionsByWeek += e.numberOfSessions;
+        })
+        overallData.dataByMonth.map((e) => {
+        numberOfUsersByMonth.push(...e.users);
+        numberOfPatientsByMonth.push(...e.patients);
+        numberOfSessionsByMonth += e.numberOfSessions;
+        })
+        overallData.dataByFiveMonths.map((e) => {
+        numberOfUsersByFiveMonths.push(...e.users);
+        numberOfPatientsByFiveMonths.push(...e.patients);
+        numberOfSessionsByFiveMonths += e.numberOfSessions;
+        })
+        overallData.dataByOneYear.map((e) => {
+        numberOfUsersByOneYear.push(...e.users);
+        numberOfPatientsByOneYear.push(...e.patients);
+        numberOfSessionsByOneYear += e.numberOfSessions;
+        })
+        overallData.dataByFiveYear.map((e) => {
+        numberOfUsersByFiveYear.push(...e.users);
+        numberOfPatientsByFiveYear.push(...e.patients);
+        numberOfSessionsByFiveYear += e.numberOfSessions;
+        })
+        overallData.reportDataByWeek.map((e) => {
+        numberOfReportsByWeek += e.numberOfReports;
+        })
+        overallData.reportDataByMonth.map((e) => {
+        numberOfReportsByMonth += e.numberOfReports;
+        })
+        overallData.reportDataByFiveMonths.map((e) => {
+        numberOfReportsByFiveMonths += e.numberOfReports;
+        })
+        overallData.reportDataByOneYear.map((e) => {
+        numberOfReportsByOneYear += e.numberOfReports;
+        })
+        overallData.reportDataByFiveYear.map((e) => {
+        numberOfReportsByFiveYear += e.numberOfReports;
+        })
+        
+        var numberofsold = 0;
+        var numberofdemo = 0;
+        var numberofclinical = 0;
+        var numberofdevelopment = 0;
+        var numberofproduction = 0;
+        var numberoftotal = deviceData.length;
+        deviceData.map( (e,i)=> {
+            if(e.status.toLowerCase()=="sold"){
+                numberofsold++;
+            } else if (e.status.toLowerCase()=="demo"){
+                numberofdemo++;
+            } else if (e.status.toLowerCase()=="clinical"){
+                numberofclinical++;
+            }else if (e.status.toLowerCase()=="development"){
+                numberofdevelopment++;
+            }else if (e.status.toLowerCase()=="production"){
+                numberofproduction++;
+            }
+        })
+        console.log("Matched Here", numberofproduction);
+        
+        %>
+        
+        
+        
+        <div class="row" style="padding-left: 2rem; padding-right: 1.0rem; margin-top: 0.3rem;">
+            <div class="col">
+                <div class="card">
+                    <div class="head" Style="padding-left: 1rem; padding-right: 1rem; padding-bottom: 1rem;">
+                        <div>
+							<h3 style="color:#4CC077; font-size: 2rem; padding-top: 0.5rem;">Sold</h3>
+							
+						</div>
+						<div class="progress" style="margin-top: 0.5rem;">
+                          <div class="progress-bar" role="progressbar" style="width:<%=(numberofsold / numberoftotal * 100).toFixed(2)%>%; background: #4CC077;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="head" Style="padding-left: 0.2rem; padding-top: 1rem;">
+                            <p style="font-size: 1.5rem; color:#696969;"><b><%=(numberofsold / numberoftotal * 100).toFixed(2)%>%</b></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div class="col">
+                <div class="card">
+                    <div class="head" Style="padding-left: 1rem; padding-right: 1rem; padding-bottom: 1rem;">
+                        <div>
+							<h3 style="color:#8067B7; font-size: 2rem; padding-top: 0.5rem;">Demo</h3>
+							
+						</div>
+						<div class="progress" style="margin-top: 0.5rem;">
+                         <div class="progress-bar" role="progressbar" style="width:<%=(numberofdemo / numberoftotal * 100).toFixed(2)%>%; background: #8067B7;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="head" Style="padding-left: 0.2rem; padding-top: 1rem;">
+                            <p style="font-size: 1.5rem; color:#696969;"><b><%=(numberofdemo / numberoftotal * 100).toFixed(2)%>%</b></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div class="col">
+                <div class="card">
+                    <div class="head" Style="padding-left: 1rem; padding-right: 1rem; padding-bottom: 1rem;">
+                        <div>
+							<h3 style="color:#EB6F91; font-size: 2rem; padding-top: 0.5rem;">Clinical</h3>
+							
+						</div>
+						<div class="progress" style="margin-top: 0.5rem;">
+                         <div class="progress-bar" role="progressbar" style="width:<%=(numberofclinical / numberoftotal * 100).toFixed(2)%>%; background: #EB6F91;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="head" Style="padding-left: 0.2rem; padding-top: 1rem;">
+                            <p style="font-size: 1.5rem; color:#696969;"><b><%=(numberofclinical / numberoftotal * 100).toFixed(2)%>%</b></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div class="col">
+                <div class="card">
+                    <div class="head" Style="padding-left: 1rem; padding-right: 1rem; padding-bottom: 1rem;">
+                        <div>
+							<h3 style="color:#7D8DE2; font-size: 2rem; padding-top: 0.5rem;">Development</h3>
+							
+						</div>
+						<div class="progress" style="margin-top: 0.5rem;">
+                         <div class="progress-bar" role="progressbar" style="width:<%=(numberofdevelopment / numberoftotal * 100).toFixed(2)%>%; background: #7D8DE2;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="head" Style="padding-left: 0.2rem; padding-top: 1rem;">
+                            <p style="font-size: 1.5rem; color:#696969;"><b><%=(numberofdevelopment / numberoftotal * 100).toFixed(2)%>%</b></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="head" Style="padding-left: 1rem; padding-right: 1rem; padding-bottom: 1rem;">
+                        <div>
+							<h3 style="color:#B4977B;  font-size: 2rem; padding-top: 0.5rem;">Production</h3>
+						
+						</div>
+						<div class="progress" style="margin-top: 0.5rem;">
+                         <div class="progress-bar" role="progressbar" style="width: <%=(numberofproduction / numberoftotal * 100).toFixed(2)%>%; background: #B4977B;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="head" Style="padding-left: 0.2rem; padding-top: 1rem;">
+                            <p style="font-size: 1.5rem; color:#696969;"><b><%=(numberofproduction / numberoftotal * 100).toFixed(2)%>%</b></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+                 
+        
+       
+        <% let activeUsers=0, inactiveUsers=0; dataFromSessionData.map((e)=> {
+            if((new Date() - new Date(e.timestamps.sort(function (a,b) {
+            return new Date(b).valueOf() - new Date(a).valueOf()
+            })[0]))/(1000 * 3600 * 24) < 30){ activeUsers++ }else{inactiveUsers++} }) %>
+            
+            <%  let faultyUsers = 0; 
+            usersData.map((e) => {
+                if(e.numberOfPatients == 0) {
+                    faultyUsers++;
+                }
+            })	%>
+            
+            <div class="row" style="padding-left: 2rem; padding-right: 1.0rem; margin-top: 0.3rem;">
+                    <div class="col" id="overallSecondColumnFirstRow">
+                        <div class="card secondCard">
+                                <h3 class="text-center mb-3" style="color:#8067B7; font-size: 4.0rem" > <%= numberofdemo %> </h3>
+                                <h3 class="text-center" style="font-size: 2.0rem; color:#696969;" ><b>Total Devices</b></h3>
+                            </div>
+                    </div>
+                <div class="col" id="overallSecondColumnFirstRow">
+                        <div class="card secondCard">
+                                <h3 class="text-center mb-3" style="color:#8067B7; font-size: 4.0rem"> -- </h3>
+                                <h3 class="text-center" style="font-size: 2.0rem; color:#696969;" ><b>Total Accounts</b></h3>
+                            </div>
+                    </div>
+                    <div class="col" id="overallSecondColumnFirstRow">
+                        <div class="card secondCard">
+                                <h3 class="text-center mb-3" style="color:#8067B7; font-size: 4.0rem"> -- </h3>
+                                <h3 class="text-center" style="font-size: 2.0rem; color:#696969;" ><b>Total Users</b></h3>
+                            </div>
+                    </div>
+                    <div class="col" id="overallSecondColumnFirstRow">
+                        <div class="card secondCard">
+                                <h3 class="text-center mb-3" style="color:#8067B7; font-size: 4.0rem"> -- </h3>
+                                <h3 class="text-center"style="font-size: 2.0rem; color:#696969;" ><b>Total Patients</b></h3>
+                            </div>
+                    </div>
+                    <div class="col" id="overallSecondColumnFirstRow">
+                        <div class="card secondCard">
+                                <h3 class="text-center mb-3" style="color:#8067B7; font-size: 4.0rem"> -- </h3>
+                                <h3 class="text-center"style="font-size: 2.0rem; color:#696969;" ><b>Total Session</b></h3>
+                            </div>
+                    </div>
+                    <div class="col" id="overallSecondColumnFirstRow">
+                        <div class="card secondCard">
+                                <h3 class="text-center mb-3" style="color:#8067B7; font-size: 4.0rem"> -- </h3>
+                                <h3 class="text-center" style="font-size: 2.0rem; color:#696969;"><b>Total Reports</b></h3>
+                            </div>
+                    </div>
+            </div>
+            
+                           
+            
+           
+           
+
+
+                <!--<div class="container-fluid dashboard-content mb-0">-->
+                    <!--<div class="firstRow">-->
+                    <!--    <div class="d-flex flex-row-reverse py-1 pb-2">-->
+                    <!--        <select name="firstRowOptions" id="filterByTimeRangeOfFirstRow"-->
+                    <!--            class="custom-select px-3 pr-3" style="width: 150px; padding: 0 12px; height: inherit;">-->
+                    <!--            <option value="overallFirstRow">Overall</option>-->
+                    <!--            <option value="pastOneWeekFirstRow">Past One Week</option>-->
+                    <!--            <option value="pastOneMonthFirstRow">Past One Month</option>-->
+                    <!--            <option value="pastFiveMonthsFirstRow">Past Five Months</option>-->
+                    <!--            <option value="pastOneYearFirstRow">Past One Year</option>-->
+                    <!--            <option value="pastFiveYearFirstRow">Past Five Year</option>-->
+                    <!--        </select>-->
+                    <!--    </div>-->
+                <!--        <div class="row" style="height: 50%;">-->
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">-->
+                <!--                <div class="card firstCard">-->
+                <!--                    <div class="card-body rounded row py-0 px-0">-->
+                <!--                        <div-->
+                <!--                            class="col-6 rounded-left border-right d-flex align-items-center justify-content-center">-->
+                <!--                            <h1 class="mb-1 text-center">-->
+                <!--                                <%= overallData.totalDevicesSold %>-->
+                <!--                            </h1>-->
+            
+                <!--                        </div>-->
+                <!--                        <div-->
+                <!--                            class="col-6 border-left rounded-right d-flex align-items-center justify-content-center">-->
+                <!--                            <h3 class="text-center mb-0">TOTAL DEVICES SOLD</h3>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+
+
+
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12" id="overallSecondColumnFirstRow">-->
+                <!--                <div class="card secondCard">-->
+                <!--                    <div class="card-body py-0 px-0">-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3 ">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= overallData.totalUsers %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL USERS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= overallData.totalPatients %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL PATIENTS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 d-none"-->
+                <!--                id="pastOneWeekSecondColumnFirstRow">-->
+                <!--                <div class="card secondCard">-->
+                <!--                    <div class="card-body py-0 px-0">-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= numberOfUsersByWeek %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL USERS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= numberOfPatientsByWeek %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL PATIENTS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 d-none"-->
+                <!--                id="pastOneMonthSecondColumnFirstRow">-->
+                <!--                <div class="card secondCard">-->
+                <!--                    <div class="card-body py-0 px-0">-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= (new Set(numberOfUsersByMonth)).size %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL USERS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= (new Set(numberOfPatientsByMonth)).size %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL PATIENTS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 d-none"-->
+                <!--                id="pastFiveMonthSecondColumnFirstRow">-->
+                <!--                <div class="card secondCard">-->
+                <!--                    <div class="card-body py-0 px-0">-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= (new Set(numberOfUsersByFiveMonths)).size %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL USERS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= (new Set(numberOfPatientsByFiveMonths)).size %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL PATIENTS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 d-none"-->
+                <!--                id="pastOneYearSecondColumnFirstRow">-->
+                <!--                <div class="card secondCard">-->
+                <!--                    <div class="card-body py-0 px-0">-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= (new Set(numberOfUsersByOneYear)).size %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL USERS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= (new Set(numberOfPatientsByOneYear)).size %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL PATIENTS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 d-none"-->
+                <!--                id="pastFiveYearSecondColumnFirstRow">-->
+                <!--                <div class="card secondCard">-->
+                <!--                    <div class="card-body py-0 px-0">-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= (new Set(numberOfUsersByFiveYear)).size %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL USERS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= (new Set(numberOfPatientsByFiveYear)).size %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL PATIENTS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+
+
+
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12" id="overallThirdColumnFirstRow">-->
+                <!--                <div class="card thirdCard">-->
+                <!--                    <div class="card-body py-0 px-0">-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= overallData.totalSessions %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL SESSIONS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= overallData.totalReports[0].numberOfReports %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL REPORTS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 d-none"-->
+                <!--                id="pastOneWeekThirdColumnFirstRow">-->
+                <!--                <div class="card thirdCard">-->
+                <!--                    <div class="card-body py-0 px-0">-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= numberOfSessionsByWeek %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL SESSIONS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= numberOfReportsByWeek %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL REPORTS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 d-none"-->
+                <!--                id="pastOneMonthThirdColumnFirstRow">-->
+                <!--                <div class="card thirdCard">-->
+                <!--                    <div class="card-body py-0 px-0">-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= numberOfSessionsByMonth %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL SESSIONS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= numberOfReportsByMonth %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL REPORTS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 d-none"-->
+                <!--                id="pastFiveMonthThirdColumnFirstRow">-->
+                <!--                <div class="card thirdCard">-->
+                <!--                    <div class="card-body py-0 px-0">-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3 ">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= numberOfSessionsByFiveMonths %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL SESSIONS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= numberOfReportsByFiveMonths %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL REPORTS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 d-none"-->
+                <!--                id="pastOneYearThirdColumnFirstRow">-->
+                <!--                <div class="card thirdCard">-->
+                <!--                    <div class="card-body py-0 px-0">-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= numberOfSessionsByOneYear %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL SESSIONS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= numberOfReportsByOneYear %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL REPORTS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 d-none"-->
+                <!--                id="pastFiveYearThirdColumnFirstRow">-->
+                <!--                <div class="card thirdCard">-->
+                <!--                    <div class="card-body py-0 px-0">-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= numberOfSessionsByFiveYear %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL SESSIONS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                        <div class="row mx-0">-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h1 class="text-center mb-0">-->
+                <!--                                    <%= numberOfReportsByFiveYear %>-->
+                <!--                                </h1>-->
+                <!--                            </div>-->
+                <!--                            <div-->
+                <!--                                class="col-6 border rounded d-flex align-items-center justify-content-center py-3">-->
+                <!--                                <h3 class="text-center mb-0">TOTAL REPORTS</h3>-->
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+
+
+                <!--            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">-->
+                <!--                <div class="card fourthCard rounded mb-0">-->
+                <!--                    <div class="card-body px-0 rounded py-0">-->
+                <!--                        <div-->
+                <!--                            class="d-flex justify-content-between align-items-end rounded revenueFirstRow px-3 py-1">-->
+                <!--                            <h6 class="mb-0" style="font-size: 1em;">TOTAL REVENUE</h6>-->
+                <!--                            <h3 class="mb-0" style="font-size: 2em; line-height: 1">-->
+                                                <%= //overallData.totalSessions %>
+                <!--                                    <span style="font-size: .6em;">Rs.</span> 506783-->
+                <!--                            </h3>-->
+                <!--                        </div>-->
+                <!--                        <div class="revenueSecondRow">-->
+                <!--                            <div id="revenueChart">-->
+
+                <!--                            </div>-->
+                <!--                        </div>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+                <!--            </div>-->
+                <!--        </div>-->
+                <!--    </div>-->
+                <!--</div>-->
+
+
+
+                <div class="container-fluid secondRow mb-1">
+                    <!--<div class="d-flex flex-row-reverse py-1 pr-2">-->
+                    <!--    <div class="d-flex flex-row-reverse py-1 pr-2">-->
+                    <!--        <select name="secondRowOptions" id="filterByDevicesOfSecondRow" class="custom-select px-3"-->
+                    <!--            style="width: 150px; padding: 0 12px; height: inherit;">-->
+                    <!--            <option value="devices">Devices</option>-->
+                    <!--            <option value="users">Users</option>-->
+                    <!--        </select>-->
+                    <!--    </div>-->
+                    <!--</div>-->
+                    <div class="row mb-2 device-activity" style="padding-left: 1rem;">
+                        <!--<div class="col-xl-3 col-lg-4 col-md-12 col-sm-12 col-xs-12">-->
+                        <!--    <div class="row mx-0 deviceActivity">-->
+                        <!--        <div class="col-6 border rounded-left d-flex justify-content-center align-items-center">-->
+                        <!--            <h1 class="text-center mb-0">-->
+                        <!--                <%= activeDevices %>-->
+                        <!--            </h1>-->
+                        <!--        </div>-->
+                        <!--        <div-->
+                        <!--            class="col-6 border rounded-right btn py-1 d-flex justify-content-center align-items-center">-->
+                        <!--            <a href="/dashboard/devicereport?filter=activedevice">-->
+                        <!--                <h3 style="font-size: 1.5em; line-height: 1"-->
+                        <!--                    class="text-success text-center mb-0">-->
+                        <!--                    ACTIVE</h3>-->
+                        <!--                <h5 class="text-muted text-center mb-0" style="line-height: 1">DEVICES</h5>-->
+                        <!--            </a>-->
+                        <!--        </div>-->
+                        <!--    </div>-->
+                        <!--    <div class="row mx-0 deviceActivity">-->
+                        <!--        <div class="col-6 border rounded-left d-flex justify-content-center align-items-center">-->
+                        <!--            <h1 class="text-center mb-0">-->
+                        <!--                <%= inactiveDevices %>-->
+                        <!--            </h1>-->
+                        <!--        </div>-->
+                        <!--        <div-->
+                        <!--            class="col-6 border rounded-right btn py-1 d-flex justify-content-center align-items-center">-->
+                        <!--            <a href="/dashboard/devicereport?filter=inactivedevice">-->
+                        <!--                <h3 style="font-size: 1.5em; line-height: 1"-->
+                        <!--                    class="text-warning text-center mb-0">-->
+                        <!--                    INACTIVE</h3>-->
+                        <!--                <h5 class="text-muted text-center mb-0" style="line-height: 1">DEVICES</h5>-->
+                        <!--                <i class="fas fa-circle text-warning"-->
+                        <!--                    style="position: absolute; top:4px; right:4px"></i>-->
+                        <!--            </a>-->
+                        <!--        </div>-->
+                        <!--    </div>-->
+                        <!--    <div class="row mx-0 deviceActivity">-->
+                        <!--        <div class="col-6 border rounded-left d-flex justify-content-center align-items-center">-->
+                        <!--            <h1 class="text-center mb-0">-->
+                        <!--                <%= faultyDevices %>-->
+                        <!--            </h1>-->
+                        <!--        </div>-->
+                        <!--        <div-->
+                        <!--            class="col-6 border rounded-right btn py-1 d-flex justify-content-center align-items-center">-->
+                        <!--            <a href="/dashboard/devicereport?filter=faultydevice">-->
+                        <!--                <h3 style="font-size: 1.5em; line-height: 1"-->
+                        <!--                    class="text-danger text-center mb-0">FAULTY-->
+                        <!--                </h3>-->
+                        <!--                <h5 class="text-muted text-center mb-0" style="line-height: 1">DEVICES</h5>-->
+                        <!--                <i class="fas fa-circle text-danger"-->
+                        <!--                    style="position: absolute; top:4px; right:4px"></i>-->
+                        <!--            </a>-->
+                        <!--        </div>-->
+                        <!--    </div>-->
+                        <!--</div>-->
+                        <div class="col-xl-8 col-lg-8 col-md-15 col-sm-15 col-xs-15" style="margin-top: 0.3rem; padding-right: 0.3rem;">
+                            <div class="card" style="height: 100%; " >
+                                <div class="card-body py-5">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h3 class="mb-1" style="font-size: 3vh; color: #8067B7">Activity<span class="text-muted" id="deviceActivityChartSubHead" style="font-size: .8em"></span>
+                                        </h3> 
+                                        <div class="reference d-flex align-items-right justify-content-between">
+                                            Low
+                                            <div class="less"></div>
+                                            Medium
+                                            <div style="background-color:#bb9cff"></div>
+                                            High
+                                            <div style="background-color:#8067B7"></div>
+                                           
+                                        </div>
+                                        <select name="firstRowOptions" id="filterByYearOfSecondRowDevice"
+                                            class="custom-select px-3"
+                                            style="width: 150px; padding: 0 12px; height: inherit;">
+                                        </select>
+                                    </div>
+                                    <div id="deviceActivityChart"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-xs-12" style="margin-top: 0.3rem;"
+                                id="overallSecondColumnThirdRow">
+                                <div class="card border topUsers" style="height: 100%">
+                                    <div class="card-body">
+                                        <p class="mb-2 topUsersHead" style="font-size: 2rem; background-color:#8067B7; color: white; padding-left: 0.8rem; padding-top: 0.8rem;">Top Users</p>
+                                        <table class="table">
+                                        <tr>
+                                            <th style="font-size: 1.2rem; color:#8067B7;"><b>Name</b></th>
+                                            <th style="font-size: 1.2rem; color:#8067B7;"><b>Hospital</b></th>
+                                            <th style="font-size: 1.2rem; color:#8067B7;"><b>Patients</b></th>
+                                            <th style="font-size: 1.2rem; color:#8067B7;"><b>Session</b></th>
+                                            <th style="font-size: 1.2rem; color:#8067B7;"><b>Reports</b></th>
+                                         </tr>
+                                        <!--<div class="head">-->
+                                        <!--    <div class="row">-->
+                                        <!--        <div class="col" style="padding-bottom: 1.0rem;  padding-top: 1.0rem;">-->
+                                        <!--        <p><b style="font-size: 1.2rem; color:#007BFF;">Name</b></p>-->
+                                        <!--        </div>-->
+                                        <!--        <div class="col" style="padding-bottom: 1.0rem;  padding-top: 1.0rem;">-->
+                                        <!--        <p><b style="font-size: 1.2rem; color:#007BFF;">Hospital</b></p>-->
+                                        <!--        </div>-->
+                                        <!--        <div class="col" style="padding-bottom: 1.0rem;  padding-top: 1.0rem;">-->
+                                        <!--        <p><b style="font-size: 1.2rem; color:#007BFF;">Patients</b></p>-->
+                                        <!--        </div>-->
+                                        <!--        <div class="col" style="padding-bottom: 1.0rem;  padding-top: 1.0rem;">-->
+                                        <!--        <p><b style="font-size: 1.2rem; color:#007BFF;">Session</b></p>-->
+                                        <!--        </div>-->
+                                        <!--        <div class="col" style="padding-bottom: 1.0rem;  padding-top: 1.0rem;">-->
+                                        <!--        <p><b style="font-size: 1.2rem; color:#007BFF;">Reports</b></p>-->
+                                        <!--        </div>-->
+                                        <!--    </div>-->
+                                        <!--</div>-->
+                                            <% if(topUsers.usersWithPatients.length> 0) { %>
+                                                <% topUsers.usersWithPatients.slice(0,5).map((e)=> {%>
+                                                    <tr>
+                                                        <td style="font-size: 1.2rem; color:#696969;">
+                                                            <%= e.phizioname %>
+                                                        </td>
+                                                        <td style="font-size: 1.2rem; color:#696969;">
+                                                            <% if(e.clinicname) { %>
+                                                                <%= e.clinicname %>
+                                                            <% }else{ %>
+                                                                <%= "--" %>
+                                                            <% } %>
+                                                        </td>
+                                                        <td style="font-size: 1.2rem; color:#696969;">
+                                                            <%= e.numberOfPatients %>
+                                                        </td>
+                                                        
+                                                        <td style="font-size: 1.2rem; color:#696969;">
+                                                            <% topUsers.usersWithSessions.map((el)=> { %>
+                                                            <% if(el._id==e.phizioemail) { %>
+                                                                    <% if(el.numberOfSessions) { %>
+                                                                        <%= el.numberOfSessions %>
+                                                                    <% }else{ %>
+                                                                            <%= "--" %>
+                                                                    <% } %>
+                                                                <% } %>
+                                                            <% }) %>
+                                                        </td> 
+                                                        <td style="font-size: 1.2rem; color:#696969;">
+                                                            <%= "--" %>
+                                                        </td> 
+                                                    </tr>
+                                                    
+                                                    <% })} else { %>
+                                                        <tr>
+                                                                <h4 class="mb-0">
+                                                                    No data for the selected time range
+                                                                </h4>
+                                                        </tr>
+                                                        <% } %>
+                                                </table>
+
+                                        <!--<div class="text-center"><a href="" class="">View All</a></div>-->
+                                    </div>
+                                </div>
+                          
+                    </div>
+                 
+                                    
+                                 
+                                
+                          
+                    
+                    
+                        
+                    
+                    
+                   
+                   
+                    
+                    
+                    <div class="row mb-2 d-none user-activity">
+                        <div class="col-xl-3 col-lg-4 col-md-12 col-sm-12 col-xs-12">
+                            <div class="row mx-0 userActivity">
+                                <div class="col-6 border rounded-left d-flex justify-content-center align-items-center">
+                                    <h1 class="text-center mb-0">
+                                        <%= activeUsers %>
+                                    </h1>
+                                </div>
+                                <div
+                                    class="col-6 border rounded-right btn py-1 d-flex justify-content-center align-items-center">
+                                    <a href="/dashboard/users?filter=activeusers">
+                                        <h3 style="font-size: 1.5em; line-height: 1"
+                                            class="text-success text-center mb-0">
+                                            ACTIVE</h3>
+                                        <h5 class="text-muted text-center mb-0" style="line-height: 1">USERS</h5>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="row mx-0 userActivity">
+                                <div class="col-6 border rounded-left d-flex justify-content-center align-items-center">
+                                    <h1 class="text-center mb-0">
+                                        <%= inactiveUsers %>
+                                    </h1>
+                                </div>
+                                <div
+                                    class="col-6 border rounded-right btn py-1 d-flex justify-content-center align-items-center">
+                                    <a href="/dashboard/users?filter=inactiveusers">
+                                        <h3 style="font-size: 1.5em; line-height: 1"
+                                            class="text-warning text-center mb-0">
+                                            INACTIVE</h3>
+                                        <h5 class="text-muted text-center mb-0" style="line-height: 1">USERS</h5>
+                                        <i class="fas fa-circle text-warning"
+                                            style="position: absolute; top:4px; right:4px"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="row mx-0 deviceActivity">
+                                <div class="col-6 border rounded-left d-flex justify-content-center align-items-center">
+                                    <h1 class="text-center mb-0">
+                                        <%= faultyUsers %>
+                                    </h1>
+                                </div>
+                                <div
+                                    class="col-6 border rounded-right btn py-1 d-flex justify-content-center align-items-center">
+                                    <a href="/dashboard/users?filter=faultyusers">
+                                        <h3 style="font-size: 1.5em; line-height: 1"
+                                            class="text-danger text-center mb-0">FAULTY
+                                        </h3>
+                                        <h5 class="text-muted text-center mb-0" style="line-height: 1">USERS</h5>
+                                        <i class="fas fa-circle text-danger"
+                                            style="position: absolute; top:4px; right:4px"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-11 col-lg-11 col-md-12 col-sm-12 col-xs-12">
+                            <div class="card my-1" style="height: 100%">
+                                <div class="card-body py-1">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h3 class="mb-1" style="font-size: 3vh;">ACTIVITY <span class="text-muted"
+                                                id="userActivityChartSubHead" style="font-size: .8em"></span>
+                                        </h3>
+                                        <div class="reference d-flex align-items-center justify-content-between">
+                                            LOW
+                                            <div class="less"></div>
+                                            <div style="background-color:#46f26b"></div>
+                                            <div style="background-color:#4CC065"></div>
+                                            HIGH
+                                        </div>
+                                        <select name="firstRowOptions" id="filterByYearOfSecondRowUsers"
+                                            class="custom-select px-3"
+                                            style="width: 150px; padding: 0 12px; height: inherit;">
+                                        </select>
+                                    </div>
+                                    <div id="userActivityChart" data="<%= userActivityOverall[0].timeStamps %> "></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+                <div class="" style="margin-top: 1.5rem; padding-left: 2rem; padding-right: 1rem;">
+                    <div class="thirdRow">
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-xs-12">
+                                <div class="card border totalPatients">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center py-2">
+                                            <h5 class="text-center mb-0 pr-4" style="font-size: 1.5rem; color: #8067B7;">Total Patients</h5>
+                                            <h3 class="text-center mb-0">
+                                               --
+                                            </h3>
+                                        </div>
+                                        <div class="">
+                                            <div id="chartOne"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-xs-12">
+                                <div class="card border totalPatients">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center py-2">
+                                            <h5 class="text-center mb-0 pr-4" style="font-size: 1.5rem; color:#8067B7;">Total Reports</h5>
+                                            <h3 class="text-center mb-0">
+                                                --
+                                            </h3>
+                                        </div>
+                                        <div class="">
+                                            <div id="charttwo"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 d-none"
+                                id="pastOneWeekSecondColumnThirdRow">
+                                <div class="card border rounded topUsers">
+                                    <div class="card-body px-2 py-1 pt-2">
+                                        <h3 class="mb-2 topUsersHead">TOP USERS<span style="font-size: .8em;"
+                                                class="text-muted">
+                                                in
+                                                the last
+                                                week</span></h3>
+                                        <div class="rounded">
+                                            <% if(topUsers.usersWithSessionsandPatientsByWeek.length> 0) { %>
+                                                <% topUsers.usersWithSessionsandPatientsByWeek.slice(0,2).map((e)=> {
+
+                                                    %>
+                                                    <div class="d-flex justify-content-between p-1 mb-1 rounded border">
+                                                        <div
+                                                            class="d-flex justify-content-start align-items-center w-50">
+                                                            <div class="logo d-flex justify-content-center align-items-center mx-2"
+                                                                style="width: 40px; height: 40px; border: 1px solid rgba(0, 0, 0, 0.349); border-radius: 50%;">
+                                                                <i class="fas fa-user" style="font-size: 1.2rem;"></i>
+                                                            </div>
+                                                            <div class="details">
+                                                                <h4 class="mb-0">
+                                                                    <% topUsers.usersWithPatients.map((el)=> { %>
+                                                                        <% if(e._id==el.phizioemail) { %>
+                                                                            Dr. <%= el.phizioname %>
+                                                                                <% }}) %>
+                                                                </h4>
+                                                                <p class="">
+                                                                    <% topUsers.usersWithPatients.map((el)=> { %>
+                                                                        <% if(e._id==el.phizioemail) { %>
+                                                                            <% if(el.clinicname) { %>
+                                                                                <%= el.clinicname %>
+                                                                                    <% }else{ %>
+                                                                                        <%= "--" %>
+                                                                                            <% }}}) %>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-end w-50">
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <%= e.numberOfPatients.length %>
+                                                                </h3>
+                                                                <h6 class="mb-0 text-muted">PATIENTS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+
+                                                                    <%= e.numberOfSessions %>
+
+                                                                </h3>
+                                                                <h6 class="mb-0 text-muted">SESSIONS</h6
+                                                                    class="text-muted">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <% })} else { %>
+                                                        <div
+                                                            class="d-flex justify-content-between border p-2 mb-2 rounded">
+                                                            <div class="">
+                                                                <h4 class="mb-0 mt-2">
+                                                                    No data for the selected time range
+                                                                </h4>
+
+                                                            </div>
+                                                        </div>
+                                                        <% } %>
+
+                                        </div>
+                                        <div class="text-center"><a href="" class="">View All</a></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 d-none"
+                                id="pastOneMonthSecondColumnThirdRow">
+                                <div class="card border rounded topUsers">
+                                    <div class="card-body px-2 py-1 pt-2">
+                                        <h3 class="mb-2 topUsersHead">TOP USERS<span style="font-size: .8em;"
+                                                class="text-muted">
+                                                in
+                                                the last
+                                                month</span></h3>
+                                        <div class="rounded">
+                                            <% if(topUsers.usersWithSessionsandPatientsByMonth.length> 0) { %>
+                                                <% topUsers.usersWithSessionsandPatientsByMonth.slice(0,2).map((e)=> {
+
+                                                    %>
+                                                    <div class="d-flex justify-content-between p-1 mb-1 border rounded">
+                                                        <div
+                                                            class="d-flex justify-content-start align-items-center w-50">
+                                                            <div class="logo d-flex justify-content-center align-items-center mx-2"
+                                                                style="width: 40px; height: 40px; border: 1px solid rgba(0, 0, 0, 0.349); border-radius: 50%;">
+                                                                <i class="fas fa-user" style="font-size: 1.2rem;"></i>
+                                                            </div>
+                                                            <div class="details">
+                                                                <h4 class="mb-0">
+                                                                    <% topUsers.usersWithPatients.map((el)=> { %>
+                                                                        <% if(e._id==el.phizioemail) { %>
+                                                                            Dr. <%= el.phizioname %>
+                                                                                <% }}) %>
+                                                                </h4>
+                                                                <p class="">
+                                                                    <% topUsers.usersWithPatients.map((el)=> { %>
+                                                                        <% if(e._id==el.phizioemail) { %>
+                                                                            <% if(el.clinicname) { %>
+                                                                                <%= el.clinicname %>
+                                                                                    <% }else{ %>
+                                                                                        <%= "--" %>
+                                                                                            <% }}}) %>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-end w-50">
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <%= e.numberOfPatients.length %>
+                                                                </h3>
+                                                                <h6 class="mb-0 text-muted">PATIENTS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+
+                                                                    <%= e.numberOfSessions %>
+
+                                                                </h3>
+                                                                <h6 class="mb-0 text-muted">SESSIONS</h6
+                                                                    class="text-muted">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <% })} else { %>
+                                                        <div
+                                                            class="d-flex justify-content-between border p-2 mb-2 rounded">
+                                                            <div class="">
+                                                                <h4 class="mb-0 mt-2">
+                                                                    No data for the selected time range
+                                                                </h4>
+
+                                                            </div>
+                                                        </div>
+                                                        <% } %>
+
+
+                                        </div>
+                                        <div class="text-center"><a href="" class="">View All</a></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 d-none"
+                                id="pastFiveMonthsSecondColumnThirdRow">
+                                <div class="card border rounded topUsers">
+                                    <div class="">
+                                        <h3 class="mb-2 topUsersHead">TOP USERS<span style="font-size: .8em;"
+                                                class="text-muted">
+                                                in the
+                                                last five
+                                                months</span></h3>
+                                        <div class="rounded">
+                                            <% if(topUsers.usersWithSessionsandPatientsByFiveMonths.length> 0) { %>
+                                                <%
+                                                    topUsers.usersWithSessionsandPatientsByFiveMonths.slice(0,2).map((e)=>
+                                                    {
+
+                                                    %>
+                                                    <div class="d-flex justify-content-between p-1 mb-1 border rounded">
+                                                        <div
+                                                            class="d-flex justify-content-start align-items-center w-50">
+                                                            <div class="logo d-flex justify-content-center align-items-center mx-2"
+                                                                style="width: 40px; height: 40px; border: 1px solid rgba(0, 0, 0, 0.349); border-radius: 50%;">
+                                                                <i class="fas fa-user" style="font-size: 1.2rem;"></i>
+                                                            </div>
+                                                            <div class="details">
+                                                                <h4 class="mb-0">
+                                                                    <% topUsers.usersWithPatients.map((el)=> { %>
+                                                                        <% if(e._id==el.phizioemail) { %>
+                                                                            Dr. <%= el.phizioname %>
+                                                                                <% }}) %>
+                                                                </h4>
+                                                                <p class="">
+                                                                    <% topUsers.usersWithPatients.map((el)=> { %>
+                                                                        <% if(e._id==el.phizioemail) { %>
+                                                                            <% if(el.clinicname) { %>
+                                                                                <%= el.clinicname %>
+                                                                                    <% }else{ %>
+                                                                                        <%= "--" %>
+                                                                                            <% }}}) %>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-end w-50">
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <%= e.numberOfPatients.length %>
+                                                                </h3>
+                                                                <h6 class="mb-0 text-muted">PATIENTS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+
+                                                                    <%= e.numberOfSessions %>
+
+                                                                </h3>
+                                                                <h6 class="mb-0 text-muted">SESSIONS</h6
+                                                                    class="text-muted">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <% })} else { %>
+                                                        <div
+                                                            class="d-flex justify-content-between border p-2 mb-2 rounded">
+                                                            <div class="">
+                                                                <h4 class="mb-0 mt-2">
+                                                                    No data for the selected time range
+                                                                </h4>
+
+                                                            </div>
+                                                        </div>
+                                                        <% } %>
+
+                                        </div>
+                                        <div class="text-center"><a href="" class="">View All</a></div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 d-none"
+                                id="pastOneYearSecondColumnThirdRow">
+                                <div class="card border rounded topUsers">
+                                    <div class="card-body px-2 py-1 pt-2">
+                                        <h3 class="mb-2 topUsersHead">TOP USERS<span style="font-size: 1.8em;"
+                                                class="text-muted">
+                                                in
+                                                the last one
+                                                year</span></h3>
+                                        <div class="rounded">
+                                            <% if(topUsers.usersWithSessionsandPatientsByOneYear.length> 0) { %>
+                                                <% topUsers.usersWithSessionsandPatientsByOneYear.slice(0,2).map((e)=> {
+
+                                                    %>
+                                                    <div class="d-flex justify-content-between p-1 mb-1 border rounded">
+                                                        <div
+                                                            class="d-flex justify-content-start align-items-center w-50">
+                                                            <div class="logo d-flex justify-content-center align-items-center mx-2"
+                                                                style="width: 40px; height: 40px; border: 1px solid rgba(0, 0, 0, 0.349); border-radius: 50%;">
+                                                                <i class="fas fa-user" style="font-size: 1.2rem;"></i>
+                                                            </div>
+                                                            <div class="details">
+                                                                <h4 class="mb-0">
+                                                                    <% topUsers.usersWithPatients.map((el)=> { %>
+                                                                        <% if(e._id==el.phizioemail) { %>
+                                                                            Dr. <%= el.phizioname %>
+                                                                                <% }}) %>
+                                                                </h4>
+                                                                <p class="">
+                                                                    <% topUsers.usersWithPatients.map((el)=> { %>   
+                                                                        <% if(e._id==el.phizioemail) { %>
+                                                                            <% if(el.clinicname) { %>
+                                                                                <%= el.clinicname %>
+                                                                                    <% }else{ %>
+                                                                                        <%= "--" %>
+                                                                                            <% }}}) %>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-end w-50">
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <%= e.numberOfPatients.length %>
+                                                                </h3>
+                                                                <h6 class="mb-0 text-muted">PATIENTS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+
+                                                                    <%= e.numberOfSessions %>
+
+                                                                </h3>
+                                                                <h6 class="mb-0 text-muted">SESSIONS</h6
+                                                                    class="text-muted">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <% })} else { %>
+                                                        <div
+                                                            class="d-flex justify-content-between border p-2 mb-2 rounded">
+                                                            <div class="">
+                                                                <h4 class="mb-0 mt-2">
+                                                                    No data for the selected time range
+                                                                </h4>
+
+                                                            </div>
+                                                        </div>
+                                                        <% } %>
+                                        </div>
+                                        <div class="text-center"><a href="" class="">View All</a></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 d-none"
+                                id="pastFiveYearSecondColumnThirdRow">
+                                <div class="card border rounded topUsers">
+                                    <div class="card-body px-2 py-1 pt-2">
+                                        <h3 class="mb-2 topUsersHead">TOP USERS<span style="font-size: .8em;"
+                                                class="text-muted">
+                                                in
+                                                the last
+                                                five
+                                                years</span></h3>
+                                        <div class="rounded">
+                                            <% if(topUsers.usersWithSessionsandPatientsByFiveYears.length> 0) { %>
+                                                <% topUsers.usersWithSessionsandPatientsByFiveYears.slice(0,2).map((e)=>
+                                                    {
+
+                                                    %>
+                                                    <div class="d-flex justify-content-between p-1 mb-1 border rounded">
+                                                        <div
+                                                            class="d-flex justify-content-start align-items-center w-50">
+                                                            <div class="logo d-flex justify-content-center align-items-center mx-2"
+                                                                style="width: 40px; height: 40px; border: 1px solid rgba(0, 0, 0, 0.349); border-radius: 50%;">
+                                                                <i class="fas fa-user" style="font-size: 1.2rem;"></i>
+                                                            </div>
+                                                            <div class="details">
+                                                                <h4 class="mb-0">
+                                                                    <% topUsers.usersWithPatients.map((el)=> { %>
+                                                                        <% if(e._id==el.phizioemail) { %>
+                                                                            Dr. <%= el.phizioname %>
+                                                                                <% }}) %>
+                                                                </h4>
+                                                                <p class="">
+                                                                    <% topUsers.usersWithPatients.map((el)=> { %>
+                                                                        <% if(e._id==el.phizioemail) { %>
+                                                                            <% if(el.clinicname) { %>
+                                                                                <%= el.clinicname.slice(0,23) %>
+                                                                                    <% }else{ %>
+                                                                                        <%= "--" %>
+                                                                                            <% }}}) %>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-end w-50">
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <%= e.numberOfPatients.length %>
+                                                                </h3>
+                                                                <h6 class="mb-0 text-muted">PATIENTS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+
+                                                                    <%= e.numberOfSessions %>
+
+                                                                </h3>
+                                                                <h6 class="mb-0 text-muted">SESSIONS</h6
+                                                                    class="text-muted">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <% })} else { %>
+                                                        <div
+                                                            class="d-flex justify-content-between border p-2 mb-2 rounded">
+                                                            <div class="">
+                                                                <h4 class="mb-0 mt-2">
+                                                                    No data for the selected time range
+                                                                </h4>
+                                                            </div>
+                                                        </div>
+                                                        <% } %>
+                                        </div>
+                                        <div class="text-center"><a href="" class="">View All</a></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-12 col-sm-12 col-xs-12" style="margin-top: 0.1rem;"
+                                id="overallThirdColumnThirdRow">
+                                <div class="card border topAccounts">
+                                    <div class="card-body">
+                                        <p class="mb-2 topAccountsHead" style="background-color:#8067B7; color: white; padding-left: 0.8rem; padding-bottom: 0.8rem; padding-top: 0.8rem;" >Top Accounts</h3><span style="font-size: .8rem;" class="text-muted">
+                                               </span></p>
+                                               <table class="table">
+                                                <tr>
+                                                    <th style="font-size: 1.2rem; color:#8067B7;"><b>Name</b></th>
+                                                    <th style="font-size: 1.2rem; color:#8067B7;"><b>Hospital</b></th>
+                                                    <th style="font-size: 1.2rem; color:#8067B7;"><b>Device</b></th>
+                                                    <th style="font-size: 1.2rem; color:#8067B7;"><b>Patients</b></th>
+                                                    <th style="font-size: 1.2rem; color:#8067B7;"><b>Reports</b></th>
+                                                 </tr>
+                                               
+                                                    
+                                               
+                                               
+                                               
+                                        <!--       <div class="head">-->
+                                        <!--    <div class="row">-->
+                                        <!--        <div class="col" style ="padding-bottom: 1.0rem;  padding-top: 1.0rem;">-->
+                                        <!--        <p ><b style="font-size: 1.2rem; color:#007BFF;">Name</b></p>-->
+                                        <!--        </div>-->
+                                        <!--        <div class="col" style ="padding-bottom: 1.0rem;  padding-top: 1.0rem;">-->
+                                        <!--        <p><b style="font-size: 1.2rem; color:#007BFF;">Hospital</b></p>-->
+                                        <!--        </div>-->
+                                        <!--        <div class="col" style ="padding-bottom: 1.0rem;  padding-top: 1.0rem;">-->
+                                        <!--        <p><b style="font-size: 1.2rem; color:#007BFF;">Device</b></p>-->
+                                        <!--        </div>-->
+                                        <!--        <div class="col" style ="padding-bottom: 1.0rem;  padding-top: 1.0rem;">-->
+                                        <!--        <p><b style="font-size: 1.2rem; color:#007BFF;">Patients</b></p>-->
+                                        <!--        </div>-->
+                                        <!--        <div class="col" style ="padding-bottom: 1.0rem;  padding-top: 1.0rem;">-->
+                                        <!--        <p><b style="font-size: 1.2rem; color:#007BFF;">Reports</b></p>-->
+                                        <!--        </div>-->
+                                        <!--    </div>-->
+                                        <!--</div>-->
+                                        
+                                            <% topAccounts.overAllTopUsers.slice(0,4).map((e)=> {  %>
+                                                    <tr>
+                                                    <td>
+                                                        <%= "--" %>   
+                                                    </td>
+                                                    <td>
+                                                        <% if(e.clinicname==null || e.clinicname=="" ) { %>
+                                                                    <%= "NO NAME" %>
+                                                                        <% } else { %>
+                                                                            <%= e.clinicname.toUpperCase() %>
+                                                                                <% } %>
+                                                    </td>
+                                                    <td>
+                                                        <%= e.numberOfDevices %>
+                                                    </td>
+                                                    <td>
+                                                        <%= e.numberOfPatients %>
+                                                    </td>
+                                                    <td>
+                                                        <%= "--" %> 
+                                                    </td>
+                                                    
+                                                    </tr>
+                                                
+                                                <!--<div class="d-flex justify-content-between p-1 mb-1 rounded border">-->
+                                                   
+                                                    
+                                                
+                                                <% }) %>
+                                                
+                                                </table>
+
+                                        
+                                        <!--<div class="text-center"><a href="" class="">View All</a></div>-->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 d-none"
+                                id="pastOneWeekThirdColumnThirdRow">
+                                <div class="card border rounded topAccounts">
+                                    <div class="card-body px-2 py-1 pt-2">
+                                        <h3 class="mb-2 topAccountsHead">TOP ACCOUNTS<span style="font-size: .8em;"
+                                                class="text-muted"> in the last
+                                                week</span></h3>
+                                        <div class="rounded">
+                                            <% if( topAccounts.topUsersByWeek.length> 0) { %>
+                                                <% topAccounts.topUsersByWeek.slice(0,2).map((e)=> {
+                                                    %>
+                                                    <div
+                                                        class="d-flex justify-content-between align-items-center p-1 mb-1 border rounded ">
+                                                        <div class="d-flex align-items-center justify-content-start w-25"
+                                                            style="line-height: 1;">
+                                                            <div
+                                                                class="logo d-flex justify-content-center align-items-center pr-2 pl-1">
+                                                                <i class="fas fa-hospital-alt"
+                                                                    style="font-size: 1.2rem;"></i>
+                                                            </div>
+                                                            <div class="details">
+                                                                <h4 class="mb-0" style="width: fit-content;">
+                                                                    <% if(e._id==null || e._id=="" ) { %>
+                                                                        <%= "NO NAME" %>
+                                                                            <% } else { %>
+                                                                                <%= e._id.toUpperCase() %>
+                                                                                    <% } %>
+                                                                </h4>
+                                                                <p class="">
+
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-end w-75">
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% topAccounts.overAllTopUsers.map((el)=>
+                                                                        { %>
+                                                                        <% if(e._id==el.clinicname) { %>
+                                                                            <%= el.numberOfDevices %>
+                                                                                <% }}) %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">DEVICES</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% let numberOfUsersByOneWeek=[]; e.users.map((el)=>
+                                                                        {
+                                                                        numberOfUsersByOneWeek.push(...el);
+                                                                        })
+                                                                        %>
+                                                                        <%= (new Set(numberOfUsersByOneWeek)).size %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">USERS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <%= e.numberOfSessions %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">SESSIONS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% let numberOfPatientsByOneWeek=[];
+                                                                        e.patients.map((el)=> {
+                                                                        numberOfPatientsByOneWeek.push(...el);
+                                                                        })
+                                                                        %>
+                                                                        <%= (new Set(numberOfPatientsByOneWeek)).size %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">PATIENTS</h6>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                    <% })} else { %>
+                                                        <div
+                                                            class="d-flex justify-content-between align-items-center border p-2 mb-2 rounded ">
+                                                            <div class="">
+                                                                <h4 class="mb-0 mt-2">
+                                                                    No Data for the selected time range
+                                                                </h4>
+                                                                <p class="">
+
+                                                                </p>
+                                                            </div>
+
+                                                        </div>
+                                                        <% } %>
+                                        </div>
+                                        <div class="text-center"><a href="" class="">View All</a></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 d-none"
+                                id="pastOneMonthThirdColumnThirdRow">
+                                <div class="card border rounded topAccounts">
+                                    <div class="card-body px-2 py-1 pt-2">
+                                        <h3 class="mb-2 topAccountsHead">TOP ACCOUNTS<span style="font-size: .8em;"
+                                                class="text-muted"> in the last
+                                                month</span></h3>
+                                        <div class="rounded">
+                                            <% if( topAccounts.topUsersByMonth.length> 0) { %>
+                                                <% topAccounts.topUsersByMonth.slice(0,2).map((e)=> {
+                                                    %>
+                                                    <div
+                                                        class="d-flex justify-content-between align-items-center p-1 mb-1 border rounded ">
+                                                        <div class="d-flex align-items-center justify-content-start w-25"
+                                                            style="line-height: 1;">
+                                                            <div
+                                                                class="logo d-flex justify-content-center align-items-center pr-2 pl-1">
+                                                                <i class="fas fa-hospital-alt"
+                                                                    style="font-size: 1.2rem;"></i>
+                                                            </div>
+                                                            <div class="details">
+                                                                <h4 class="mb-0" style="line-height: 1.2;">
+                                                                    <% if(e._id==null || e._id=="" ) { %>
+                                                                        <%= "NO NAME" %>
+                                                                            <% } else { %>
+                                                                                <%= e._id.toUpperCase() %>
+                                                                                    <% } %>
+                                                                </h4>
+                                                                <p class="">
+
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-end w-75">
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% topAccounts.overAllTopUsers.map((el)=>
+                                                                        { %>
+                                                                        <% if(e._id==el.clinicname) { %>
+                                                                            <%= el.numberOfDevices %>
+                                                                                <% }}) %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">DEVICES</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% let numberOfUsersByOneMonth=[];
+                                                                        e.users.map((el)=> {
+                                                                        numberOfUsersByOneMonth.push(...el);
+                                                                        })
+                                                                        %>
+                                                                        <%= (new Set(numberOfUsersByOneMonth)).size %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">USERS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <%= e.numberOfSessions %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">SESSIONS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% let numberOfPatientsByOneMonth=[];
+                                                                        e.patients.map((el)=>
+                                                                        {
+                                                                        numberOfPatientsByOneMonth.push(...el);
+                                                                        })
+                                                                        %>
+                                                                        <%= (new Set(numberOfPatientsByOneMonth)).size
+                                                                            %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">PATIENTS</h6>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                    <% })} else { %>
+                                                        <div
+                                                            class="d-flex justify-content-between align-items-center border p-2 mb-2 rounded ">
+                                                            <div class="">
+                                                                <h4 class="mb-0 mt-2">
+                                                                    No Data for the selected time range
+                                                                </h4>
+                                                                <p class="">
+
+                                                                </p>
+                                                            </div>
+
+                                                        </div>
+                                                        <% } %>
+
+                                        </div>
+                                        <div class="text-center"><a href="" class="">View All</a></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 d-none"
+                                id="pastFiveMonthsThirdColumnThirdRow">
+                                <div class="card border rounded topAccounts">
+                                    <div class="card-body px-2 py-1 pt-2">
+                                        <h3 class="mb-2 topAccountsHead">TOP ACCOUNTS<span style="font-size: .8em;"
+                                                class="text-muted"> in the last
+                                                five months</span></h3>
+                                        <div class="rounded">
+                                            <% if( topAccounts.topUsersByFiveMonths.length> 0) { %>
+                                                <% topAccounts.topUsersByFiveMonths.slice(0,2).map((e)=> {
+                                                    %>
+                                                    <div
+                                                        class="d-flex justify-content-between align-items-center p-1 mb-1 border rounded ">
+                                                        <div class="d-flex align-items-center justify-content-start w-25"
+                                                            style="line-height: 1;">
+                                                            <div
+                                                                class="logo d-flex justify-content-center align-items-center pr-2 pl-1">
+                                                                <i class="fas fa-hospital-alt"
+                                                                    style="font-size: 1.2rem;"></i>
+                                                            </div>
+                                                            <div class="details">
+                                                                <h4 class="mb-0" style="line-height: 1.2;">
+                                                                    <% if(e._id==null || e._id=="" ) { %>
+                                                                        <%= "NO NAME" %>
+                                                                            <% } else { %>
+                                                                                <%= e._id.toUpperCase() %>
+                                                                                    <% } %>
+                                                                </h4>
+                                                                <p class="">
+
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-end w-75">
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% topAccounts.overAllTopUsers.map((el)=>
+                                                                        { %>
+                                                                        <% if(e._id==el.clinicname) { %>
+                                                                            <%= el.numberOfDevices %>
+                                                                                <% }}) %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">DEVICES</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% let numberOfUsersByFiveMonths=[];
+                                                                        e.users.map((el)=> {
+                                                                        numberOfUsersByFiveMonths.push(...el);
+                                                                        })
+                                                                        %>
+                                                                        <%= (new Set(numberOfUsersByFiveMonths)).size %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">USERS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <%= e.numberOfSessions %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">SESSIONS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% let numberOfPatientsByFiveMonths=[];
+                                                                        e.patients.map((el)=> {
+                                                                        numberOfPatientsByFiveMonths.push(...el);
+                                                                        })
+                                                                        %>
+                                                                        <%= (new Set(numberOfPatientsByFiveMonths)).size
+                                                                            %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">PATIENTS</h6>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                    <% })} else { %>
+                                                        <div
+                                                            class="d-flex justify-content-between align-items-center border p-2 mb-2 rounded ">
+                                                            <div class="">
+                                                                <h4 class="mb-0 mt-2">
+                                                                    No Data for the selected time range
+                                                                </h4>
+                                                                <p class="">
+
+                                                                </p>
+                                                            </div>
+
+                                                        </div>
+                                                        <% } %>
+                                        </div>
+                                        <div class="text-center"><a href="" class="">View All</a></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 d-none"
+                                id="pastOneYearThirdColumnThirdRow">
+                                <div class="card border rounded topAccounts">
+                                    <div class="card-body px-2 py-1 pt-2">
+                                        <h3 class="mb-2 topAccountsHead">TOP ACCOUNTS<span style="font-size: .8em;"
+                                                class="text-muted"> in the last
+                                                one year</span></h3>
+                                        <div class="rounded">
+                                            <% if( topAccounts.topUsersByOneYear.length> 0) { %>
+                                                <% topAccounts.topUsersByOneYear.slice(0,2).map((e)=> {
+                                                    %>
+                                                    <div
+                                                        class="d-flex justify-content-between align-items-center p-1 mb-1 border rounded ">
+                                                        <div class="d-flex align-items-center justify-content-start w-25"
+                                                            style="line-height: 1;">
+                                                            <div
+                                                                class="logo d-flex justify-content-center align-items-center pr-2 pl-1">
+                                                                <i class="fas fa-hospital-alt"
+                                                                    style="font-size: 1.2rem;"></i>
+                                                            </div>
+                                                            <div class="details">
+                                                                <h4 class="mb-0" style="line-height: 1.2;">
+                                                                    <% if(e._id==null || e._id=="" ) { %>
+                                                                        <%= "NO NAME" %>
+                                                                            <% } else { %>
+                                                                                <%= e._id.toUpperCase() %>
+                                                                                    <% } %>
+                                                                </h4>
+                                                                <p class="">
+
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-end w-75">
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% topAccounts.overAllTopUsers.map((el)=>
+                                                                        { %>
+                                                                        <% if(e._id==el.clinicname) { %>
+                                                                            <%= el.numberOfDevices %>
+                                                                                <% }}) %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">DEVICES</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% let numberOfUsersByOneYear=[]; e.users.map((el)=>
+                                                                        {
+                                                                        numberOfUsersByOneYear.push(...el);
+                                                                        })
+                                                                        %>
+                                                                        <%= (new Set(numberOfUsersByOneYear)).size %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">USERS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <%= e.numberOfSessions %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">SESSIONS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% let numberOfPatientsByOneYear=[];
+                                                                        e.patients.map((el)=> {
+                                                                        numberOfPatientsByOneYear.push(...el);
+                                                                        })
+                                                                        %>
+                                                                        <%= (new Set(numberOfPatientsByOneYear)).size %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">PATIENTS</h6>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                    <% })} else { %>
+                                                        <div
+                                                            class="d-flex justify-content-between align-items-center border p-2 mb-2 rounded ">
+                                                            <div class="">
+                                                                <h4 class="mb-0 mt-2">
+                                                                    No Data for the selected time range
+                                                                </h4>
+                                                                <p class="">
+
+                                                                </p>
+                                                            </div>
+
+                                                        </div>
+                                                        <% } %>
+                                        </div>
+                                        <div class="text-center"><a href="" class="">View All</a></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 col-xl-4 col-lg-4 col-md-12 col-sm-12 col-12 d-none"
+                                id="pastFiveYearThirdColumnThirdRow">
+                                <div class="card border rounded topAccounts">
+                                    <div class="card-body px-2 py-1 pt-2">
+                                        <h3 class="mb-2 topAccountsHead">TOP ACCOUNTS<span style="font-size: .8em;"
+                                                class="text-muted"> in the last
+                                                five years</span></h3>
+                                        <div class="rounded">
+                                            <% if( topAccounts.topUsersByFiveYear.length> 0) { %>
+                                                <% topAccounts.topUsersByFiveYear.slice(0,2).map((e)=> {
+                                                    %>
+                                                    <div
+                                                        class="d-flex justify-content-between align-items-center p-1 mb-1 border rounded ">
+                                                        <div class="d-flex align-items-center justify-content-start w-25"
+                                                            style="line-height: 1;">
+                                                            <div
+                                                                class="logo d-flex justify-content-center align-items-center pr-2 pl-1">
+                                                                <i class="fas fa-hospital-alt"
+                                                                    style="font-size: 1.2rem;"></i>
+                                                            </div>
+                                                            <div class="details">
+                                                                <h4 class="mb-0" style="line-height: 1.2;">
+                                                                    <% if(e._id==null || e._id=="" ) { %>
+                                                                        <%= "NO NAME" %>
+                                                                            <% } else { %>
+                                                                                <%= e._id.toUpperCase() %>
+                                                                                    <% } %>
+                                                                </h4>
+                                                                <p class="">
+
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-end w-75">
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% topAccounts.overAllTopUsers.map((el)=>
+                                                                        { %>
+                                                                        <% if(e._id==el.clinicname) { %>
+                                                                            <%= el.numberOfDevices %>
+                                                                                <% }}) %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">DEVICES</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% let numberOfUsersByFiveYear=[];
+                                                                        e.users.map((el)=> {
+                                                                        numberOfUsersByFiveYear.push(...el);
+                                                                        })
+                                                                        %>
+                                                                        <%= (new Set(numberOfUsersByFiveYear)).size %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">USERS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <%= e.numberOfSessions %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">SESSIONS</h6>
+                                                            </div>
+                                                            <div class="rounded border p-1 m-1">
+                                                                <h3 class="mb-0 text-center">
+                                                                    <% let numberOfPatientsByFiveYear=[];
+                                                                        e.patients.map((el)=>
+                                                                        {
+                                                                        numberOfPatientsByFiveYear.push(...el);
+                                                                        })
+                                                                        %>
+                                                                        <%= (new Set(numberOfPatientsByFiveYear)).size
+                                                                            %>
+                                                                </h3>
+                                                                <h6 class="text-muted mb-0">PATIENTS</h6>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                    <% })} else { %>
+                                                        <div
+                                                            class="d-flex justify-content-between align-items-center border p-2 mb-2 rounded ">
+                                                            <div class="">
+                                                                <h4 class="mb-0 mt-2">
+                                                                    No Data for the selected time range
+                                                                </h4>
+                                                                <p class="">
+
+                                                                </p>
+                                                            </div>
+
+                                                        </div>
+                                                        <% } %>
+                                        </div>
+                                        <div class="text-center"><a href="" class="">View All</a></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            
+
+
+
+
+                <script>
+                    $(document).ready(function () {
+
+                        function getTimeStampArray(anArrayOfTimeStamps) {
+                            timeStampArray = [];
+                            anArrayOfTimeStamps.map((element) => {
+                                timeStampArray.push(new Date(element).getTime())
+                            })
+                            return timeStampArray;
+                        }
+
+                        var activityFilterDevice = $('#filterByYearOfSecondRowDevice'),
+                            activityFilterUsers = $('#filterByYearOfSecondRowUsers'),
+                            date = new Date,
+                            years = [],
+                            year = date.getFullYear();
+
+                        for (var i = year; i > year - 5; i--) {
+                            activityFilterDevice.append(`<option value="year-${i}">${i}</option>`)
+                            activityFilterUsers.append(`<option value="year-${i}">${i}</option>`)
+                        }
+
+                        start_date = year
+                        // $('#deviceActivityChartSubHead').text(`in the year ${start_date}`)
+                        $('#userActivityChartSubHead').text(`in the year ${start_date}`)
+
+                        $('#deviceActivityChart').github_graph({
+                            //Generate random entries from 10-> 100 entries
+                            data: ([...'<%= dailyDeviceActivityTimeStampArray %>'.split(",")]).map(Number),
+                            texts: ['Active Device', 'Active Devices'],
+                            //override colours
+                            colors: ['#f1f3f4', '#bb9cff', '#8067B7',],
+                            start_date: new Date(start_date, 0, 1)
+                        });
+
+                        activityFilterDevice.change(function () {
+                            start_date = Number($('#filterByYearOfSecondRowDevice option:selected').text())
+
+                            // $('#deviceActivityChartSubHead').text(`in the year ${start_date}`)
+                            $('#deviceActivityChart').github_graph({
+                                //Generate random entries from 10-> 100 entries
+                                data: ([...'<%= dailyDeviceActivityTimeStampArray %>'.split(",")]).map(Number),
+                                texts: ['Active Device', 'Active Devices'],
+                                //override colours
+                                colors: ['#f1f3f4', '#bb9cff', '#8067B7',],
+                                start_date: new Date(start_date, 0, 1)
+                            });
+                        })
+
+                        $("#filterByDevicesOfSecondRow").change(function () {
+                            if ($('#filterByDevicesOfSecondRow option:selected').val() == 'devices') {
+
+                                if ($('.device-activity').hasClass('d-none')) {
+                                    $('.device-activity').removeClass('d-none');
+                                    $('.user-activity').addClass('d-none');
+                                } else {
+                                    $('.user-activity').addClass('d-none');
+                                }
+
+
+                                $('#deviceActivityChart').github_graph({
+                                    //Generate random entries from 10-> 100 entries
+                                    data: ([...'<%= dailyDeviceActivityTimeStampArray %>'.split(",")]).map(Number),
+                                    texts: ['Active Device', 'Active Devices'],
+                                    //override colours
+                                    colors: ['#f1f3f4', '#bb9cff', '#8067B7',],
+                                    start_date: new Date(start_date, 0, 1)
+                                });
+
+                                activityFilterDevice.change(function () {
+                                    start_date = Number($('#filterByYearOfSecondRowDevice option:selected').text())
+
+                                    // $('#deviceActivityChartSubHead').text(`in the year ${start_date}`)
+                                    $('#deviceActivityChart').github_graph({
+                                        //Generate random entries from 10-> 100 entries
+                                        data: ([...'<%= dailyDeviceActivityTimeStampArray %>'.split(",")]).map(Number),
+                                        texts: ['Active Device', 'Active Devices'],
+                                        //override colours
+                                        colors: ['#f1f3f4', '#bb9cff', '#8067B7',],
+                                        start_date: new Date(start_date, 0, 1)
+                                    });
+                                })
+                            }
+                            if ($('#filterByDevicesOfSecondRow option:selected').val() == 'users') {
+
+                                console.log('changed')
+                                if ($('.user-activity').hasClass('d-none')) {
+                                    $('.user-activity').removeClass('d-none');
+                                    $('.device-activity').addClass('d-none');
+                                } else {
+                                    $('.device-activity').addClass('d-none');
+                                }
+
+                                $('#userActivityChart').github_graph({
+                                    //Generate random entries from 10-> 100 entries
+                                    data: getTimeStampArray($('#userActivityChart').attr('data').split(',')),
+                                    texts: ['Session', 'Sessions'],
+                                    //override colours
+                                    colors: ['#f1f3f4', '#bb9cff', '#8067B7',],
+                                    start_date: new Date(start_date, 0, 1)
+                                });
+
+                                activityFilterUsers.change(function () {
+                                    start_date = Number($('#filterByYearOfSecondRowUsers option:selected').text())
+
+                                    $('#userActivityChartSubHead').text(`in the year ${start_date}`)
+                                    $('#userActivityChart').github_graph({
+                                        //Generate random entries from 10-> 100 entries
+                                        data: getTimeStampArray($('#userActivityChart').attr('data').split(',')),
+                                        texts: ['Session', 'Sessions'],
+                                        //override colours
+                                        colors: ['#f1f3f4', '#71c9f8', '#007BFF',],
+                                        start_date: new Date(start_date, 0, 1)
+                                    });
+                                })
+                            }
+                        })
+
+
+                        var chartHeight = $('.firstRow .fourthCard').height() * .8
+                        var chartHeightTwo = $('.thirdRow .totalPatients').height() * .7
+
+                        // if (window.innerHeight > 700) {
+                        //     chartHeight = Math.floor(window.innerHeight / 5)
+                        // }
+                        // if (window.innerHeight < 700) {
+                        //     chartHeight = Math.floor(window.innerHeight / 6)
+                        // }
+
+                        var chart = c3.generate({
+                            bindto: '#chartOne',
+                            
+                              bar:  {
+                                  width: 35
+                                    },
+                            
+                             color: {
+                                  pattern: ['#8067B7']
+                                    },
+                            
+                            
+                            data: {
+                                
+                                columns: [
+                                    ['No of Patients Joined', ...'<%= numberOfPatientsJoined.slice(0, 7) %>'.split(',')]
+                                ],
+                                type: 'bar',
+                            },
+                            size: {
+                                height: chartHeightTwo
+                            },
+                            axis: {
+                                y: {
+                                    tick: {
+                                        count: 2
+                                    }
+                                },
+                            },
+                            padding: {
+                                top: 10,
+                                right: 10,
+                                left: 50
+                            }
+                        });
+                        
+                        var chart = c3.generate({
+                            bindto: '#charttwo',
+                            
+                                 bar:  {
+                                  width: 35
+                                    },
+                            
+                             color: {
+                                  pattern: ['#8067B7']
+                                    },
+                            
+                            data: {
+                                columns: [
+                                    ['No of Patients Joined', ...'<%= numberOfPatientsJoined.slice(0, 7) %>'.split(',')]
+                                ],
+                                type: 'bar',
+                                
+                            },
+                            
+                            size: {
+                                height: chartHeightTwo
+                            },
+                            axis: {
+                                y: {
+                                    tick: {
+                                        count: 2
+                                    }
+                                },
+                            },
+                            padding: {
+                                top: 10,
+                                right: 10,
+                                left: 50
+                            }
+                        });
+                        var chart = c3.generate({
+                            bindto: '#revenueChart',
+                            data: {
+                                columns: [
+                                    ['data1', 30, 200, 100, 400, 150, 250]
+                                ],
+                                type: 'spline'
+                            },
+                            axis: {
+                                y: {
+                                    tick: {
+                                        count: 2
+                                    }
+                                },
+                            },
+                            size: {
+                                height: chartHeight
+                            },
+                            padding: {
+                                top: 10,
+                                right: 30,
+                                left: 50
+                            }
+                        });
+
+
+                    });
+                </script>
+                
+                  <script>
+                    var i = 0;
+                        i = 1;
+                        var elem = document.getElementById("myBar");
+                        var width = 1;
+                        var id = setInterval(frame, 10);
+                        function frame() {
+                          if (width >= parseInt("<%= numberofsold %>")) {
+                            clearInterval(id);
+                            i = 0;
+                          } else {
+                            width++;
+                            elem.style.width = width + "%";
+                          }
+                        }
+                     
+                    </script>

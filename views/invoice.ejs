@@ -1,0 +1,335 @@
+ <%
+  var today = new Date();
+var dd = String(today.getDate()).padStart(2, '0');
+var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+var yyyy = today.getFullYear();
+
+  %>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>StartoonLabs Invoice</title>
+    
+    <style>
+    
+    .invoice-box {
+        max-width: 100%;
+        margin: auto;
+        font-size: 15px;
+        line-height: 24px;
+        font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+        color: #062545;
+    }
+    
+    .invoice-box table {
+        width: 100%;
+        line-height: inherit;
+        text-align: left;
+    }
+    
+    .invoice-box table td {
+        padding: 5px;
+        vertical-align: top;
+    }
+
+    .invoice-box table th {
+        padding-right: 35px;
+        padding-left: 5px;
+        vertical-align: top;
+    }
+    
+    
+    .invoice-box table tr td:nth-child(2) {
+        text-align: right;
+    }
+    
+    .invoice-box table tr.top table td {
+        padding-bottom: 20px;
+    }
+    
+    .invoice-box table tr.top table td.title {
+        font-size: 45px;
+        line-height: 45px;
+        color: #333;
+    }
+    
+    .invoice-box table tr.information table td {
+        padding-bottom: 40px;
+    }
+    
+    .invoice-box table tr.heading td {
+        background: #006ab1;
+        border-bottom: 1px solid #ddd;
+        font-weight: bold;
+    }
+    
+    .invoice-box table tr.details td {
+        padding-bottom: 20px;
+    }
+    
+    .invoice-box table tr.item td{
+        border-bottom: 1px solid #eee;
+    }
+    
+    .invoice-box table tr.item.last td {
+        border-bottom: none;
+    }
+    
+    .invoice-box table tr.total td:nth-child(2) {
+        border-top: 2px solid #eee;
+        font-weight: bold;
+    }
+    
+    @media only screen and (max-width: 600px) {
+        .invoice-box table tr.top table td {
+            width: 100%;
+            display: block;
+            text-align: center;
+        }
+        
+        .invoice-box table tr.information table td {
+            width: 100%;
+            display: block;
+            text-align: center;
+        }
+    }
+    
+
+    @media print {
+        .invoice-box {
+        -webkit-print-color-adjust: exact; 
+    }
+}
+
+
+    /** RTL **/
+    .rtl {
+        direction: rtl;
+        font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+    }
+    
+    .rtl table {
+        text-align: right;
+    }
+    
+    .rtl table tr td:nth-child(2) {
+        text-align: left;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="invoice-box">
+        <p style="color:black; font-size: 9pt;text-align: center;">* This is computer generated invoice and does not require a physical copy</p>
+        
+        <table cellpadding="0" cellspacing="0">
+            
+         
+           
+            
+            <tr class="top">
+                
+                <td colspan="2">
+                    <div style="width: 100%;background-color:#006ab1;height: 3pt;"></div>
+                    <div style="width: 100%;background-color:#4fbdcc;height: 3pt;"></div>
+                    <div style="width: 100%;background-color:white;height: 2pt;"></div>
+                    
+                    <table style="border: 2px solid #d4d4d4;">
+                        <thead style="text-align:center;">
+                            <tr>
+                               <td colspan = "2" style="font-size: 14pt;"><b>Original Tax Invoice</b></td>
+                            </tr>
+                         </thead>
+                       
+                        
+                        <tr>
+                            <td width="65%">
+                                <img src="/icons/Pheezee_logo1.png" style="width:100%; max-width:10pt;"> <b>Pheezee</b> </br>
+                                Startoon Labs Pvt. Ltd,<br>
+                                2/B, Rukmini Devi Colony Annexe,<br>
+                                West maredpally,<br>
+                                Secunerabad,<br>
+                                Telanagana, India - 5000026
+                            </td>
+                            
+                            <td style="text-align: left;">
+                                 <br>
+                                www.startoonlabs.com,<br>
+                                contactus@startoonlabs.com<br>
+                                GSTIN: 36AAZCS4312D1Z7
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            
+           
+            
+            
+            
+            <tr class="details" > 
+                <td colspan="4" >
+                    
+                    <table style="border: 2px solid #d4d4d4;">
+
+                        <tr style="background-color: #006ab1;">
+                            <td colspan = "4" style="padding-top: 15px !important;padding-bottom: 15px !important;line-height: 4px;font-size: 11pt;color:white;"><b>Bill to</b></td>
+                         </tr>
+                   
+                       
+                        
+                        <tr >
+                          
+                            <td width="50%"; style="border-right: 2px solid #d4d4d4;">
+                               <%=details[0].phizioname %><br>
+                                <%=details[0].address %><br>
+                            </td>
+                            
+                            <td style="text-align: left;">
+                                
+                                Invoice#    <br>
+                                Transaction ID    <br>
+                                Date
+                            </td>
+                            <td style="text-align: left;">
+                                
+                                :<br>
+                                :<br>
+                                :
+                            </td>
+
+                            <td style="text-align: left;">
+                                
+                                PH-Pheezee-12345,<br>
+                                123456789<br>
+                                <%= new Date(today).toDateString().split(' ').slice(1).join(' ')%>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                
+            </tr>
+
+          
+            <td colspan="4" >
+                <table cellspacing="0" cellpadding="0"style="border: 2px solid #d4d4d4;">
+                    <tr class="heading" style="background-color: #006ab1;padding-top: 15px !important;padding-bottom: 15px !important;line-height: 35px;">
+                        <th width="50%" style="color: #fff;">
+                            Item & description
+                        </th>
+                        
+                        <th style="color: #fff;"style="text-align:center;">
+                            Qty
+                        </th>
+
+                        <th style="color: #fff;" style="text-align:center;">
+                            Rate
+                        </th>
+
+                        <th style="color: #fff;">
+                            Amount
+                        </th>
+                        
+                    </tr>
+
+                    <tr >
+                        <td width="45%" >
+                            Session Report
+                        </td>
+                        
+                        <td style="text-align:left;">
+                            1
+                        </td>
+
+                        <td style="text-align:left;">
+                            ₹300.00
+                        </td>
+
+                        <td >
+                            ₹300.00
+                        </td>
+                        
+                    </tr>
+
+
+                    <tr >
+                        <td width="45%" >
+                            Overall Report
+                        </td>
+                        
+                        <td style="text-align:left;">
+                            1
+                        </td>
+
+                        <td style="text-align:left;">
+                            ₹75.00
+                        </td>
+
+                        <td >
+                            ₹75.00
+                        </td>
+                        
+                    </tr>
+
+                    <tr> <td></td></tr>
+                    <tr> <td></td></tr>
+                    <tr> <td></td></tr>
+                    <tr> <td></td></tr>
+
+
+                    <tr  style="background-color: #d4d4d4;">
+                        <td></td>
+                        
+                        <td>
+                        </td>
+                        
+                        
+
+                        <td style="text-align: right;">
+                            CGST + SGST (18%)
+                        </td>
+                        
+                        <td>
+                            ₹67.50
+                        </td>
+                    </tr>
+
+                    <tr style="background-color: #006ab1;">
+                        <td></td>
+                        <td></td>
+                        <td style="color:#fff; text-align: right;"><b>Total </b> </td>
+                        
+                        <td style="color:#fff">
+                          <b>₹442.50</b>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+
+            
+            
+           
+            
+            
+            
+          
+            
+            
+            
+            
+        </table>
+
+        <div style="width: 100%;background-color:white !important;float:bottom;position:absolute;bottom:10pt">
+              
+              <p style="text-align: center;font-size:11pt;" >If you have any questions about this invoice, please contact <br> [contactus@startoonlabs.com]<br> <b>Thank you for your order</b>  </p>
+        </div>
+
+        <div style="width: 100%;height: 9pt;background-color:#062545 !important;float:bottom;position:absolute;bottom:0pt">
+        </div>
+
+
+    </div>
+</body>
+</html>

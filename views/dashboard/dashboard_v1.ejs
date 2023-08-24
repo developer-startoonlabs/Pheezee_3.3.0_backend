@@ -1,0 +1,259 @@
+<% layout('layout/template') %>
+
+	<% let totalSessionData=0; let totalDevices=0; let registeredDevices=0; let unregisteredDevices=0;let
+		faultyDevices=0; let deviceWithNoHealthData=0; let healthyDevices=0; patientSessionDataByUserId.sort((a, b)=>
+		b.numberOfPatientSessions -
+		a.numberOfPatientSessions).map((e, i) => {
+		totalSessionData += e.numberOfPatientSessions;
+		})
+		patientSessionDataByDate.sort((a,b) => new Date(b._id) - new Date(a._id))
+
+		deviceHealthData.map((e, i) => {
+		totalDevices += 1
+		if(e.phizioemails.length != 0){
+		registeredDevices++;
+		}else{
+		unregisteredDevices++;
+		}
+		if(e.health.length> 0) {
+		if(e.health.slice(-1).pop().health_info.u_lsm_ini == 1 ||
+		e.health.slice(-1).pop().health_info.l_lsm_ini == 1 ||
+		e.health.slice(-1).pop().health_info.gain_amplifier == 1 ||
+		e.health.slice(-1).pop().health_info.atiny_init_status == 1 ||
+		e.health.slice(-1).pop().health_info.adc_status == 1 ||
+		e.health.slice(-1).pop().health_info.u_lsm_regi == 1 ||
+		e.health.slice(-1).pop().health_info.l_lsm_regi == 1 ||
+		e.health.slice(-1).pop().health_info.ble_status == 1 ||
+		e.health.slice(-1).pop().health_info.charger_status == 1 ||
+		e.health.slice(-1).pop().health_info.pow_btn_status == 1 ||
+		e.health.slice(-1).pop().health_info.over_current_protection_status
+		== 1 ||
+		e.health.slice(-1).pop().health_info.main_ldo_status == 1 ||
+		e.health.slice(-1).pop().health_info.over_current_protection_status
+		== 1 ||
+		e.health.slice(-1).pop().health_info.u_lesm_read == 1 ||
+		e.health.slice(-1).pop().health_info.l_lsm_read == 1 ||
+		e.health.slice(-1).pop().health_info.atiny_read_status == 1 ||
+		e.health.slice(-1).pop().health_info.u_mag_ini == 1 ||
+		e.health.slice(-1).pop().health_info.u_mag_ini == 1 ||
+		e.health.slice(-1).pop().health_info.u_mag_read == 1 ||
+		e.health.slice(-1).pop().health_info.l_mag_read == 1 ) {
+		faultyDevices++;
+		}else{
+		healthyDevices++;
+		}}else{
+		deviceWithNoHealthData++;
+		}
+		})
+		var sortedMonthActivity = deviceActivityByMonth.sort(function(a, b){
+		a = a._id.split("-");
+		b = b._id.split("-");
+		return new Date(b[0], b[1], 1) - new Date(a[0], a[1], 1)
+		})
+		deviceActivityByDay.sort((a,b) => new Date(b._id) - new Date(a._id))
+		console.log(deviceActivityByDay)
+		%>
+		<div class="page-header">
+			<h2 class="pageheader-title">Dashboard</h2>
+			<p class="pageheader-text">
+				Nulla euismod urna eros, sit amet scelerisque torton lectus vel mauris
+				facilisis faucibus at enim quis massa lobortis rutrum.
+			</p>
+			<div class="page-breadcrumb">
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb">
+						<li class="breadcrumb-item">
+							<a href="#" class="breadcrumb-link">Dashboard</a>
+						</li>
+					</ol>
+				</nav>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Total Sessions</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<%= totalSessionData %>
+							</h1>
+						</div>
+						<div class="metric-label d-inline-block float-right text-success font-weight-bold">
+							<!-- <span><i class="fa fa-fw fa-arrow-up"></i></span><span>5.86%</span> -->
+						</div>
+					</div>
+					<!-- <div id="sparkline-revenue"></div> -->
+				</div>
+			</div>
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Total Sessions on <%= new Date().toISOString().slice(0, 10) %>
+						</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<% date=new Date().toISOString().slice(0, 10);
+									if(date===patientSessionDataByDate[0]._id) { %>
+									<%= patientSessionDataByDate[0].numberOfPatientSessions %>
+										<% } else { %>
+											<%= 0 %>
+												<% } %>
+							</h1>
+						</div>
+						<div class="metric-label d-inline-block float-right text-success font-weight-bold">
+							<!-- <span><i class="fa fa-fw fa-arrow-up"></i></span><span>5.86%</span> -->
+						</div>
+					</div>
+					<!-- <div id="sparkline-revenue2"></div> -->
+				</div>
+			</div>
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Maximum Sessions by UserID</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<%= patientSessionDataByUserId[0].numberOfPatientSessions %>
+							</h1>
+						</div>
+						<!-- <div class="metric-label d-inline-block float-right text-primary font-weight-bold">
+							<span>N/A</span>
+						</div> -->
+					</div>
+					<!-- <div id="sparkline-revenue3"></div> -->
+				</div>
+			</div>
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Average Sessions per User</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<%= Math.floor(totalSessionData/patientSessionDataByUserId.length) %>
+							</h1>
+						</div>
+						<!-- <div class="metric-label d-inline-block float-right text-secondary font-weight-bold">
+							<span>-2.00%</span>
+						</div> -->
+					</div>
+					<!-- <div id="sparkline-revenue4"></div> -->
+				</div>
+			</div>
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Total Devices</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<%= totalDevices %>
+							</h1>
+						</div>
+						<!-- <div class="metric-label d-inline-block float-right text-secondary font-weight-bold">
+							<span>-2.00%</span>
+						</div> -->
+					</div>
+					<!-- <div id="sparkline-revenue4"></div> -->
+				</div>
+			</div>
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Registered Devices</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<%= registeredDevices %>
+							</h1>
+						</div>
+						<!-- <div class="metric-label d-inline-block float-right text-secondary font-weight-bold">
+							<span>-2.00%</span>
+						</div> -->
+					</div>
+					<!-- <div id="sparkline-revenue4"></div> -->
+				</div>
+			</div>
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Unregistered Devices</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<%= unregisteredDevices %>
+							</h1>
+						</div>
+						<!-- <div class="metric-label d-inline-block float-right text-secondary font-weight-bold">
+							<span>-2.00%</span>
+						</div> -->
+					</div>
+					<!-- <div id="sparkline-revenue4"></div> -->
+				</div>
+			</div>
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Active Devices This Month</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<% if(deviceActivityByMonth[0]._id==new Date().toISOString().slice(0, 7)) { %>
+									<%= deviceActivityByMonth[0].numberOfActiveDevices %>
+										<% } else { %>
+											<%= 0 %>
+												<% } %>
+							</h1>
+						</div>
+						<!-- <div class="metric-label d-inline-block float-right text-secondary font-weight-bold">
+							<span>-2.00%</span>
+						</div> -->
+					</div>
+					<!-- <div id="sparkline-revenue4"></div> -->
+				</div>
+			</div>
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Healthy Devices</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<%= healthyDevices %>
+							</h1>
+						</div>
+						<!-- <div class="metric-label d-inline-block float-right text-secondary font-weight-bold">
+							<span>-2.00%</span>
+						</div> -->
+					</div>
+					<!-- <div id="sparkline-revenue4"></div> -->
+				</div>
+			</div>
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Faulty Devices</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<%= faultyDevices %>
+							</h1>
+						</div>
+						<!-- <div class="metric-label d-inline-block float-right text-secondary font-weight-bold">
+							<span>-2.00%</span>
+						</div> -->
+					</div>
+					<!-- <div id="sparkline-revenue4"></div> -->
+				</div>
+			</div>
+			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="text-muted">Devices with no health data</h5>
+						<div class="metric-value d-inline-block">
+							<h1 class="mb-1">
+								<%= deviceWithNoHealthData %>
+							</h1>
+						</div>
+						<!-- <div class="metric-label d-inline-block float-right text-secondary font-weight-bold">
+							<span>-2.00%</span>
+						</div> -->
+					</div>
+					<!-- <div id="sparkline-revenue4"></div> -->
+				</div>
+			</div>
+		</div>

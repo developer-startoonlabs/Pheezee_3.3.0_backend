@@ -1,0 +1,67 @@
+ <head>
+    <link rel="stylesheet" href="/stylesheets/new_thermal_style.css" />
+    <link rel="stylesheet" href="/stylesheets/main.css" />
+
+    <script src="https://www.amcharts.com/lib/4/core.js"></script>
+    <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script type="text/javascript" src="/loading-bar.js"></script>
+<link rel="stylesheet" type="text/css" href="/loading-bar.css"/>
+<!--Rating Library-->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  </head>
+
+
+<div class="page">
+     <div class="header" style="height: 170px; display:flex; justify-content:space-around; align-items:center;"> 
+          <img src="/icons/thermal_pt/icon_new_thermal.png" style="width:120px; height:120px; border-radius:6px;">
+          <div style="font-size: 62px; color: #FFFFFF; font-weight:800px font-style:bold font-family: 'Roboto';">
+            <b>PHEEZEE REPORT</b>
+          </div>
+      </div>
+      
+         
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      
+      <canvas id="emgChart" style="transform: rotate(90deg);margin-top: 180px; margin-bottom: 180px;"></canvas>
+      <script> 
+            //Fetch your EMG data (example values)   
+           const emgData = [0,10,25];   
+                  
+              //Create the chart   
+             const ctx = document.getElementById('emgChart').getContext('2d');   
+             new Chart(ctx, {   
+             type: 'line',   
+             data: {   
+            labels: emgData.map((_, index) => index + 1), // Use indexes as labels   
+             datasets: [{   
+           label: 'EMG',   
+            data: emgData,   
+            borderColor: 'blue',   
+            fill: false   
+           }]   
+                  },   
+         options: {   
+          scales: {   
+             y: {   
+             beginAtZero: true   
+                    }   
+                       }   
+                   }   
+                 });   
+        </script>
+   
+      
+    
+</div>

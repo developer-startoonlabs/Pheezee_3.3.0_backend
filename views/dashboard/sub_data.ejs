@@ -1,0 +1,488 @@
+<!-- New Code UI -->
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+  <script type="text/javascript" src="assets/vendor/jquery/jquery-3.3.1.min.js"></script>
+  <!-- Bootstrap CSS -->
+
+  <!--<link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/css/mdb.min.css" rel="stylesheet">-->
+  <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css" />
+  <link href="assets/vendor/fonts/circular-std/style.css" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/libs/css/style.css" />
+  <link rel="stylesheet" href="assets/vendor/fonts/fontawesome/css/fontawesome-all.css" />
+  <link rel="stylesheet" href="assets/vendor/charts/chartist-bundle/chartist.css" />
+  <link rel="stylesheet" href="assets/vendor/charts/morris-bundle/morris.css" />
+
+  <link rel="stylesheet" href="assets/vendor/charts/c3charts/c3.css" />
+  <link rel="stylesheet" href="assets/vendor/fonts/flag-icon-css/flag-icon.min.css" />
+  <link href="assets/libs/css/github_contribution_graph.css" media="all" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+
+  <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">-->
+
+  <!-- Material Design Bootstrap -->
+  <!--<link rel="stylesheet" type="text/css" href="../stylesheets/styles.css" />-->
+  <title>
+    <%= title %>
+  </title>
+
+  <div class="">
+    <nav class="navbar navbar-expand-lg bg-white fixed-top">
+       <div style="float: left;">
+           <button id="post-btn" style="
+                    cursor: pointer;
+                    outline: 0;
+                    color: #fff;
+                    background-color: #0d6efd;
+                    border-color: #0d6efd;
+                    display: inline-block;
+                    font-weight: 400;
+                    line-height: 1.5;
+                    text-align: center;
+                    border: 1px solid transparent;
+                    padding: 6px 12px;
+                    font-size: 16px;
+                    border-radius: .25rem;
+                    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+                    :hover {
+                        color: #fff;
+                        background-color: #0b5ed7;
+                        border-color: #0a58ca;
+                    }"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <button  id="export_button" style="
+                    margin-left: 10px;
+                    cursor: pointer;
+                    outline: 0;
+                    color: #fff;
+                    background-color: #0d6efd;
+                    border-color: #0d6efd;
+                    display: inline-block;
+                    font-weight: 400;
+                    line-height: 1.5;
+                    text-align: center;
+                    border: 1px solid transparent;
+                    padding: 6px 12px;
+                    font-size: 16px;
+                    border-radius: .25rem;
+                    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+                    :hover {
+                        color: #fff;
+                        background-color: #0b5ed7;
+                        border-color: #0a58ca;
+                    }">Export</button>
+        <!--<a type="button" class="btn btn-lg" id="post-btn"><i class="fas fa-sync-alt"></i> Refresh</a>-->
+      </div>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent" style="justify-content: flex-end;">
+        <ul class="navbar-nav navbar-right-top">
+          <li class="nav-item">
+            <div id="custom-search" class="top-search-bar ml-5">
+              <input class="form-control mr-sm-2" type="text" id="gfg" placeholder="Search" style="line-height: 1.5; border-radius: 6px; box-shadow: 0px 1px 2px 1px rgb(154 154 204 / 22%); width: 20vw;" />
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+</head>
+
+<body>
+
+  <!--<div class="container-fluid" style="padding-left: 3rem">-->
+    <div id="wrap" class="container-fluid" style="overflow-x: scroll">
+      <div class="row" style="margin-top:3.8rem;">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+          <table id="employee_data" class="sortable table table-striped table-bordered">
+            <thead style="background-color:#007BFF;">
+              <tr>
+                <th scope="col" style="white-space: nowrap;"><b>Email</b></th>
+                <th scope="col" style="white-space: nowrap;"><b>Customer Type Status</b></th>
+                <th scope="col" style="white-space: nowrap;"><b>Start Date</b></th>
+                <th scope="col" style="white-space: nowrap;"><b>End Date</b></th>
+                <th scope="col" style="white-space: nowrap;"><b>Number of Reports</b></th>
+                <th scope="col" style="white-space: nowrap;"><b>Amount Worth Report</b></th>
+                <th scope="col" style="white-space: nowrap;"><b>Number of Accessible Generate</b></th>
+                <th scope="col" style="white-space: nowrap;"><b>Status</b></th>
+                <th scope="col" style="white-space: nowrap;"><b>Edit Data</b></th>
+              </tr>
+            </thead>
+            <tbody id="geeks">
+              <% dataArray.map((e, i) => { %>
+              <tr>
+                <td value="<%= e.Phisioemail%>" class="macId" style="white-space: nowrap;">
+                  <%= e.Phisioemail %>
+                </td>
+
+                <td value="<%= e.customer_type_status %>" class="lot" style="white-space: nowrap;">
+                  <%= e.customer_type_status %>
+                </td>
+                <td value="<%= e.start_date%>" class="model" style="white-space: nowrap;">
+                  <%= e.start_date %>
+                </td>
+                <td value="<%= e.end_date %>" class="status" style="white-space: nowrap;">
+                  <%= e.end_date %>
+                </td>
+                <td value="<%= e.number_of_report %>" class="devicemodel" style="white-space: nowrap;">
+                  <%= e.number_of_report %>
+                </td>
+                <td value="<%= e.amount_worth_report %>" class="devicemodel" style="white-space: nowrap;">
+                  <%= e.amount_worth_report %>
+                </td>
+                <td value="<%= e.number_of_accessable_generate %>" class="devicemodel" style="white-space: nowrap;">
+                  <%= e.number_of_accessable_generate %>
+                </td>
+                <td value="<%= e.status %>" class="devicemodel" style="white-space: nowrap;">
+                  <%= e.status%>
+                </td>
+                 <td class="devicemodel" style="white-space: nowrap;">
+                      <button onclick="editData('<%= e.Phisioemail %>','<%= e.customer_type_status %>','<%= e.start_date %>','<%= e.end_date %>','<%= e.number_of_report %>','<%= e.amount_worth_report %>','<%= e.number_of_accessable_generate %>')" style="cursor: pointer; outline: 0; color: #fff; background-color: #0d6efd; border-color: #0d6efd; display: inline-block; font-weight: 400; line-height: 1.5; text-align: center; border: 1px solid transparent; padding: 6px 12px; font-size: 16px; border-radius: .25rem; transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;">
+                        <i class="fas fa-edit"></i> Edit
+                      </button>
+                    </td>
+
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <!--</div>-->
+
+  <script>
+    $(document).ready(function() {
+      $("#gfg").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#geeks tr").filter(function() {
+          $(this).toggle(
+            $(this)
+              .text()
+              .toLowerCase()
+              .indexOf(value) > -1
+          );
+        });
+      });
+
+    //   // Enable editing on cell click
+    //   $("#employee_data td").on("click", function() {
+    //     $(this).prop("contenteditable", true).focus();
+    //   });
+
+    //   // Disable editing on cell blur
+    //   $("#employee_data td").on("blur", function() {
+    //     $(this).prop("contenteditable", false);
+    //   });
+    });
+
+    function html_table_to_excel(type) {
+      var data = document.getElementById("employee_data");
+      var file = XLSX.utils.table_to_book(data, { sheet: "sheet1" });
+      XLSX.write(file, { bookType: type, bookSST: true, type: "base64" });
+      XLSX.writeFile(file, "file." + type);
+    }
+
+    const export_button = document.getElementById("export_button");
+
+    export_button.addEventListener("click", () => {
+      html_table_to_excel("xlsx");
+    });
+
+    document.getElementById("wrap").addEventListener("scroll", function() {
+      var translate = "translate(0," + this.scrollTop + "px)";
+      this.querySelector("thead").style.transform = translate;
+    });
+    
+  </script>
+  
+  <style>
+  /* Style for the table */
+
+
+  /* Style for the edit pop-up */
+  .edit-form {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 100;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding-top: 50px;
+  }
+
+  .edit-form-container {
+    background-color: white;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    box-sizing: border-box;
+  }
+
+  .edit-form-container h3 {
+    margin-top: 0;
+  }
+
+  .edit-form-container label {
+    display: inline-block;
+    width: 150px;
+    margin-bottom: 10px;
+  }
+
+  .edit-form-container input[type="text"] {
+    width: 300px;
+    padding: 5px;
+  }
+
+  .edit-form-container button {
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .edit-form-container button:hover {
+    background-color: #0b5ed7;
+  }
+</style>
+
+<script>
+  function editData(email, customerType, startDate, endDate, numReports, amountWorth, numAccessible) {
+    // Show the edit form or pop-up window with the provided data
+    // You can access the values by using the parameters passed to the function
+
+    // For example:
+    // console.log("Email: ", email);
+    // console.log("Customer Type Status: ", customerType);
+    // console.log("Start Date: ", startDate);
+    // console.log("End Date: ", endDate);
+    // console.log("Number of Reports: ", numReports);
+    // console.log("Amount Worth Report: ", amountWorth);
+    // console.log("Number of Accessible Generate: ", numAccessible);
+
+    // Hide the table when the edit pop-up is shown
+    const table = document.getElementById("employee_data");
+    table.style.display = "none";
+
+    // Show the edit pop-up form
+    const editForm = document.getElementById("editForm");
+    editForm.style.display = "block";
+    
+    // Set the values in the edit form fields
+    document.getElementById("emailField").value = email;
+    document.getElementById("customerTypeField").value = customerType;
+    document.getElementById("startDateField").value = startDate;
+    document.getElementById("endDateField").value = endDate;
+    document.getElementById("numReportsField").value = numReports;
+    document.getElementById("amountWorthField").value = amountWorth;
+    document.getElementById("numAccessibleField").value = numAccessible;
+  }
+
+  function closeEditForm() {
+    // Show the table when the edit pop-up is closed
+    const table = document.getElementById("employee_data");
+    table.style.display = "table";
+
+    // Hide the edit pop-up form
+    const editForm = document.getElementById("editForm");
+    editForm.style.display = "none";
+  }
+</script>
+  
+  <div id="editForm" class="edit-form">
+  <div class="edit-form-container">
+    <h3>Edit Data User Details</h3>
+    <form>
+      <label for="emailField">Email:</label>
+      <input type="text" id="emailField" name="emailField" readonly><br><br>
+      <label for="customerTypeField">Customer Type Status:</label>
+        <select id="customerTypeField" name="customerTypeField" style="width: 300px; height: 48px;">
+            <option value="subscription_mode">Subscription Mode</option>
+            <option value="rental_mode">Rental Mode</option>
+            <option value="time_period_mode">Time Peroid Mode</option>
+            <option value="old_user">Old USer Mode</option>
+            <option value="force_stop">Force Stop</option>
+        </select>
+        <br><br>
+      
+      <!--<label for="customerTypeField">Customer Type Status:</label>-->
+      <!--<input type="text" id="customerTypeField" name="customerTypeField"><br><br>-->
+      <label for="startDateField">Start Date:</label>
+      <input type="date" id="startDateField" name="startDateField" style="height: 50px;width: 300px;"><br><br>
+      <label for="endDateField">End Date:</label>
+      <input type="date" id="endDateField" name="endDateField" style="height: 50px;width: 300px;"><br><br>
+      <label for="numReportsField" >Number of Reports:</label>
+      <input type="text" id="numReportsField" name="numReportsField" readonly><br><br>
+      <label for="amountWorthField" >Amount Worth Report:</label>
+      <input type="text" id="amountWorthField" name="amountWorthField" readonly><br><br>
+      <label for="numAccessibleField">Number of Accessible Generate:</label>
+      <input type="text" id="numAccessibleField" name="numAccessibleField"><br><br>
+      <button type="submit" onclick="kranthi_testing()">Save</button>
+      <button type="button" onclick="closeEditForm()">Cancel</button>
+    </form>
+  </div>
+</div>
+
+ <script>
+      function submitForm() {
+        // Get form input values
+        
+
+        // Create request body
+        const requestBody = JSON.stringify({
+          Phisioemail: email,
+          customer_type_status: customerTypeStatus,
+          start_date: startDate,
+          end_date: endDate,
+          number_of_report: parseInt(numReports),
+          amount_worth_report: parseInt(amountWorth),
+          number_of_accessable_generate: parseInt(numAccessible),
+        });
+
+        // Make HTTP POST request
+        fetch('http://13.127.78.38:3000/api/reports_sub_update_values', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: requestBody,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Error: ' + response.status);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log('Data successfully posted:', data);
+            // Process the response as needed
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            // Handle the error
+          });
+      }
+
+    
+    </script>
+    
+    <script>
+      const button = document.getElementById('post-btn');
+
+        button.addEventListener('click', async _ => {
+          try {     
+            const response = await fetch('http://13.127.78.38:3000/api/reports_sub_update', {
+              method: 'post',
+              body: {
+                // Your body
+              }
+            });
+            refreshPage();
+            console.log('Completed!', response);
+            
+          } catch(err) {
+            console.error(`Error: ${err}`);
+          }
+        });
+        
+        
+        function refreshPage(){
+            window.location.reload();
+        } 
+        
+  </script>
+  
+
+  
+<script>
+  function reverseDateFormat(dateStr) {
+    const parts = dateStr.split("-");
+    if (parts.length === 3) {
+      return parts[2] + "-" + parts[1] + "-" + parts[0];
+    }
+    return dateStr;
+  }
+
+  function kranthi_testing() {
+    var emailField = document.getElementById("emailField").value;
+    var customerTypeField = document.getElementById("customerTypeField").value;
+    var startDateField = document.getElementById("startDateField").value;
+    var endDateField = document.getElementById("endDateField").value;
+    var numReportsField = document.getElementById("numReportsField").value;
+    var amountWorthField = document.getElementById("amountWorthField").value;
+    var numAccessibleField = document.getElementById("numAccessibleField").value;
+    var status_value = true;
+    
+    // Reverse the date format for startDateField and endDateField
+    var reversedStartDate = reverseDateFormat(startDateField);
+    var reversedEndDate = reverseDateFormat(endDateField);
+
+    const url = 'http://13.127.78.38:3000/api/reports_sub_update_values';
+    const data = {
+      Phisioemail: emailField,
+      customer_type_status: customerTypeField,
+      start_date: reversedStartDate,
+      end_date: reversedEndDate,
+      number_of_report: numReportsField,
+      amount_worth_report: amountWorthField,
+      number_of_accessible_generate: numAccessibleField,
+      status: status_value
+    };
+    
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+      .then(response => response.json())
+      .then(result => {
+        window.location.href = 'http://13.127.78.38:3000/dashboard/premium_sub_report';
+        // Handle the response or do something with the result
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        // Handle any errors that occurred during the request
+      });
+  }
+</script>
+
+  <script>
+    function html_table_to_excel(type) {
+      var data = document.getElementById("employee_data");
+      var file = XLSX.utils.table_to_book(data, { sheet: "sheet1" });
+      XLSX.write(file, { bookType: type, bookSST: true, type: "base64" });
+      var blob = new Blob([s2ab(file), { type: "application/octet-stream" }]);
+      saveAs(blob, "data.xlsx");
+    }
+
+    function s2ab(s) {
+      var buf = new ArrayBuffer(s.length);
+      var view = new Uint8Array(buf);
+      for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xff;
+      return buf;
+    }
+
+    const export_button = document.getElementById("export_button");
+
+    export_button.addEventListener("click", () => {
+      html_table_to_excel("xlsx");
+    });
+</script>
+
+
+</body>
+
+</html>

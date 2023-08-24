@@ -1,0 +1,111 @@
+Please read this carefully before running this server.
+
+Run in Local:
+pm2 start ./bin/www
+
+PRODUCTION:
+Start pheezee backend in production
+$ NODE_ENV=production pm2 start ./bin/www &
+
+NOTE:-
+	The server is always made back compatible so it will work with previous version of applications.
+
+#####################
+version:- 1.16.2
+App version:- 2.16.9.h
+Description:- Bug fix:- Bug fix weekly report for user name and degree.
+
+####################
+
+#####################
+version:- 1.16.1
+App version:- 2.16.8.h
+Description:- Bug fix:- Added spine body-parts with their ranges.
+
+####################
+
+#####################
+version:- 1.16.0
+App version:- 2.16.0.h
+Description:- Api's for getting the firebase token and when sceduled session is not saved to the server.
+
+####################
+
+#####################
+version:- 1.15.5
+App version:- 2.15.0.h
+Description:- updated package id api's
+
+####################
+
+
+#####################
+version:- 1.15.5
+App version:- 2.15.0.h
+Description:- Package type and package id api's
+
+####################
+
+#####################
+version:- 1.14.4
+App version:- 2.13.0.h
+Description:- View fixes in all the reports.
+
+####################
+
+
+#####################
+version:- 1.14.3
+App version:- 2.12.2.h
+Description:- Uniformitity in all the reports and introduced forearm and spine  body parts at the server.
+
+####################
+
+
+#####################
+version:- 1.14.0
+App version:- 2.12.1.h
+Description:- Device deactivation related api's and functions
+
+####################
+
+
+#####################
+version:- 1.13.0
+App version:- 2.11.5.h
+Description:- Integrated python scripts to the server
+
+#####################
+
+#####################
+version:- 1.12.2
+App version:- 2.11.3.h
+Description:- health data integration.
+
+#####################
+
+
+#####################
+version:- 1.11.2
+App version:- 2.11.3.h
+Description:- Removed unused funcitons and migrated the database to remove sessions, mmtsessions, calibration sessions from phiziousers collection
+
+#####################
+
+
+#####################
+version:- 1.11.1
+App version:- 2.11.2.h
+Description:- updated exercise list and respective range of motion.
+
+#####################
+
+
+#####################
+version:- 1.11.0
+App version:- 2.9.8.h
+Description:- This version of the server has the clinic logo feature, where all the reports will show the clinic logo. Introduced another feild named cliniclogo in the database.
+Restriction on app version:- will work with both mqtt and http versions of the application. Also will work with application that do not have the clinic logo feature.
+
+#####################
+

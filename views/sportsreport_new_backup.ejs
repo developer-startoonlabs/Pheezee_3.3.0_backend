@@ -1,0 +1,1585 @@
+  <%
+  var today = new Date();
+var dd = String(today.getDate()).padStart(2, '0');
+var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+var yyyy = today.getFullYear();
+
+today = mm + '/' + dd + '/' + yyyy;
+  let romScale = [{name:"knee",range:150},
+                        {name:"shoulder",range:360},
+                        {name:"ankle",range:80},
+                        {name:"wrist",range:160},
+                        {name:"elbow",range:305},
+                        {name:"hip",range:240},
+                        {name:"forearm",range:100},
+                        {name:"spine",range:100}
+                      ]
+
+
+var romScale1 = {"kneeflexion":140,"kneeextension":140,"shoulderextension":45,"shoulderflexion":180,"shoulderabduction":180,"shoulderadduction":180,"shoulderlateral rotation":90,"shouldermedial rotation":70,"shoulderelevation":40,"shoulderdepression":10,"ankleinversion":40,"ankleeversion":20,"ankleplantarflexion":45,"ankledorsiflexion":20,"wristflexion":80,"wristextension":70,"wristulnar deviation":45,"wristradial deviation":20,"elbowflexion":145,"elbowextension":145,"hipflexion":125,"hipextension":10,"hipabduction":45,"hipadduction":10,"hiplateral rotation":45,"hipmedial rotation":45,"forearmpronation":90,"forearmsupination":90,"spineflexion":75,"spineextension":30,"spinelateral flexion":35,"spinerotation":30,"abdomenflexion":75,"abdomenextension":30,"abdomenlateral flexion":35,"abdomenrotation":30,"lumbarflexion":75,"lumbarextension":30,"lumbarlateral flexion":35,"lumbarrotation":30,"thoracicflexion":75,"thoracicextension":30,"thoraciclateral flexion":35,"thoracicrotation":30,"elbowlateral rotation":90,"elbowmedial rotation":70};
+
+      var left=0
+      var right=0;
+
+        function getSessionStatus(bodyPart , trueValue){
+          if( trueValue < bodyPart.range*0.333)
+          {
+            return "Bad" // red
+          }if( trueValue > bodyPart.range*0.666) return "Good" // greenb
+
+          return "Average"
+          // blue
+        }
+
+        function getTrueRange(maxangle,minangle){
+          return parseInt(maxangle)-parseInt(minangle);
+        }
+
+        function getSessionStatusInt(value){
+          if(value==0){
+            return "Good" // greenb
+          }
+          else if(value==1){
+            return "Average"
+            // blue
+          }
+          else{
+            return "Bad" // red
+          }
+        }
+    
+    function get_name(name)
+    {
+      result = name.substr(0,1).toUpperCase() + name.substr(1,name.length);
+      
+      while(result.substr(result.length-1,result.length) == " ")
+      {
+        result = result.substr(0,result.length-1);
+      }
+      
+      return result;
+    }
+    
+    function getTotalSessionTime(){
+          let temp = 0;
+          report[0].sessiondetails.map((e,i)=>{
+             let min = parseInt(e.sessiontime.substring(0,2));
+             let sec = parseInt(e.sessiontime.substring(5,7));
+             let totalseconds  = (min*60)+sec;
+             temp+=totalseconds;
+          });
+
+          var h = Math.floor(temp / 3600);
+          var m = Math.floor(temp % 3600 / 60);
+          var s = Math.floor(temp % 3600 % 60);
+          var hDisplay = h > 0 ? h + (h == 1 ? "h" : " h:") : "";
+          var mDisplay = m > 0 ? m + (m == 1 ? "m:" : "m:") : "00m: ";
+          var sDisplay = s > 0 ? s + (s == 1 ? "s" : "s") :"00s";
+          return hDisplay + mDisplay + sDisplay; 
+        }
+
+        function get_date(){
+          let temp = 0;
+      var first_part;
+      var second_part;
+
+       let Overall_session = JSON.parse(JSON.stringify(overallreport[0].sessiondetails));
+       
+       var sesssion_list=[];
+        var session_list_key={};
+
+      Overall_session.forEach((element)=>{
+            if(typeof(element.heldon)!='undefined'){
+              if(!(element.heldon.substr(0,10) in session_list_key))
+              {
+                session_list_key[element.heldon.substr(0,10)] = 0;
+                sesssion_list.push(element.heldon.substr(0,10));
+              }
+            }
+           });
+
+      console.log("THE SESSION LISSTTT");
+      console.log(sesssion_list[sesssion_list.length-2]);
+
+      console.log(sesssion_list);
+      
+ 
+      
+      if(typeof(sesssion_list[sesssion_list.length-2])!='undefined')
+      {
+       first_part = new Date(sesssion_list[sesssion_list.length-2]).toDateString().split(' ').slice(1).join(' ');
+      second_part = new Date(sesssion_list[sesssion_list.length-2]).toDateString().substring(0,3);
+      }else
+      {
+      return "-";
+      }
+      
+          return first_part; 
+        }
+    
+    function get_session_recording(bodypart,exercisename,orientation,musclename,heldon){
+       let Overall_session = JSON.parse(JSON.stringify(overallreport[0].sessiondetails));
+       
+       let counter = 0;
+       let final=0;
+       Overall_session.forEach((element)=>{
+           if(element.bodypart.toLowerCase()==bodypart.toLowerCase() && element.exercisename.toLowerCase()==exercisename.toLowerCase() && element.orientation.toLowerCase()==orientation.toLowerCase() && element.musclename.toLowerCase()==musclename.toLowerCase()){
+            counter= counter+1;
+
+        if(element.heldon == heldon)
+        {
+          final = counter;
+          return final;
+        
+          
+        }
+            }
+           });
+      return final;
+         
+      
+    }
+    
+    function get_hold_time(holdtime)
+    {
+    
+      var secounds = holdtime.split(":");
+      var int_min = parseInt(secounds[0].replace('m',''));
+      var int_secounds = parseInt(secounds[1].replace('s',''));
+
+      if(int_min > 0){
+        return int_min + 'm'+ ':' + int_secounds + 's'
+      }else
+      {
+        return int_secounds + 's'
+      }
+    
+    }
+
+        function increasedRom(min,max,lastmin,lastmax){
+          var a = parseInt(max)-parseInt(min);
+          var b = parseInt(lastmax)-parseInt(lastmin);
+
+          return a-b;
+        }
+
+
+        function Gained_Rom(max,min,i){
+          var a = parseInt(max)-parseInt(min);
+          var b = parseInt(lastsessions[i].maxangle)-parseInt(lastsessions[i].minangle);
+
+          result = a;
+
+          if(result>360)
+            {
+              result= 360;
+            }
+
+          if(result<0)
+          {
+            return 0
+          }else if(isNaN(result))
+          {
+            return 0
+          }
+          else{
+
+            return result;
+          }
+         
+        }
+
+        function increasedEmg(max, lastmax){
+          return parseInt(max)-parseInt(lastmax);
+        }
+
+        function get_avgMaxEmg(heldon){
+          let vartemp="";
+          for(let i =0; i < python_variables.length;i++)
+          {
+
+            if(python_variables[i].download_time_stamp == heldon)
+            {
+              return Math.round(python_variables[i].avgmaxemg)+"uV"
+            }
+            // vartemp = python_variables[i].download_time_stamp
+          }
+          return "-"
+          
+        }
+
+        function get_avgMaxROM(heldon){
+          let vartemp="";
+          for(let i =0; i < python_variables.length;i++)
+          {
+
+            if(python_variables[i].download_time_stamp == heldon)
+            {
+              return Math.round(python_variables[i].rom_avg_max)+"°"
+            }
+            // vartemp = python_variables[i].download_time_stamp
+          }
+          return "-"
+          
+        }
+
+
+        function get_avgMinROM(heldon){
+          let vartemp="";
+          for(let i =0; i < python_variables.length;i++)
+          {
+
+            if(python_variables[i].download_time_stamp == heldon)
+            {
+              return Math.round(python_variables[i].rom_avg_min)+"°"
+            }
+            // vartemp = python_variables[i].download_time_stamp
+          }
+          return "-"
+          
+        }
+
+       function get_Speed(heldon,activetime,reps){
+          let vartemp="";
+          var active_time_list = activetime.split(':');
+          var active_min = parseInt(active_time_list[0].replace('m',''));
+          var active_sec = parseInt(active_time_list[1].replace('s',''));
+
+          var active_time_total = active_min*60 + active_sec;
+          var result = parseInt(reps)/active_time_total;
+          result =Math.round(result * 100) / 100
+
+          if(isNaN(result))
+          {
+            return 0 + 'reps/s'
+          }else if(result=='Infinity'){
+            return '-' + 'reps/s';
+          }else {
+            return result + 'reps/s';
+          }
+          for(let i =0; i < python_variables.length;i++)
+          {
+
+            if(python_variables[i].download_time_stamp == heldon)
+            {
+              return python_variables[i].velocity + 'reps/s'
+            }
+            // vartemp = python_variables[i].download_time_stamp
+          }
+          return "-"
+          
+        }
+
+        function overallRom(max, min){
+          // Max and Min is negative
+          if(parseInt(min)<0 && parseInt(max)<0)
+          {
+            return 0;
+          }
+
+          if(parseInt(min)<0 && parseInt(max)>0)
+          {
+            return parseInt(max);
+          }
+
+
+          var result = parseInt(max)-parseInt(min);
+
+          if(result>360)
+          {
+            result = 360;
+          }
+
+          if(result>0){
+            return result;
+          }
+          else return 0;
+        }
+
+        function overallRompie(max, min){
+          // Max and Min is negative
+          
+
+        
+
+
+          var result = parseInt(max)-parseInt(min);
+
+          if(result>360)
+          {
+            result = 360;
+          }
+
+          if(result>0){
+            return result;
+          }
+          else return result;
+        }
+
+        
+    
+    function overallRom_goalreached(max, min,ideal,heldon){
+          // Max and Min is negative
+
+           for(let i =0; i < python_variables.length;i++)
+          {
+
+            if(python_variables[i].download_time_stamp == heldon)
+            {
+              max= python_variables[i].rom_max;
+              min= python_variables[i].rom_min;
+            }
+            // vartemp = python_variables[i].download_time_stamp
+          }
+
+          if(parseInt(min)<0 && parseInt(max)<=0)
+          {
+            return 0;
+          }
+
+          if(parseInt(min)>=parseInt(ideal))
+          {
+              return 0;
+          }
+
+          if(parseInt(min)<0 && parseInt(max)>0)
+          {
+            return parseInt(max);
+          }
+      
+      
+
+
+          var result = parseInt(max)-parseInt(min);
+
+          if(result>360)
+          {
+            result = 360;
+          }
+
+          if(result>0){
+            return result;
+          }
+          else return 0;
+        }
+
+  function get_holdangle(holdangle){
+
+          if (parseInt(holdangle)>0){
+          return holdangle+'°';
+          }
+          else return "-";
+        }
+
+
+        function joint_range(body,exercisename){
+
+          if (romScale1.hasOwnProperty(body.concat(exercisename))) {
+          return romScale1[body.concat(exercisename)];
+          }
+          else return 0;
+        }
+
+        function pie_range(user_angle,range){
+          var result = parseInt(360)-parseInt(user_angle);
+
+          if(result < 0)
+          {
+            return 0;
+          }
+          else return result;
+        }
+
+          function getOverall_goalreached(){
+         
+          let total_goal=0;
+          let counter=0;
+
+          over_goal_reached=[];
+
+
+ 
+
+          report[0].sessiondetails.map((e,i)=>{
+
+             report[0].sessiondetails.map((h,j)=>{
+
+             if(python_variables[j].download_time_stamp==e.heldon)
+              {
+                let range = joint_range(e.bodypart.toLowerCase(),e.exercisename.toLowerCase())
+
+
+                let user_range = overallRom(python_variables[j].rom_max,python_variables[j].rom_min);
+                if(user_range>range)
+                {
+                  user_range = range;
+                }
+                if(range!=0)
+                {
+                  goal_percentage = (user_range/range)*100;
+                }else goal_percentage=100;
+              over_goal_reached.push(goal_percentage);
+
+              total_goal = total_goal + goal_percentage;
+              counter = counter+1;
+
+              }
+            });       
+           
+          });
+
+
+
+          if(counter>0)
+          {
+          return Math.round(total_goal/counter); 
+        }else return 0;
+      }
+
+         function goalreached(ideal,user){
+          if(user<ideal)
+          {
+         return Math.round((user/ideal)*100);
+         }
+         else
+          return 100;
+         
+        }
+
+
+
+function calcTime() {
+
+  
+    // Offset for Bombay City
+     var offset = +0;
+    // create Date object for current location
+    var d = new Date(report[0].sessiondetails[0].heldon);
+
+  
+    // convert to msec
+    // subtract local time zone offset
+    // get UTC time in msec
+    var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+
+    // create new Date object for different city
+    // using supplied offset
+    var nd = new Date(utc + (3600000*offset));
+    var nd_array = nd.toLocaleString().split(',');
+    var time = nd_array[1];
+    var am_pm = time.split(" ");
+    var am_pm_string = am_pm[2];
+    var time_array  = time.split(":")
+    var result = time_array[0] + ":" + time_array[1]+ " "  +am_pm_string;
+
+    // return time as a string
+    return result;
+}
+
+function get_recordedtime(time)
+{
+  var secounds = time.split(":");
+   var int_min = parseInt(secounds[0].replace('m',''));
+   var int_secounds = parseInt(secounds[1].replace('s',''));
+
+   if(int_min > 0){
+    return "30s";
+   }else if(int_min <= 0 && int_secounds > 30)
+   {
+    return "30s";
+  }else
+  {
+    return int_secounds + 's'
+  }
+
+  
+}
+  %>
+
+  <% if (typeof details === 'string' ) { %>
+  <h2><%=details %></h2>
+  <%} else if ( report[0].sessiondetails.length < 1 ){%>
+  <h2>no records for today</h2>
+  <%} else {%> <%const getPainScale = scale => {for (let i = 1; i <= 5; i++) {%>
+  <% if(scale == i) { %>
+  <img
+    src="/icons/<%= i %>.png"
+    style="background-color: yellow; border-radius: 100%"
+  />
+  <% } else { %>
+  <img
+    src="/icons/<%= i %>.png"
+    style="background-color: white; border-radius: 50%"
+  />
+  <% } %> <%}};%> <%const getMMTGrading = grade => {for(var i=1; i <= 9; i++) {
+  var x = i;
+  var y = parseInt(grade.substring(0,1));
+  var length = grade.length;
+  if(y==1 && length==1){
+    y=1;
+  }
+  else if(y==1 && length>1){
+    y=2;
+  }
+  else if(length>1){
+    y=y*2;
+  }
+  else{
+    y=y+(y-1);
+  }
+  if(x!=1){
+    if(x%2==0){x=x/2;}
+    else{x=Math.round((x/2));}
+  }
+  %> <% if((grade.toString().substring(0,1).toLowerCase() === x.toString().toLowerCase()) && i==y) { %>
+  <span
+    style="border: 1px #aaa solid; border-radius: 60%; padding: 0px; background-color: yellow;"
+    >&nbsp;<% if((i%2==0 && i>1) || i==2){%><%=x+"+"%><%} else if(i>1){%><%=x%><%}else{ %><%=x%><%}%>&nbsp;</span
+  >
+  <% } else { %>
+  <span
+    style="border: 1px #aaa solid; border-radius: 60%; padding: 0px;  background-color: white;"
+    >&nbsp;<% if((i%2==0 && i>1) || i==2){%><%=x+"+"%><%} else if(i>1){%><%=x%><%}else{ %><%=x%><%}%>&nbsp;</span
+  >
+  <% } %> <% } }%>
+  <html>
+    <head>
+      <link rel="stylesheet" href="/stylesheets/style_new.css" />
+      <link rel="stylesheet" href="/stylesheets/main.css" />
+
+      <script src="https://www.amcharts.com/lib/4/core.js"></script>
+      <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+      <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/emn178/chartjs-plugin-labels/src/chartjs-plugin-labels.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script type="text/javascript" src="/loading-bar.js"></script>
+ <link rel="stylesheet" type="text/css" href="/loading-bar.css"/>
+ <!--Rating Library-->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+
+    </head>
+    <style>
+
+     canvas{
+
+  width:100pt !important;
+  height:100pt !important;
+
+}
+</style>
+    <body>
+
+      <div class="page">
+        <div class="header"></div>
+
+        <div class = "report_title" style="background-color:white !important;width: 100%;height: 158px;margin-top:30px;">
+
+          <!-- Logo borders -->
+          <div id ="borders" style="width: 105.19pt;height: 105.19pt;position: absolute;top:22.53pt;left: 22.98pt;border: 2px solid #062545 !important;border-radius: 40px;"></div>
+
+          <div id ="borders" style="width: 105.19pt;height: 105.19pt;position: absolute; top:22.53pt;right:22.98pt;border: 2px solid #062545 !important;border-radius: 40px;"></div>
+
+    
+          <!-- Logos -->
+           <% if ( details[0].cliniclogo!= null ) { %>
+          <img src="<%= details[0].cliniclogo%>" style="position: absolute; width:81pt; height:77pt;top:35pt;left:36pt">
+           <%} else {%>
+           <img src="/icons/SVG/Defaultlogo.svg" style="position: absolute; width:81pt; height:77pt;top:35pt;left:36pt">
+           <%} %> 
+          <img src="/icons/Pheezee_logo1.png" style="position: absolute; width:50.69pt; height:67.4pt ;top:35pt;right:50pt">
+          <img src="/icons/Pheezee_logo2.png" style="position: absolute; width:60.89pt; height:9.46pt ;top:107pt;right:46pt;">
+
+
+          <!--Heading WORK on Phone number -->
+          <div id="heading-title-box" style="height:90%;width:58.6%;position:relative;left:21%;top:-5%;">
+            <% if (  typeof(details[0].clinicname) === "undefined" ) { %>
+          <p style="color:#062545 !important;position:relative;text-align: center;font-size:16pt; font-family: 'Avenir';top:4pt;">*Update clinic name*</p>
+           <%} else {%>
+           <p style="color:#062545 !important;position:relative;text-align: center;font-size:16pt; font-family: 'Avenir';top:4pt;"><%= details[0].clinicname %></p>
+           <%} %> 
+            
+            <p style="color:#062545 !important;position:relative;text-align: center;font-size:11pt; font-family: 'Avenir';padding-right:5pt;padding-left:0pt;top:18pt;"><%=details[0].address %></p>
+            <p style="color:#062545 !important;position:relative;text-align: center;font-size:10pt; font-family: 'Avenir';padding-right:20pt;padding-left:20pt;top:30pt;">Dr. <%=details[0].phizioname%>, <%=details[0].degree%></p>
+            <p style="color:#062545 !important;position:relative;text-align: center;font-size:10pt; font-family: 'Avenir';padding-right:20pt;padding-left:20pt;top:30pt;">Ph : <%=details[0].phiziophone%></p>
+    
+          </div>
+          <!-- Heading end -->
+
+          <div id ="borders" style="width:100%;height: 5pt;position: absolute; top:138.01pt;background-color: #D4D4D4 !important;"></div>
+
+        </div>
+
+        <!-- Patient detial -->
+
+        <!--Patient Name-->
+        <p style="color:#062545 !important;position: absolute; left:23pt;top:147.22pt;font-size:11pt; font-family: 'Avenir'"> <%if(details[0].phiziopatients[0].patientgender.toLowerCase() == 'male' || details[0].phiziopatients[0].patientgender.toLowerCase() == 'm'){%>Mr. <%}else {%> Ms. <%}%> <%= get_name(details[0].phiziopatients[0].patientname)%>, <%=details[0].phiziopatients[0].patientage %>/<%=details[0].phiziopatients[0].patientgender.slice(0,1) %></p>
+          
+        <!--Patient case-->
+        <p style="color:#062545 !important;position: absolute; left:65%;top:147.22pt;font-size:11pt; font-family: 'Avenir'"><%=details[0].phiziopatients[0].patientcasedes %></p>
+      
+        <!--Patient ID-->
+        <p style="color:#062545 !important;position: absolute; left:23pt;top:162.22pt;font-size:11pt; font-family: 'Avenir'"><%= details[0].phiziopatients[0].patientid %></p>
+          
+        <!--Patient Date of First Visit-->
+        <p style="color:#062545 !important;position: absolute; left:65%;top:162.22pt;font-size:11pt; font-family: 'Avenir'">Date of First Session : <%=details[0].phiziopatients[0].dateofjoin
+        %></p>
+          
+        <div id ="borders" style="width:100%;height: 10.01pt;position: absolute; top:190.01pt;left:-0.74pt;background-color: #062545 !important;"></div>
+      
+        <!-- Patient detials end -->
+
+        <!-- Session Report Title -->  
+        <p style="color:#062545 !important;position: absolute;left:207.31pt;top:205.81pt;text-align: center;font-size:24pt; font-family: 'Avenir'"><b>SESSION REPORT #<%= sessionNo %></b></p>
+        <!-- Session Report Title End-->
+
+        <!-- Session Report Dashboard-->
+       
+          <div id="session_dashboard_1" style="width: 212pt;height: 148pt; position:absolute;top:250pt;left:0pt;background-color: #FFFFFF !important;border: 3px solid #D4D4D4;">
+            <p style="color:#062545 !important;position: relative;top:0pt;text-align: center;font-size:14pt; font-family: 'Avenir';top:0pt;">No. of exercises (L vs R)</p>
+            <hr style="float:left;width:212pt;border: 1.5px solid #D4D4D4 !important;;position:relative;top:-15pt;">
+          
+          <div style="position: relative;bottom:30pt;left:32.5pt;width: 90pt;height: 90pt;">
+
+<canvas id="pie-chart"></canvas>
+
+</div>
+           <img src="/icons/SVG/pie_lable.png" style="position: relative;height: 25pt;width: 40pt;left:135pt;bottom: 40pt;">
+
+          <div id="session_dashboard_2" style="width: 212pt;height: 148pt; position:absolute;left:199.51pt;top:-2.5pt;background-color: #FFFFFF !important;border: 3px solid #D4D4D4;">
+            <p style="color:#062545 !important;position: relative;top:0pt;text-align: center;font-size:14pt; font-family: 'Avenir';top:0pt;">Activity</p>
+      
+            <hr style="float:left;width:212pt;border: 1.5px solid #D4D4D4 !important;;position:relative;top:-15pt;">
+              <div style="position:relative;top:13pt;height:110pt;width:95%;" id="chart_div_activity"></div>
+          <div id="session_dashboard_3" style="width: 212pt;height: 148pt; position:absolute;left:199.51pt;top:-2.5pt;background-color: #FFFFFF !important;border: 3px solid #D4D4D4;">
+            <p style="color:#062545 !important;position: relative;top:0pt;text-align: center;font-size:14pt; font-family: 'Avenir';top:0pt;">Goal Reached</p>
+             <hr style="float:left;width:210pt;border: 1.5px solid #D4D4D4 !important;;position:relative;top:-15pt;">
+             <div style="position:relative;left:55pt;height:90pt;width:90pt;top:-22pt;"
+        class="ldBar label-center"
+        data-value="<%=getOverall_goalreached()%>"
+        data-preset="circle"
+        ></div>
+        </div></div></div>
+        
+        <!-- Report Details -->
+        <p style="color:#062545 !important;text-align: center;font-size:16pt; font-family: 'Avenir';position:relative;top:267pt;">Report Details</p>
+      
+        <p style="color:#062545 !important;font-size:11pt;display: inline;position:relative; left:14pt;top:278pt; font-family: 'Avenir'">Session Date: <b><%= new Date(report[0].sessiondetails[0].heldon).toDateString().split(' ').slice(1).join(' ')%>, <%= new Date(report[0].sessiondetails[0].heldon).toDateString().substring(0,3)%>, <%=calcTime()%></b></p>
+        <p style="color:#062545 !important;font-size:11pt;display: inline;position:relative; left:40pt;top:278pt; font-family: 'Avenir'">Session Duration: <b><%= getTotalSessionTime()%></b></p>
+        <p style="color:#062545 !important;font-size:11pt;display: inline;position:relative; left:82pt;top:278pt; font-family: 'Avenir'">Previous Session Date: <b><%= get_date()%></b></p>
+      
+      
+        <!-- Table -->
+        <table style="margin-top: 15px; width: 96%; margin-left: 2%; margin-right: 2%; border-collapse:separate; border-spacing: 0 4px;position:absolute;top:465pt;">
+          <tr style="border-radius: 5px;text-align:center;box-shadow: 0 0 0 2px #062545 !important;">
+            <th style="text-align: center;padding-top:5px;padding-bottom:5px;">No.</th>
+            <th style="text-align: center;padding-top:5px;padding-bottom:5px;">Joint</th>
+            <th style="text-align: center;padding-top:5px;padding-bottom:5px;">Movement</th>
+            <th style="text-align: center;padding-top:5px;padding-bottom:5px;">Muscle</th>
+            <th style="text-align: center;padding-top:5px;padding-bottom:5px;padding-right:20px;">Side</th>
+            <th style="text-align: left;padding-top:5px;padding-bottom:5px;">EMG (uV)</th>
+            <th style="text-align: left;padding-top:5px;padding-bottom:5px;">ROM (°)</th>
+          </tr>
+
+          <% report[0].sessiondetails.slice(0, 9).map((e,i)=>{ %>
+          <tr style="border-radius: 5px;text-align:center;box-shadow: 0 0 0 1px #d4d4d4 !important;">
+
+            <!-- No. for Table row-->
+            <td style = "padding-top:5px;padding-bottom:5px;text-align: center;"><%=i+1%></td>
+
+
+            <!-- Joint for Table-->
+            <td style = "padding-top:5px;padding-bottom:5px;text-align: center;"><%=e.bodypart%></td>
+
+            <!-- Movement/Exercise name for Table-->
+            <%if(typeof e.exercisename!='undefined' && e.exercisename!=null && e.exercisename!=""){%>
+              <td style = "padding-top:5px;padding-bottom:5px;text-align: center;"><%=e.exercisename%></td>
+            <%}else{%>
+              <td style = "padding-top:5px;padding-bottom:5px;text-align: center;"><%="No exercise"%></td>
+            <%}%>
+
+            <!-- Muscle name for Table-->
+            <%if(typeof e.musclename!='undefined' && e.musclename!=null && e.musclename!=""){%>
+              <td style = "padding-top:5px;padding-bottom:5px;text-align: center;"><%=e.musclename%></td>
+            <%}else{%>
+              <td style = "padding-top:5px;padding-bottom:5px;text-align: center;"><%=" "%></td>
+            <%}%>
+
+            <!-- Side for Table L/R-->
+            <%if(typeof e.orientation!='undefined' && e.orientation!="" && e.orientation!=null){%>
+            <td style = "padding-top:5px;padding-bottom:5px;text-align: center;padding-right:20px;"><%=e.orientation.substr(0,1).toUpperCase()%><%=e.orientation.substr(1,5).toLowerCase()%></td>
+            <%}else{%>
+               <td style = "padding-top:5px;padding-bottom:5px;text-align: center;padding-right:20px;"><%="-"%></td>
+            <%}%>
+              <% if(e.orientation.substr(0,5).includes("ight"))
+  {
+    right= right + 1;
+  }else left = left+1; %>
+            <!-- EMG for Table-->
+            <td style = "padding-top:5px;padding-bottom:5px;text-align: left;"><%=e.maxemg%>uV<%if(increasedEmg(e.maxemg, lastsessions[i].maxemg)>0){%><img src="/icons/Up arrow.svg" style="width:16pt; height:16pt;"><%= increasedEmg(e.maxemg, lastsessions[i].maxemg)%>uV<%}else if(increasedEmg(e.maxemg, lastsessions[i].maxemg)<0){%><img src="/icons/Down arrow.svg" style="width:16pt;height:16pt;"><%= Math.abs(increasedEmg(e.maxemg, lastsessions[i].maxemg))%>uV<%}else{%>       
+            <%}%></td>
+
+             <!-- ROM for Table-->
+            <td style = "padding-top:5px;padding-bottom:5px;text-align: left;font-size: 12pt"><%=overallRompie(e.maxangle,e.minangle)%>°<%if(increasedRom(e.minangle, e.maxangle, lastsessions[i].minangle, lastsessions[i].maxangle) > 0){%><img src="/icons/Up arrow.svg" style="width:16pt; height:16pt;"><%= increasedRom(e.minangle, e.maxangle, lastsessions[i].minangle, lastsessions[i].maxangle)%>°<%}else if(increasedRom(e.minangle, e.maxangle, lastsessions[i].minangle, lastsessions[i].maxangle) < 0){%><img src="/icons/Down arrow.svg" style="width:16pt; height:16pt;"><%= Math.abs(increasedRom(e.minangle, e.maxangle, lastsessions[i].minangle, lastsessions[i].maxangle))%>°<%}else {%><%}%></td>
+
+
+          
+          </tr>
+   
+          <%});%>
+        </table>
+
+
+        <!-- Footer of Page1-->
+        <div style="width: 100%;height: 29pt;background-color:#062444 !important;position: relative;top: 650pt;"></div>
+        <p style="color:#FFFFFF !important;text-align: right;font-size:11pt; font-family: 'Avenir';top:625pt;right:5pt;position: relative;"> Page 1/<%=report[0].sessiondetails.length+2%> </p>
+        <p style="color:#FFFFFF !important;text-align: center;font-size:11pt; font-family: 'Avenir';top:610pt;position: relative;"><%if(details[0].phiziopatients[0].patientgender.toLowerCase() == 'male' || details[0].phiziopatients[0].patientgender.toLowerCase() == 'm'){%>Mr. <%}else {%> Ms. <%}%> <%= details[0].phiziopatients[0].patientname.substr(0,1).toUpperCase()%><%= details[0].phiziopatients[0].patientname.substr(1,details[0].phiziopatients[0].patientname.length)%> </p>
+        <p style="color:#FFFFFF !important;text-align: left;font-size:11pt; font-family: 'Avenir';top:595pt;position: relative;left: 5pt;">Report downloaded on <%= new Date(today).toDateString().split(' ').slice(1).join(' ')%> </p>
+        
+        </div>
+
+        
+        <!--PAGE 2-->
+
+      <!-- ----------------- -->
+      <!-- starts loop for patient detaisl  -->
+      <!-- --------------------------- -->
+      <% report[0].sessiondetails.slice(0, 9).map((e,i)=>{ %>
+
+        <div class="page" style="position:relative">
+
+
+          <div class="header"></div>
+
+
+          <!--Exercise Heading-->
+
+          <div style="width: 100%;height: 92.27pt;background-color:#0069B1 !important;position: relative;clear: both;">
+          
+            <img src="/icons/SVG/<%=e.bodypart.toLowerCase()%><%=e.exercisename.toLowerCase()%><%=e.orientation.substr(0,5).toLowerCase()%>.svg" style="position: absolute; width:70pt; height:70pt;top:11pt;left:12pt">
+            <br>
+           <p style="color: #FFFFFF !important;font-size:16pt; font-family: 'Avenir'; text-align:center;"><%=e.orientation.substr(0,5)%> <%=e.bodypart%> <%=e.exercisename%> </p>
+           <p style="color: #FFFFFF !important;font-size:14pt; font-family: 'Avenir'; text-align:center;"><%=e.musclename%> </p>
+
+            <%if(e.bodyorientation=="Supine"){%>
+             <img src="/icons/SVG/<%=e.bodyorientation%>.svg" style="position: absolute; width:22.29pt; height:34.03pt;top:28.01pt;left:524.92pt">
+            <%}else{%>
+             <img src="/icons/SVG/<%=e.bodyorientation%>.svg" style="position: absolute; width:12.29pt; height:24.03pt;top:34.01pt;left:534.92pt">
+
+            <%}%>
+           
+
+           <p style="color: #FFFFFF !important;font-size:14pt; font-family: 'Avenir'; position: absolute;top:34pt;left:552.31pt;"><%=e.bodyorientation.substr(0,1).toUpperCase()%><%=e.bodyorientation.substr(1,6).toLowerCase()%> </p>
+          </div>
+
+          <!--Session Recording Header-->
+          <div style="width: 100%;height: 36pt;background-color:#FFFFFF !important;position: relative;border: 3px solid #D4D4D4;border-width:  3px 0px 3px 0px;">
+            <!--Session Recording Header-->
+            <p style="color: #062545 !important;font-size:14pt; font-family: 'Avenir'; text-align: left;position:absolute;top:5pt;left:10pt">Session Recording: <%=get_session_recording(e.bodypart,e.exercisename,e.orientation,e.musclename,e.heldon)%> </p>
+            <p style="color: #062545 !important;font-size:10pt; font-family: 'Avenir'; text-align: right;position:absolute;top:10pt;right:133pt">Total Time  </p>
+            <p style="color: #062545 !important;font-size:14pt; font-family: 'Avenir'; text-align: right;position:absolute;top:5pt;right:10pt"><%=e.sessiontime %> </p>
+            </div>
+
+            <!-- STARTING THE EXP1 -->
+            <div style="height: 195pt;display: flex">
+            <!--EMG Graph-->
+            <div style="width: 430pt;height: 195pt;background-color:#FFFFFF !important;border: 3px solid #D4D4D4;position: relative; top:0pt;border-width:  0px 3px 3px 0px;" >
+              <p style="color:#062545;font-family: 'Avenir';font-size: 14pt;position: relative;padding-left: 22pt;padding-top: 20pt;">EMG (uV)</p>
+              <div id="chartemg<%=i%>" class="chart" style="width: 410pt;height: 120pt;"></div>
+             
+            </div>
+
+
+        <!--EMG Details-->
+        <div style="width: 195pt;height: 195pt;background-color:#FFFFFF !important; position: relative;top:0pt;left:0pt;border: 3px solid #D4D4D4;border-width:0px 0px 3px 0px;">
+          <p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 14pt;position: relative;top:15pt;">EMG Details</p>
+          
+          <center>
+          <table style=" border-collapse: collapse;position: relative;top:25pt;">
+            
+            <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 55px;padding-top: 15px;font-size: 10pt;text-align: right;color:#062545;font-family: 'Avenir'">Time recorded  </td>
+              <td style="padding-left: 20px;padding-right: 12px;padding-top: 15px;font-size: 14pt;text-align: left;position:relative;right:10px;color:#062545;font-family: 'Avenir'"><%=get_recordedtime(e.sessiontime)%></td>
+            </tr>
+            <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 55px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Avg Max EMG</td>
+              <td style="padding-left: 20px;padding-right: 12px;padding-top: 15px;font-size: 14pt;position:relative;right:10px;color:#062545;font-family: 'Avenir'"> <%=get_avgMaxEmg(e.heldon)%> </td>
+            </tr>
+            <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 55px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Max EMG</td>
+              <td style="padding-left: 20px;padding-right: 12px;padding-top: 15px;font-size: 14pt;position:relative;right:10px;color:#062545;font-family: 'Avenir'"><%=e.maxemg%>uV</td>
+            </tr>
+          </table>
+          </center>
+        </div>
+      </div>
+<!-- ENDING THE EXP1 -->
+      <!-- Starting EXP2 -->
+      <div style="height: 195pt;display: flex">
+     <!--ROM Graph-->
+        <div style="width: 424.1pt;height: 195pt;background-color:#FFFFFF !important;border: 3px solid #D4D4D4;position: relative; top:-2.5pt;border-width:  3px 3px 3px 0px;" >
+        <p style="color:#062545;font-family: 'Avenir';font-size: 14pt;position: relative;padding-left: 22pt;padding-top: 20pt;">Range of Motion (°)</p>
+            <div id="chartrom<%=i%>" class="chart" style="width: 410pt;height: 120pt;"></div>
+        </div>
+                  <!--ROM Details-->
+
+         <div style="width: 180pt;height: 195pt;">
+        
+        
+
+         <center>
+       <!-- <div id="rom_pie" class="chart" style="width: 100pt;height: 100pt;position: absolute;top:100pt;"></div> -->
+  
+             <div id="rom_pie<%=i+1%>" style="height: 180pt; width: 180pt;position: relative;top:15pt;left:5pt;">
+
+
+            </div>
+           <p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 14pt;position: relative;top:-160pt;left:7pt;">ROM Details</p>
+
+          <table class="table2" style=" border-collapse: collapse;position: relative;top:-30pt;">
+            
+            <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 10px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Time recorded</td>
+              <td style="padding-left: 50px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=get_recordedtime(e.sessiontime)%></td>
+              </tr>
+            
+            <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 10px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Range Gained</td>
+              <td id="ranged_gained<%=i%>" style="padding-left: 50px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=Gained_Rom(e.maxangle,e.minangle,i)%>°</td>
+            </tr>
+            <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 10px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Avg. Min ROM</td>
+              <td style="padding-left: 50px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=get_avgMinROM(e.heldon)%></td>
+            </tr>
+            <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 0px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Avg. Max ROM</td>
+              <td style="padding-left: 50px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=get_avgMaxROM(e.heldon)%></td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 20px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Target ROM</td>
+              <td style="padding-left: 30px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=e.minangleselected%>° to <%=e.maxangleselected%>°</td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 20px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Normal ROM</td>
+              <td style="padding-left: 30px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'">0° to <%=joint_range(e.bodypart.toLowerCase(),e.exercisename.toLowerCase())%>°</td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 30px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Repetitions</td>
+              <td style="padding-left: 50px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=e.numofreps%></td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 30px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Rep Speed</td>
+              <td style="padding-left: 25px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=get_Speed(e.heldon,e.activetime,e.numofreps)%> </td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 30px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Hold Time</td>
+              <td style="padding-left: 30px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=get_hold_time(e.holdtime)%></td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 30px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Hold Angle</td>
+              <td style="padding-left: 50px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=get_holdangle(e.holdangle) %></td>
+              </tr>
+              <tr style="border-bottom:2px solid #D4D4D4;">
+              <td style="padding-right: 30px;padding-top: 15px;font-size: 10pt;color:#062545;font-family: 'Avenir'">Active Time</td>
+              <td style="padding-left: 30px;padding-top: 15px;font-size: 14pt;color:#062545;font-family: 'Avenir'"><%=e.activetime%></td>
+              </tr>
+          
+
+          </table>
+        </center>
+        </div>
+          
+       
+        </div>
+        <!-- Ending EXP2 -->
+        
+        <!-- Starting EXP3 -->
+        <div style="height: 145pt;width:424pt;display: flex;position: relative;top:-2pt;border: 3px solid #D4D4D4; border-width:  0px 3px 0px 0px;">
+      
+
+          <!--Goal reached -->
+          <div style="width: 168pt;height: 146pt;border: 3px solid #D4D4D4;position: relative; border-width:  0px 3px 3px 0px;top:-1pt;" >
+           <p style="color:#062545 !important;position: relative;top:5pt;text-align: center;font-size:14pt; font-family: 'Avenir';">Goal Reached</p>
+           <hr style="float:left;width:110pt;border: 1.5px solid #FFFFFF !important;">
+             <div style="position:relative;left:40pt;height:90pt;width:90pt;top:-20pt;"
+        class="ldBar label-center"
+        data-value="<%=goalreached(joint_range(e.bodypart.toLowerCase(),e.exercisename.toLowerCase()),overallRom_goalreached(e.maxangle,e.minangle,joint_range(e.bodypart.toLowerCase(),e.exercisename.toLowerCase()),e.heldon))%>"
+        data-preset="circle"
+        ></div>
+           
+          </div>
+
+          <!-- Python Variables table -->
+          <div style="width: 254pt;height: 145pt;border: 3px solid #D4D4D4; border-width:  0px 0px 3px 0px;display: flex;flex-direction: column;" >
+             
+            <div style="width:100%;height:33%;border: 3px solid #D4D4D4; border-width:  0px 0px 3px 0px;">
+             <p style="color:#062545 !important;font-size:14pt; font-family: 'Avenir';position:relative;top:12pt;left:8pt;">Consistency </p>
+            <div id="consistency_rating<%=i%>" style="position:relative;left: 53%;font-size:16pt;bottom:5pt"></div>
+            </div>
+
+            <div style="width:100%;height:33%;border: 3px solid #D4D4D4; border-width:  0px 0px 3px 0px;">
+            <p style="color:#062545 !important;font-size:14pt; font-family: 'Avenir';position:relative;top:12pt;left:8pt;">Control </p>
+            <div id="controlled_rating<%=i%>" style="position:relative;left: 53%;font-size:16pt;bottom:5pt"></div>
+            
+            </div>
+
+            <div style="width:100%;height:33%;border: 3px solid #D4D4D4; border-width:  0px 0px 0px 0px;">
+
+            <p style="color:#062545 !important;font-size:14pt; font-family: 'Avenir';position:relative;top:12pt;left:8pt;">Smoothness </p>
+            <div id="smoothness_rating<%=i%>" style="position:relative;left: 53%;font-size:16pt;bottom:5pt"></div>
+
+            </div>
+
+          </div>
+
+        </div>
+          <!-- Starting EXP3 -->
+
+        <!-- Starting EXP4 -->
+          <!--Remarks -->
+          <div style="width: 424pt;height: 197pt;border: 3px solid #D4D4D4;border-width:  0px 3px 0px 0px;position: relative;top:-2pt;" >
+
+          
+      <p style="color:#062545;font-family: 'Avenir';font-size: 14pt;text-align: center;position: relative;top:12pt;">Physio Remarks</p>
+      
+      <p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 10pt;position:absolute;left:22.5pt;bottom: 170px;">MMT</p>
+      <p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 14pt;position:absolute;left:147.5pt;bottom: 170px;"><%=e.mmtgrade%></p>
+
+      <p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 10pt;position:absolute;left:263.31pt;bottom: 170px;">Type</p>
+      <p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 14pt;position:absolute;left:364.31pt;bottom: 170px;"><%= e.sessiontype%></p>
+      
+      <p style="text-align: center;color:#062545;font-family: 'Avenir';font-size: 10pt;position:absolute;left:22.5pt;bottom: 130px;"><%= e.commentsession %></p>
+
+      <hr style="width:146pt;height:1px;border-width:0;color:#D4D4D4 !important;background-color:#D4D4D4 !important;position:absolute;left:22.5pt;top:52pt;">
+      <hr style="width:146pt;height:1px;border-width:0;color:#D4D4D4 !important;background-color:#D4D4D4 !important;position:absolute;left:262.5pt;top:52pt;">
+      
+      <hr style="width:386pt;height:1px;border-width:0;color:#D4D4D4 !important;background-color:#D4D4D4 !important;position:absolute;top:82pt;left:22.5pt;">
+      <hr style="width:386pt;height:1px;border-width:0;color:#D4D4D4 !important;background-color:#D4D4D4 !important;position:absolute;top:113pt;left:22.5pt;">
+      <hr style="width:386pt;height:1px;border-width:0;color:#D4D4D4 !important;background-color:#D4D4D4 !important;position:absolute;top:144pt;left:22.5pt;">
+      
+       
+          </div>
+        <!-- Starting EXP4 -->        
+   
+
+      <div style="width: 100%;height: 29pt;background-color:#062444 !important;float:bottom;position:absolute;bottom:0pt">
+      <p style="color:#FFFFFF !important;text-align: center;font-size:11pt; font-family: 'Avenir';position:relative;top:6pt"><%if(details[0].phiziopatients[0].patientgender.toLowerCase() == 'male' || details[0].phiziopatients[0].patientgender.toLowerCase() == 'm'){%>Mr. <%}else {%> Ms. <%}%> <%= details[0].phiziopatients[0].patientname.substr(0,1).toUpperCase()%><%= details[0].phiziopatients[0].patientname.substr(1,details[0].phiziopatients[0].patientname.length)%> </p></div>
+       <p style="color:#FFFFFF !important;text-align: right;font-size:11pt; font-family: 'Avenir';position:absolute;bottom:5pt;right:5pt;"> Page <%=i+2%>/<%=report[0].sessiondetails.length+2%> </p>
+        
+        <p style="color:#FFFFFF !important;text-align: left;font-size:11pt; font-family: 'Avenir';position:absolute;bottom:5pt;left: 5pt;">Report downloaded on <%= new Date(today).toDateString().split(' ').slice(1).join(' ')%> </p>
+
+    
+    
+        </div>
+
+
+<script>
+
+google.charts.load('current', {packages: ['corechart', 'line']});
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(drawBackgroundColor);
+google.charts.load('current', {packages: ['corechart', 'bar']});
+
+
+//
+
+var consistency_value = 0;
+<% report[0].sessiondetails.map((h,j)=>{ %>
+
+
+  if('<%=python_variables[j].download_time_stamp%>' == '<%= e.heldon%>')
+  {
+    var consistency_value=Math.round(<%=python_variables[j].consistency%>);
+    var overall_range_gained_30sec = <%=python_variables[j].velocity%>
+    document.getElementById("ranged_gained<%=i%>").innerHTML = overall_range_gained_30sec;
+
+  }
+//e.heldon == download_time_s.lengthtamp[j]
+
+<%});%>
+
+
+if(consistency_value ==1){
+ document.getElementById("consistency_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+} else if(consistency_value ==2){
+ document.getElementById("consistency_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+} else if(consistency_value ==3){
+ document.getElementById("consistency_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+} else if(consistency_value ==4){
+ document.getElementById("consistency_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span>'
+}else if(consistency_value ==5){
+ document.getElementById("consistency_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span>'
+}
+else{
+ document.getElementById("consistency_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}
+consistency_value=0;
+
+//
+var smoothness_value = 0;
+<% report[0].sessiondetails.map((h,j)=>{ %>
+
+
+  if('<%=python_variables[j].download_time_stamp%>' == '<%= e.heldon%>')
+  {
+    smoothness_value=Math.round(<%=python_variables[j].smoothness%>);
+  }
+//e.heldon == download_time_s.lengthtamp[j]
+
+<%});%>
+// Smoothness Element
+
+
+
+if(smoothness_value ==1){
+ document.getElementById("smoothness_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}else if(smoothness_value ==2){
+ document.getElementById("smoothness_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}else if(smoothness_value ==3){
+ document.getElementById("smoothness_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}else if(smoothness_value ==4){
+ document.getElementById("smoothness_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span>'
+}else if(smoothness_value ==5){
+ document.getElementById("smoothness_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span>'
+}else{
+ document.getElementById("smoothness_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked "></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}
+smoothness_value = 0;
+
+
+// Control Element
+var controlled_value=0;
+
+<% report[0].sessiondetails.map((h,j)=>{ %>
+
+
+  if('<%=python_variables[j].download_time_stamp%>' == '<%= e.heldon%>')
+  {
+    controlled_value=Math.round(<%=python_variables[j].controlled%>);
+  }
+//e.heldon == download_time_s.lengthtamp[j]
+
+<%});%>
+
+
+
+if(controlled_value ==1){
+ document.getElementById("controlled_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}else if(controlled_value ==2){
+ document.getElementById("controlled_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}else if(controlled_value ==3){
+ document.getElementById("controlled_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}else if(controlled_value ==4){
+ document.getElementById("controlled_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star unchecked"></span>'
+}else if(controlled_value >=5){
+ document.getElementById("controlled_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span><span class="fa fa-star checked"></span>'
+}else{
+ document.getElementById("controlled_rating<%=i%>").innerHTML = '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> <span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span><span class="fa fa-star unchecked"></span>'
+}
+controlled_value=0;
+//
+activity_list_temp=[];
+let get_emg_raw<%=i+1%> = [];
+let get_rom_raw<%=i+1%> = [];
+<% report[0].sessiondetails.map((h,j)=>{ %>
+
+
+  if('<%= download_time_stamp[j]%>' == '<%= e.heldon%>')
+  {
+    get_emg_raw<%=i+1%> = "<%= download_result_emg[j]%>"; 
+    get_rom_raw<%=i+1%> = "<%= download_result_rom[j]%>";
+  }
+//e.heldon == download_time_s.lengthtamp[j]
+
+<%});%>
+
+
+
+//get_emg_raw<%=i+1%> = "<%= download_result_emg[i]%>"; 
+emg_data_string<%=i+1%> = get_emg_raw<%=i+1%>.toString().split(",");
+emg_data_int<%=i+1%>= emg_data_string<%=i+1%>.map(Number);
+
+
+
+//get_rom_raw<%=i+1%> = "<%= download_result_rom[i]%>"; 
+rom_data_string<%=i+1%> = get_rom_raw<%=i+1%>.toString().split(",");
+rom_data_int<%=i+1%>= rom_data_string<%=i+1%>.map(Number);
+
+function drawBackgroundColor() {
+
+
+
+
+      var data<%=i+1%> = new google.visualization.DataTable();
+      data<%=i+1%>.addColumn('number', 'X');
+      data<%=i+1%>.addColumn('number', 'EMG');
+
+
+      for(var i = 0; i < 1500; i++){
+    
+
+
+
+      data<%=i+1%>.addRows([
+    [i*0.02,emg_data_int<%=i+1%>[i]]
+      ]);
+
+      if(i>emg_data_int<%=i+1%>.length){break;}
+
+    }
+
+      var options = {
+
+         legend: 'none',
+        hAxis: {
+          titleTextStyle: {italic: false},
+          title: 'Time (s)',
+          format:'# ',
+          gridlines: {
+            color: 'transparent'
+          },
+          baselineColor: '#D4D4D4'
+
+        },
+         chartArea: {
+          right:10,
+          top:10,
+          width:"85%",
+          height:"75%",
+          backgroundColor: {
+            stroke: '#D4D4D4',
+            strokeWidth: 1
+          }
+        },
+        vAxis: {
+          format:'# ',
+          gridlines: {
+            color: 'transparent'
+          },
+          baselineColor: '#D4D4D4'
+        },
+        colors:['#4471C4'],
+        enableInteractivity: false  
+
+      };
+
+      var chart<%=i+1%> = new google.visualization.LineChart(document.getElementById('chartemg<%=i%>'));
+      chart<%=i+1%>.draw(data<%=i+1%>, options);
+
+
+      //
+       var datarom<%=i+1%> = new google.visualization.DataTable();
+      datarom<%=i+1%>.addColumn('number', 'X');
+      datarom<%=i+1%>.addColumn('number', 'ROM');
+      datarom<%=i+1%>.addColumn('number', 'ROMmin');
+      datarom<%=i+1%>.addColumn('number', 'ROMmax');
+
+      for(var i = 0; i < 1500; i++){
+  
+
+
+      datarom<%=i+1%>.addRows([
+    [i*0.02,rom_data_int<%=i+1%>[i],<%=e.minangleselected%>,<%=e.maxangleselected%>]
+      ]);
+      if(i>rom_data_int<%=i+1%>.length){break;}
+    }
+
+      var optionsrom = {
+         legend: 'none',
+        hAxis: {
+
+          titleTextStyle: {italic: false},
+          title: 'Time (s)',
+          format:'# ',
+          gridlines: {
+            color: 'transparent'
+          },
+          baselineColor: '#D4D4D4'
+        },
+        chartArea: {
+          right:10,
+          top:10,
+          width:"85%",
+          height:"75%",
+        backgroundColor: {
+            stroke: '#D4D4D4',
+            strokeWidth: 1
+          }
+        },
+        vAxis: {
+          format:'# ',
+          gridlines: {
+            color: 'transparent'
+          },
+          baselineColor: '#D4D4D4'
+        },
+        colors:['#4471C4','#FDD602','#FDD602'],
+
+        enableInteractivity: false 
+
+      };
+
+      var chartrom<%=i+1%> = new google.visualization.LineChart(document.getElementById('chartrom<%=i%>'));
+      chartrom<%=i+1%>.draw(datarom<%=i+1%>, optionsrom);
+
+var overall_range_gained_30sec = 0;
+<% report[0].sessiondetails.map((h,j)=>{ %>
+
+
+  if('<%=python_variables[j].download_time_stamp%>' == '<%= e.heldon%>')
+  {
+    var overall_range_gained_30sec = <%=python_variables[j].velocity%>
+    document.getElementById("ranged_gained<%=i%>").innerHTML = overall_range_gained_30sec;
+
+  }
+//e.heldon == download_time_s.lengthtamp[j]
+
+<%});%>
+
+      var over_all = overall_range_gained_30sec + '°'
+      var pie_param = 360 - parseInt(overall_range_gained_30sec);
+      if(pie_param>360){
+        pie_param=360;
+      }
+       var data_pie<%=i+1%> = google.visualization.arrayToDataTable([
+          ['Left', 'Right'],
+          [over_all,     overall_range_gained_30sec],
+          [' ',  pie_param]
+        ]);
+
+
+
+        var chart_pie<%=i+1%> = new google.visualization.PieChart(document.getElementById('rom_pie<%=i+1%>'));
+
+      
+        if(overall_range_gained_30sec<30)
+        {
+
+          if(overall_range_gained_30sec<15)
+          {
+            var options = {
+          pieSliceTextStyle: { color: '#FFFFFF',fontSize: 5}, 
+          colors: ['#00B386', '#D4D4D4'],
+          pieSliceText: 'label',
+          legend: 'none',
+          enableInteractivity: false };
+          }else
+          {
+ 
+          var options = {
+          pieSliceTextStyle: { color: '#FFFFFF',fontSize: 7}, 
+          colors: ['#00B386', '#D4D4D4'],
+          pieSliceText: 'label',
+          legend: 'none',
+          enableInteractivity: false };
+          }
+      }else
+      {
+        var options = {
+          pieSliceTextStyle: { color: '#FFFFFF',fontSize: 11}, 
+          colors: ['#00B386', '#D4D4D4'],
+          pieSliceText: 'label',
+          legend: 'none',
+          enableInteractivity: false 
+        };
+
+      }
+
+        chart_pie<%=i+1%>.draw(data_pie<%=i+1%>, options);
+
+
+        // Activity chart
+           <% if(typeof e.activity_list != 'undefined' && parseInt(e.activity_list.length)>0){%>
+ 
+
+    var data_bar = new google.visualization.DataTable();
+    var prev_min,prev_hour;
+    var prev_engagement;
+      data_bar.addColumn('timeofday', 'Time');
+      data_bar.addColumn('number', 'Motivation Level');
+      var activity_len = parseInt("<%=e.activity_list.length%>");
+
+     
+     
+
+
+      <% e.activity_list.map((x,y)=>{ %>
+
+        
+
+var activity_date = "<%=x.timestamp%>";
+        var activity_engagement = parseInt("<%=x.engagement%>");
+        var activity_date_split = activity_date.split(":");
+        var activity_hour = parseInt(activity_date_split[0]);
+        var activity_min = parseInt(activity_date_split[1]);
+        var activity_sec = parseInt(activity_date_split[2]);
+       if(!({activity_engagement:activity_engagement,activity_date:activity_date} in activity_list_temp)){
+  activity_list_temp.push({activity_engagement:activity_engagement,activity_date:activity_date});
+}
+    
+
+         data_bar.addRows([
+        [{v: [activity_hour, activity_min]}, activity_engagement]
+      ]);
+
+         if(Date.parse('01/01/2011 '+activity_hour+':'+activity_min) > Date.parse('01/01/2011 '+prev_hour+':'+prev_min))
+         {
+
+   
+
+          while(Date.parse('01/01/2011 '+activity_hour+':'+activity_min) > Date.parse('01/01/2011 '+prev_hour+':'+prev_min))
+          {
+
+            if(activity_min==0)
+            {
+              activity_min = 60;
+              activity_hour = activity_hour-1;
+            }
+            activity_min=activity_min-1;
+             data_bar.addRows([
+        [{v: [activity_hour, activity_min]}, prev_engagement]
+      ]);
+          }
+
+
+         }
+
+       
+
+         
+          prev_min = parseInt(activity_date_split[1]);
+          prev_hour = parseInt(activity_date_split[0]);
+          prev_engagement = activity_engagement;
+
+<%});%>
+
+
+            activity_list_temp.map((x,y)=>{ 
+
+        
+
+var activity_date = x.activity_date;
+        var activity_engagement = parseInt(x.activity_engagement);
+        var activity_date_split = activity_date.split(":");
+        var activity_hour = parseInt(activity_date_split[0]);
+        var activity_min = parseInt(activity_date_split[1]);
+        var activity_sec = parseInt(activity_date_split[2]);
+
+    
+
+         data_bar.addRows([
+        [{v: [activity_hour, activity_min]}, activity_engagement]
+      ]);
+
+         if(Date.parse('01/01/2011 '+activity_hour+':'+activity_min) > Date.parse('01/01/2011 '+prev_hour+':'+prev_min))
+         {
+
+   
+
+          while(Date.parse('01/01/2011 '+activity_hour+':'+activity_min) > Date.parse('01/01/2011 '+prev_hour+':'+prev_min))
+          {
+
+            if(activity_min==0)
+            {
+              activity_min = 60;
+              activity_hour = activity_hour-1;
+            }
+            activity_min=activity_min-1;
+             data_bar.addRows([
+        [{v: [activity_hour, activity_min]}, prev_engagement]
+      ]);
+          }
+
+
+         }
+
+       
+
+         
+          prev_min = parseInt(activity_date_split[1]);
+          prev_hour = parseInt(activity_date_split[0]);
+          prev_engagement = activity_engagement;
+
+});
+      console.log("activity list");
+      console.log(activity_list_temp);
+
+
+
+      
+
+      var options_bar = {
+         legend: 'none',
+        backgroundColor:
+        {
+          stroke: '#D4D4D4'
+        },
+        bar:{
+        groupWidth:"100%"
+        },
+        hAxis: {
+          
+          titleTextStyle: {italic: false},
+          title: 'Timestamp',
+          format: 'HH:mm ',
+          gridlines: {
+            color: 'transparent'
+          }
+        },chartArea: {
+          top:5,
+          right:8,
+          width:"85%",
+          height:"70%",
+        backgroundColor: {
+            stroke: '#D4D4D4',
+            strokeWidth: 1
+          }
+        },
+         vAxis: {
+          ticks:[0,1],
+          titleTextStyle: {italic: false},
+          format:'short',
+          title: 'Engagement',
+           gridlines: {
+            color: 'transparent'
+          }
+          },enableInteractivity: false
+      };
+
+      var chart_activity = new google.visualization.ColumnChart(
+        document.getElementById('chart_div_activity'));
+
+      chart_activity.draw(data_bar, options_bar);
+         <%}%>
+
+    }
+
+
+
+
+</script>
+
+        <%});%>
+     
+<!--PAGE 3-->
+<div class="page">
+
+  <div class="header" style="height: 10pt;width: 100%;background-color: #062444 !important;"></div>
+    
+
+  <div style="text-align:center;">
+    <p style="float:center;margin-top:40px;font-size:20px;font-weight:50px;color: #062545 !important;font-size:16pt; font-family: 'Avenir';text-align: center">Additional Comment</p>
+    </div>
+    
+    <hr style="width:95%;text-align:center;margin-left:auto;margin-right:auto;height:0.5px;border-width:0;color:gray !important;background-color:gray !important;margin-top:60px;">
+    <hr style="width:95%;text-align:center;margin-left:auto;margin-right:auto;height:0.5px;border-width:0;color:gray !important;background-color:gray !important;margin-top:30px;">
+    <hr style="width:95%;text-align:center;margin-left:auto;margin-right:auto;height:0.5px;border-width:0;color:gray !important;background-color:gray !important;margin-top:30px;">
+    <hr style="width:95%;text-align:center;margin-left:auto;margin-right:auto;height:0.5px;border-width:0;color:gray !important;background-color:gray !important;margin-top:30px;">
+    
+    
+    <p style="float:left;margin-left:2.5%;margin-top:30px;font-size:13px;font-weight:5px;color: #062545 !important;font-size:14pt; font-family: 'Avenir';">Next Session:</p>
+    <hr style="float:left;width:40%;margin-top:50px;text-align:left;margin-left:auto;margin-right:auto;height:0.5px;border-width:0;color:gray !important;background-color:gray !important;">
+    
+    <p style="float:left;margin-top:30px;margin-left:40px;font-size:13px;font-weight:5px;color: #062545 !important;font-size:14pt; font-family: 'Avenir';">Time:</p>
+    <hr style="float:left;width:30%;margin-top:50px;text-align:left;margin-left:auto;margin-right:auto;height:0.5px;border-width:0;color:gray !important;background-color:gray !important;">
+    
+    <p style="clear:both;float:left;margin-left:2.5%;margin-top:30px;font-size:13px;font-weight:5px;color: #062545 !important;font-size:14pt; font-family: 'Avenir';">Report handed over by:</p>
+    <hr style="float:left;width:40%;margin-top:50px;text-align:left;margin-left:auto;margin-right:auto;height:0.5px;border-width:0;color:gray !important;background-color:gray !important;">
+    
+    <p style="float:left;margin-top:30px;margin-left:40px;font-size:13px;font-weight:5px;color: #062545 !important;font-size:14pt; font-family: 'Avenir';">Dept:</p>
+    <hr style="float:left;width:20%;margin-top:50px;text-align:left;margin-left:auto;margin-right:auto;height:0.5px;border-width:0;color:gray !important;background-color:gray !important;">
+    
+    <p style="clear:both;float:left;margin-left:2.5%;margin-top:130px;margin-bottom:30px;font-size:13px;font-weight:5px;color: #062545 !important;font-size:14pt; font-family: 'Avenir';">Seal & Signature</p>
+    <p style="float:right;margin-right:5%;margin-top:130px;margin-bottom:30px;font-size:13px;font-weight:5px;color: #062545 !important;font-size:10pt; font-family: 'Avenir';">Contact No.</p>
+    
+    
+  <div class="terms_and_conditions" style="clear:both;position:relative;top:50%;background-color:#006ab1 !important;width:100%;height:35px;">
+  <p style="text-align:center;color:white !important;font-size:20px;font-weight:50px;padding-top:5px;font-family: 'Helvetica';">Terms & Conditions</p>
+  
+  <ul style="position:relative;top:20px;left:20pt;margin-left:10pt; margin-right:10pt;list-style-type: disc;">
+  
+  <li style="font-size:13px;font-weight:5px;margin-top:20px;margin-right:20pt;font-family: 'Helvetica';color: #707070;">The reported results are for information and interpretation of the referring doctor/ physiotherapist or such medical
+professional who understands reporting units, reference ranges and limitations of technologies.</li>
+  
+  <li style="font-size:13px;font-weight:5px;margin-top:20px;margin-right:20pt;font-family: 'Helvetica';color: #707070;">It is presumed that the assessment tests are performed on the patient named or identified and the verification of the
+particulars have been cleared out by the patient or his/her representative at the point of generation of this report.
+The reported results are restricted to the given patient only.</li>
+  
+  <li style="font-size:13px;font-weight:5px;margin-top:20px;margin-right:20pt;font-family: 'Helvetica';color: #707070;">Should the results indicate an unexpected abnormality, the same should be reconfirmed.</li>
+    
+  <li style="font-size:13px;font-weight:5px;margin-top:20px;margin-right:20pt;font-family: 'Helvetica';color: #707070;">Results may vary from one center to another and from time to time for the same parameter for the same patient.
+Assessments are performed in accordance with standard set procedures. Neither the physiotherapy center
+(including its employees, representatives) using Pheezee nor the manufacturer of Pheezee (Startoon Labs and its
+employees, representatives) assume any liability, responsibility for any loss or damage that may be incurred by any
+person as a result of presuming the meaning or contents of this report.</li>
+  
+  <li style="font-size:13px;font-weight:5px;margin-top:20px;margin-right:20pt;font-family: 'Helvetica';color: #707070;">This report is not valid for medico-legal purposes.</li>
+  
+</ul>  
+
+<p style="position:relative;font-size:13px;font-weight:5px;top:30px;left:20px;color: #707070;font-family: 'Helvetica';"><b>Suggestions</b></p>
+
+    <ul style="position:relative;top:30px;margin-left:10pt; margin-right:10pt;list-style-type: disc;left:20pt;">
+    <li style="font-size:13px;font-weight:5px;margin-top:20px;font-family: 'Helvetica';color: #707070;">Values out of reference range requires reconfirmation before starting any medical treatment.</li>
+    
+  <li style="font-size:13px;font-weight:5px;margin-top:20px;font-family: 'Helvetica';color: #707070;">Retesting/reassessment is needed if you suspect any quality shortcomings.</li>
+  </ul>
+  </div>
+
+  <!-- Footer of last page-->
+        <div style="width: 100%;height: 29pt;background-color:#062444 !important;position: relative;top: 368pt;"></div>
+        <p style="color:#FFFFFF !important;text-align: right;font-size:11pt; font-family: 'Avenir';top:344pt;right:5pt;position: relative;"> Page <%=report[0].sessiondetails.length+2%>/<%=report[0].sessiondetails.length+2%> </p>
+        <p style="color:#FFFFFF !important;text-align: center;font-size:11pt; font-family: 'Avenir';top:329pt;position: relative;"> <%if(details[0].phiziopatients[0].patientgender.toLowerCase() == 'male' || details[0].phiziopatients[0].patientgender.toLowerCase() == 'm'){%>Mr. <%}else {%> Ms. <%}%> <%= details[0].phiziopatients[0].patientname.substr(0,1).toUpperCase()%><%= details[0].phiziopatients[0].patientname.substr(1,details[0].phiziopatients[0].patientname.length)%>  </p>
+        <p style="color:#FFFFFF !important;text-align: left;font-size:11pt; font-family: 'Avenir';top:316pt;position: relative;left: 5pt;">Report downloaded on <%= new Date(today).toDateString().split(' ').slice(1).join(' ')%> </p>
+        
+        </div>
+</div>
+
+
+
+<script>
+new Chart(document.getElementById("pie-chart"), {
+    type: 'pie',
+    data: {
+
+      datasets: [{ backgroundColor: ["#BCE0FD","#0069B1"],
+        data: [<%=right%>,<%=left%>]
+      }]
+    },
+    options: {
+       events: [],
+      animation: {
+            duration: 0 // general animation time
+        },
+        hover: {
+            animationDuration: 0 // duration of animations when hovering an item
+        },
+        responsiveAnimationDuration: 0 ,
+      plugins: {
+
+          labels: {
+            render: 'value',
+            fontColor: ['#0069B1', '#BCE0FD']
+          }
+        }
+
+    }
+});
+
+
+
+
+
+
+</script>
+     </body>
+   
+  </html>
+
+  <% } %>

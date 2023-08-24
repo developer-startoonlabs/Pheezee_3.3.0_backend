@@ -1,0 +1,610 @@
+<% if (typeof details === 'string' ) { %>
+<h2><%=details %></h2>
+<%} else if ( report[0].sessiondetails.length < 1 ){%>
+<h2>no records for this month</h2>
+<%} else {%> <%const getPainScale = scale => {for (let i = 1; i <= 5; i++) {%>
+<% if(scale == i) { %>
+<img
+  src="/icons/<%= i %>.png"
+  style="background-color: yellow; border-radius: 100%"
+/>
+<% } else { %>
+<img
+  src="/icons/<%= i %>.png"
+  style="background-color: white; border-radius: 50%"
+/>
+<% } %> <%}};%> <%const getMMTGrading = grade => {for(var i=1; i <= 10; i++) {
+%> <% if(grade == i) { %>
+<span
+  style="border: 1px #aaa solid; border-radius: 60%; padding: 0px; background-color: yellow;"
+  >&nbsp;<%= i %>&nbsp;</span
+>
+<% } else { %>
+<span
+  style="border: 1px #aaa solid; border-radius: 60%; padding: 0px;  background-color: white;"
+  >&nbsp;<%= i %>&nbsp;</span
+>
+<% } %> <% } }%>
+<html>
+  <head>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/stylesheets/main.css" />
+    <script src="/d3.min.js"></script>
+    <script src="/customcharts.js"></script>
+    <script src="/rangefunctions.js"></script>
+  </head>
+  <body>
+    <section
+      style="padding: 10px;"
+      id="page-header-1"
+      class="hero has-background-light"
+    >
+      <div class="is-marginless is-paddingless">
+        <div class="columns is-paddingless">
+          <div
+            style="padding-left: 5%;margin:auto 0;"
+            class="column is-vcentered is-paddingless"
+          >
+            <h1 class="title has-text-danger is-size-4">
+              <%= details[0].clinicname %>
+            </h1>
+          </div>
+          <div style="padding-right: 5%;" class="column is-half">
+            <div class="columns is-pulled-right ">
+              <div class="column is-paddingless">
+                <img
+                  class="image is-pulled-right "
+                  src="/icons/pheezeelogo.png"
+                  alt="address"
+                  style="width: 100px; margin-top:10px;"
+                />
+              </div>
+            </div>
+            <div class="columns  is-size-5">
+              <div class="column">
+                Monthly Report
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section style="min-height:120px" id="page-header-2">
+      <div class="columns is-marginless is-paddingless box has-background-light">
+        <div class="column is-6">
+          <div class="columns is-multiline">
+            <div class="column is-one-fifth">
+              <div class="image is-96x96 is-marginless">
+                <img
+                  src=<%= details[0].cliniclogo%>
+                  style="height:96px; width:96px;"
+                />
+              </div>
+            </div>
+            <div class="column is-half">
+              <h2 style="padding-left:20px " class="title is-5">
+                <!-- name of therapist  -->
+                <%= details[0].phizioname %>
+              </h2>
+              <h2 style="padding-left:20px " class="subtitle">
+                <!-- degree of therapist -->
+                <%= details[0].degree %>
+              </h2>
+            </div>
+            <!-- spacer -->
+            <div class="column"></div>
+          </div>
+        </div>
+        <div class="column is-6">
+          <div class="columns is-marginless is-paddingless  ">
+            <figure class="image column is-2  is-32x32  ">
+              <img
+                class="image  is-32x32 is-pulled-right is-marginless"
+                src="/icons/address.svg"
+                alt="address"
+              />
+            </figure>
+            <!-- address of clinic -->
+            <h2 class=" column subtitle">
+              <%=details[0].address %>
+            </h2>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="box has-background-light is-marginless is-paddingless" id="page-header-3">
+      <div class="columns is-marginless is-paddingless">
+        <div class="column is-paddingless">
+          <div class="columns is-marginless is-paddingless">
+            <h1 class="title is-size-3" style="padding-left: 10px;">
+              <!-- shows patient name  -->
+              <%= details[0].phiziopatients[0].patientname %>
+            </h1>
+          </div>
+          <div class="columns is-marginless is-paddingless">
+            <div class="column ">
+              <div class="column  is-marginless is-paddingless is-size-5">
+                <!-- shows patiennt details -->
+                ID:<%= details[0].phiziopatients[0].patientid %>
+              </div>
+            </div>
+            <div class="column">
+              <div class="column is-marginless is-paddingless is-size-5">
+                <%=details[0].phiziopatients[0].patientgender %> /
+                <%=details[0].phiziopatients[0].patientage %>
+              </div>
+            </div>
+            <!-- spacer -->
+            <div class="column"></div>
+          </div>
+        </div>
+        <div class="column is-paddingless">
+          <div class="columns is-marginless is-paddingless title is-size-4">
+            <div class="column">
+              <%=details[0].phiziopatients[0].patientcasedes %>
+            </div>
+          </div>
+          <div class="columns is-marginless is-paddingless title is-size-5">
+            <div class="column  is-marginless" style="padding-top: 0px;">
+              Date of First Visit : <%=details[0].phiziopatients[0].dateofjoin
+              %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="box has-background-light " id="page-header-4">
+      <div class="columns">
+        <div class="column">
+          <h1 class="title is-size-5">
+            MONTH - #<%=monthCount %>
+          </h1>
+        </div>
+        <div class="column">
+          <h1 class="title is-size-5">
+            <%=monthRangeString %>
+          </h1>
+        </div>
+      </div>
+    </section>
+    <section
+      id="list-of-body-parts"
+      style="min-height:96px ;"
+      class="has-text-grey-lighter"
+    >
+      <div class="columns is-marginless is-paddingless is-multiline ">
+        <% bodypartArray.forEach(function(bodyPartObject, i, bodypartArray){ %>
+        <div class="column is-marginless is-paddingless has-text-centered is-2">
+          <figure
+            class="image is-48x48 has-text-centered"
+            style="margin:0 auto;"
+          >
+            <img src= <%= "/icons/"+bodyPartObject.bodyPart.toLowerCase() + ".png" %>
+            alt="bodyPart" />
+          </figure>
+          <p class="has-text-black">
+            <%=bodyPartObject.orientation%> - <%= bodyPartObject.bodyPart %> - <%=bodyPartObject.exercise %>
+          </p>
+        </div>
+        <% }) %>
+      </div>
+    </section>
+    <!-- <hr/> -->
+    <br />
+    <section id="spacer-for-graphs" style="min-height:74px">
+      <!-- <p
+        id="page-header-4"
+        class="text subtitle is-bolder has-text-centered"
+        style="margin-top: 0px"
+      >
+        Congratulations you made it, with Pheezee today
+      </p> -->
+    </section>
+    <section>
+      <div class="has-background-white-ter graphsForReport"></div>
+    </section>
+
+    <%if(bodypartArray.length>6){
+      if(bodypartArray.length%2==0){%>
+      <section style="padding-top: 900px;">
+    <%}else{%>
+      <section style="margin-top: 100px;">
+    <%}}else{
+      if(bodypartArray.length%2==0){%>
+        <section style="margin-top: 100px;">
+    <%}else{%>
+        <section style="margin-top: 800px;">
+    <%}}%>
+      
+      <h6 class="has-text-left has-text-weight-bold">*TERMS AND CONDITIONS GOVERNING THIS REPORT</h6>
+        <p class="is-size-7">> The reported results are for information and interpretation of the referring doctor/ physiotherapist or such medical professional who understands reporting units, reference ranges and limitations of technologies.
+        </p>
+
+        <p class="is-size-7">
+          >It is presumed that the assessment tests are performed on the patient named or identified and the verification of the particulars have been cleared out by the patient or his/her representative at the point of generation of this report. The reported results are restricted to the given patient only.
+        </p>
+
+        <p class="is-size-7">
+          > Should the results indicate an unexpected abnormality, the same should be reconfirmed.
+        </p>
+
+        <p class="is-size-7">
+          > Results may vary from one center to another and from time to time for the same parameter for the same patient. Assessments are performed in accordance with standard set procedures. Neither the physiotherapy center (including its employees, representatives) using Pheezee nor the manufacturer of Pheezee (Startoon Labs and its employees, representatives) assume any liability, responsibility for any loss or damage that may be incurred by any person as a result of presuming the meaning or contents of this report.
+        </p>
+
+        <p class="is-size-7">
+          >This report is not valid for medico-legal purposes
+        </p>
+
+        <h6 class="has-text-left has-text-weight-bold">
+          SUGGESTIONS
+        </h6>
+        <p class="is-size-7">
+          > Values out of reference range requires reconfirmation before starting any medical treatment
+        </p>
+        <p class="is-size-7">
+          > Retesting/reassessment is needed if you suspect any quality shortcomings
+        </p>
+    </section>
+    <script>
+
+
+      let first_page = true;
+      let  offsetHeight = document.getElementById('list-of-body-parts').offsetHeight+
+                          document.getElementById('page-header-1').offsetHeight+
+                          document.getElementById('page-header-2').offsetHeight+
+                          document.getElementById('page-header-3').offsetHeight;
+      // between 168 and 167
+      var isValidHeight = 1060-offsetHeight;
+      if(isValidHeight <562){
+        first_page = false;
+        document.getElementById('spacer-for-graphs').innerHTML='<p style="page-break-before: always">';
+        document.getElementById('spacer-for-graphs').style.minHeight=`${10}px`;
+      }
+              // session data for the week from server
+              let dataFromServer = <%- JSON.stringify(report[0].sessiondetails)%>
+              console.log(dataFromServer)
+              // for checking data for the month is there or not
+              let entries_for_the_month = false;
+              //  date from url                                 converting date from url to Date object-->will act as fisrt day for weekly graph
+              reqDate= "<%= date%>";
+              let [year,month,date_value] = reqDate.split("-",3);
+              let presentDate = new Date(year+"/"+ month +"/"+date_value);
+              let dateBeforeOneMonth = new Date(presentDate - 2505600000);
+            // structure of template
+            // {
+                // exercisename:{
+                //   dataset:Array(7),
+                //   bodyPart:"",
+                //   exercisename:"",
+                // }
+            // }
+            let template={}
+          // filling 30 null values for dataset of template anf filling bodypart and exercisename
+          dataFromServer.forEach((element)=>{
+            let uniqueKeyPerGraph = element.orientation.toLowerCase()+element.exercisename.toLowerCase()+element.bodypart.toLowerCase();
+            if(!(uniqueKeyPerGraph in template)){
+              template[uniqueKeyPerGraph ]={};
+                template[uniqueKeyPerGraph ].dataset={
+                  emg:new Array(7),rom:new Array(7)
+                };
+                for(let i=0;i<30;i++){
+                  template[uniqueKeyPerGraph ].dataset.rom[i] = {
+                      date:i,
+                      min:null,
+                      max:null
+                  }
+                  template[uniqueKeyPerGraph ].dataset.emg[i] = {
+                      date:i,
+                      min:null,
+                      max:null
+                  }
+                }
+                template[uniqueKeyPerGraph ].exerciseName=element.exercisename;
+                template[uniqueKeyPerGraph ].bodyPart=element.bodypart;
+                template[uniqueKeyPerGraph ].musclename=element.musclename;
+                template[uniqueKeyPerGraph].orientation = element.orientation;
+            }
+          });
+      // filling dataset of templates for respective dates
+            dataFromServer.forEach((element)=>{
+              let uniqueKeyPerGraph = element.orientation.toLowerCase()+element.exercisename.toLowerCase()+element.bodypart.toLowerCase();
+              // for each date enrty find diff with first date of week and fill in its position
+              // if data for a date is not present it is left blank
+                eachDate = element.heldon.substr(0,10);
+                let [year,month,date_value] = eachDate.split("-",3);
+                let eachDateFormated = new Date(year+"/"+ month +"/"+date_value);
+                let timeDifference = eachDateFormated-presentDate;
+                // console.log(eachDateFormated.toDateString(),presentDate.toDateString(),presentDate-eachDateFormated)
+              //  -ve time difference means dates to e plotted are older than present date
+                if(timeDifference <=0){
+                  let dayDifference=(30 - Math.ceil( Math.abs(timeDifference) / (1000 * 60 * 60 * 24)));
+                if(eachDateFormated>=dateBeforeOneMonth && eachDateFormated <=presentDate){
+                      // making entries_for_the_month= true to show that there are entries for the month
+                      entries_for_the_month=true;
+                     template[uniqueKeyPerGraph].dataset.rom[dayDifference]={
+                                            date:Math.abs(dayDifference),
+                                            min:element.minangle,
+                                            max:element.maxangle
+                                }
+                    template[uniqueKeyPerGraph].dataset.emg[dayDifference]={
+                                date:Math.abs(dayDifference),
+                                min:"-1",
+                                max:element.maxemg
+                    }
+                }
+                }
+            });
+
+
+            /*function findRange(bodypart, exercisename){
+            console.log(bodypart,exercisename);
+          if(bodypart==='Knee'){
+              if(exercisename==='Flexion'){
+                return {range:"150"}
+              }else if(exercisename==='Extension'){
+                return {range:"150"}
+              }else if(exercisename==='Medial Rotation'){
+                   return {range:"45"}
+              }else if(exercisename==='Lateral Rotation'){
+                return {range:"45"}
+              }
+              else{
+                return {range:"150"}
+              }
+          }else if(bodypart==='Shoulder'){
+              if(exercisename==='Flexion'){
+                return {range:"180"}
+              }else if(exercisename==='Extension'){
+                return {range:"60"}
+              }else if(exercisename==='Abduction'){
+                return {range:"184"}
+              }else if(exercisename==='Adduction'){
+                return {range:"140"}
+              }if(exercisename==='Protraction'){
+                return {range:"30"}
+              }else if(exercisename==='Retraction'){
+                return {range:"30"}
+              }else if(exercisename==='Elevation'){
+                return {range:"30"}
+              }else if(exercisename==='Depression'){
+                return {range:"30"}
+              }else if(exercisename==='Medial Rotation'){
+                return {range:"180"}
+              }else if(exercisename==='Lateral Rotation'){
+                return {range:"180"}
+              }
+              else{
+                return {range:"180"}
+              }
+          }else if(bodypart==='Ankle'){
+            if(exercisename==='Dorsiflexion'){
+              return {range:"30"}
+              }else if(exercisename==='Plantarflexion'){
+                return {range:"50"}
+              }else if(exercisename==='Inversion'){
+                return {range:"35"}
+              }else if(exercisename==='Eversion'){
+                return {range:"25"}
+              }
+              else{
+                return {range:"50"}
+              }
+            
+          }
+          else if(bodypart==='Wrist'){
+              if(exercisename==='Flexion'){
+                return {range:"90"}
+              }else if(exercisename==='Extension'){
+                return {range:"75"}
+              }else if(exercisename==='Radial deviation'){
+                return {range:"25"}
+              }else if(exercisename==='Ulnar deviation'){
+                return {range:"65"}
+              }
+              else{
+                return {range:"90"}
+              }
+          }else if(bodypart==='Elbow'){
+              if(exercisename==='Flexion'){
+                return {range:"160"}
+              }else if(exercisename==='Extension'){
+                return {range:"145"}
+              }else if(exercisename==='Medial Rotation'){
+                return {range:"90"}
+              }else if(exercisename==='Lateral Rotation'){
+                return {range:"90"}
+              }else if(exercisename==='Pronation'){
+                return {range:"90"}
+              }else if(exercisename==='Supination'){
+                return {range:"90"}
+              }
+              else{
+                return {range:"160"}
+              }
+          }else if(bodypart==='Hip'){
+              if(exercisename==='Flexion'){
+                return {range:"125"}
+              }else if(exercisename==='Extension'){
+                return {range:"115"}
+              }else if(exercisename==='Abduction'){
+                return {range:"45"}
+              }else if(exercisename==='Adduction'){
+                return {range:"45"}
+              }else if(exercisename==='Medial Rotation'){
+                return {range:"125"}
+              }else if(exercisename==='Lateral Rotation'){
+                return {range:"125"}
+              }
+              else{
+                return {range:"125"}
+              }
+          }else if(bodypart==='Others'){
+            return {range:"360"}
+          }
+      }*/
+      // for making graph section for every exercise
+      var incriment = 0;
+            for (let key in template) {
+                let dataPerExercise=template[key];
+                let idPerGraph = key.replace(' ', '_');
+                if(incriment==0 && first_page){
+                  document.querySelector(".graphsForReport").innerHTML+=`
+                  <div id="monthlyGraph" class="columns"> 
+                    <div class="column"> 
+                      <div class="columns is-centered has-background-success" style="height:84px;"> 
+                        <div class="column is-half" style="margin:auto" > 
+                          <p style="text-align: center;" class="is-size-4 has-text-white-bis has-text-weight-bold" >`+ dataPerExercise.orientation +` ` + dataPerExercise.bodyPart +` `+ dataPerExercise.exerciseName +`
+                          </p>
+                        </div>
+                      </div>
+                      <div class="columns is-multiline"> 
+                        <div class="column is-two-fifths is-centered" style="margin:auto"> 
+                          <div id="`+idPerGraph+`LeftGraph" class="svg-container"> 
+                        </div>
+                        <div class="column"> 
+                          <div class="columns is-multiline"> 
+                            <div class="column is-9 is-paddingless" style="text-align: right">
+                             ROM(°) `
+                            + dataPerExercise.bodyPart +`
+                            </div>
+                            <div class="column">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="column is-two-fifths is-centered" style="margin:auto">
+                        <div id="`+idPerGraph+`RightGraph" class="svg-container"> 
+                        </div>
+                        <div class="column"> 
+                          <div class="columns is-multiline" style="text-align: center;"> 
+                            <div class="column is-9 is-paddingless" style="text-align: right;">
+                               EMG(μV)&nbsp;&nbsp;`
+                              +dataPerExercise.musclename+` 
+                            </div>
+                            <div class="column">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="columns" style="padding-bottom:93px;">
+                      <div class="column is-paddingless is-marginless">
+                      </div>
+                    </div>
+                  </div>
+                </div>`;
+                }else{
+                  document.querySelector(".graphsForReport").innerHTML+=`
+                  <div id="monthlyGraph" class="columns" style="margin-bottom: 40px;"> 
+                    <div class="column"> 
+                      <div class="columns is-centered has-background-success" style="height:84px;"> 
+                        <div class="column is-half" style="margin:auto" > 
+                          <p style="text-align: center;" class="is-size-4 has-text-white-bis has-text-weight-bold" >`+ dataPerExercise.orientation +` ` + dataPerExercise.bodyPart +` `+ dataPerExercise.exerciseName +`
+                          </p>
+                        </div>
+                      </div>
+                      <div class="columns is-multiline"> 
+                        <div class="column is-two-fifths is-centered" style="margin:auto"> 
+                          <div id="`+idPerGraph+`LeftGraph" class="svg-container"> 
+                        </div>
+                        <div class="column"> 
+                          <div class="columns is-multiline"> 
+                            <div class="column is-9 is-paddingless" style="text-align: right">
+                             ROM(°) `
+                            + dataPerExercise.bodyPart +`
+                            </div>
+                            <div class="column">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="column is-two-fifths is-centered" style="margin:auto">
+                        <div id="`+idPerGraph+`RightGraph" class="svg-container"> 
+                        </div>
+                        <div class="column"> 
+                          <div class="columns is-multiline" style="text-align: center;"> 
+                            <div class="column is-9 is-paddingless" style="text-align: right;">
+                               EMG(μV)&nbsp;&nbsp;`
+                              +dataPerExercise.musclename+` 
+                            </div>
+                            <div class="column">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="columns" style="padding-bottom:8px;">
+                      <div class="column is-paddingless is-marginless">
+                      </div>
+                    </div>
+                  </div>
+                </div>`;
+              }
+              incriment+=1;
+            // range for every body part
+               const romRange = {
+                          Knee: [0, 135],
+                          Shoulder: [-70, 180],
+                          Ankle: [-50, 50],
+                          Wrist: [-50, 100],
+                          Elbow: [-140, 165],
+                          Hip: [0, 50],
+                          Forearm: [0,90],
+                          Spine: [0,90],
+                          Others:[0,360]
+                        };
+
+                        
+                        var yScaleDomain = romRange[dataPerExercise.bodyPart];
+                        console.log(yScaleDomain);
+                        var temp_range_exercise = findRange(dataPerExercise.bodyPart, dataPerExercise.exerciseName);
+                        console.log(temp_range_exercise);
+                        yScaleDomain[1] =  parseInt(temp_range_exercise.range);
+
+                        /*if(Math.abs(parseInt(dataPerExercise.maxangle))<= Math.abs(parseInt(dataPerExercise.minangle))){
+                            yScaleDomain[1] = 0;
+                            yScaleDomain[0] = -parseInt(temp_range_exercise.range);
+                        }
+                        console.log(dataPerExercise.maxangle, dataPerExercise.minangle);*/
+      // calling linechart for left
+                        lineChartFuncLeftRightSeperate({
+                          selector: "#"+idPerGraph+"LeftGraph",
+                          margin: { top: 50, right: 50, bottom: 50, left: 50 },
+                          height: 300,
+                          width: 300,
+                          n: 30+2,
+                          color: colors[1],
+                          range: yScaleDomain,
+                          axisBottomTickFormat: d => d%7==0 && d!=0 ? "w" + d/7 : null
+                        },
+                        left_dataset= dataPerExercise.dataset.rom);
+                      let maxUpper = 900;
+                      dataPerExercise.dataset.emg.map(item => {
+                        let t = !isNaN(item.max) ? item.max : 0;
+                        maxUpper < t ? maxUpper = t: "";
+                      });
+                      dataPerExercise.dataset.emg.map(item => {
+                        let t = !isNaN(item.max) ? item.max : 0;
+                        maxUpper < t ? maxUpper = t: "";
+                      });
+      // calling linechart for right
+                        lineChartFuncEmgLeftRightSeperate({
+                          selector: "#"+idPerGraph+"RightGraph",
+                          margin: { top: 50, right: 50, bottom: 50, left: 50 },
+                          height: 300,
+                          width: 300,
+                          n: 30+2,
+                          color: colors[2],
+                          range: [0,maxUpper],
+                          axisBottomTickFormat: d => d%7==0 && d!=0 ? "w" + d/7 : null
+                        },left_dataset= dataPerExercise.dataset.emg);
+            }
+            //console.log(template);
+              if(!entries_for_the_month){
+                document.body.innerHTML="<h2><strong>no entries for the month</strong></h2>";
+              }
+    </script>
+  </body>
+</html>
+<% } %>

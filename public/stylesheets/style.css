@@ -1,0 +1,260 @@
+div#layout {
+  text-align: center;
+}
+div#chart_container {
+  background-color: #dddddd;
+}
+
+div#container {
+  width: 700px;
+  height: 500px;
+  margin: auto;
+}
+
+svg {
+  min-width: 250px;
+  min-height: 290px;
+}
+
+text {
+  font-size: 12px;
+  fill: rgb(70, 64, 64);
+}
+
+path {
+  stroke: gray;
+}
+
+.limit {
+  stroke: #fed966;
+  stroke-width: 3;
+  stroke-dasharray: 3 6;
+}
+
+.dashed {
+  stroke: #f50c0c;
+  stroke-width: 3;
+  stroke-dasharray: 5, 5;
+}
+
+.grid path {
+  stroke-width: 0;
+}
+
+.grid .tick line {
+  stroke: #9faaae;
+  stroke-opacity: 0.3;
+}
+
+text.divergence {
+  font-size: 12px;
+  fill: #2f4a6d;
+}
+
+text.value {
+  font-size: 12px;
+}
+
+text.title {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+text.label {
+  font-size: 12px;
+  font-weight: 400;
+}
+
+text.source {
+  font-size: 10px;
+}
+
+.line {
+  fill: none;
+  stroke: #ffab00;
+  stroke-width: 3;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+/* Style the dots by assigning a fill and stroke */
+.dot {
+  fill: #ffab00;
+  stroke: #fff;
+}
+
+.focus circle {
+  fill: none;
+  stroke: steelblue;
+}
+
+body {
+  padding: 0px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00b7ff;
+}
+
+#searchView {
+  margin: 0 auto;
+  width: 100%;
+  text-align: center;
+}
+
+input[type="text"],
+button {
+  width: 250px;
+  float: right;
+  font-size: 16px;
+  padding: 10px 10px;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin: 20px;
+}
+
+input,
+button:focus {
+  outline: none;
+}
+
+#getReport {
+  -webkit-box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  -moz-box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+}
+#getReport:focus {
+  -webkit-animation-name: myanim; /* Safari 4.0 - 8.0 */
+  -webkit-animation-duration: 400ms; /* Safari 4.0 - 8.0 */
+  animation-name: myanim;
+  animation-duration: 400ms;
+}
+
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes myanim {
+  from {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0);
+    padding: 15px 15px;
+  }
+  to {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+    padding: 10px 10px;
+  }
+}
+
+/* Standard syntax */
+@keyframes myanim {
+  from {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0);
+    padding: 15px 15px;
+  }
+  to {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+    padding: 10px 10px;
+  }
+}
+
+.light-green {
+  background-color: #00bd56;
+}
+.dark-green {
+  background-color: #0b8457;
+}
+.light-purple {
+  background-color: #a773c3;
+}
+.dark-purple {
+  background-color: #854777;
+}
+
+.red {
+  background-color: #CC2016;
+}
+.blue {
+  background-color: #00A3DE;
+}
+.average-blue{
+  background-color: #00A3DE;
+}
+.green {
+  background-color: #00B386;
+}
+.color-box {
+  height: 20px;
+  width: 20px;
+}
+
+.hr-line {
+  border: 1px solid #777777;
+  width: 96%;
+}
+.remove-vPadding {
+  padding: 0 12px;
+  padding-top: 0;
+}
+
+.emg-bottom-text {
+  width: 30px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  -ms-word-break: break-all;
+  /* This is the dangerous one in WebKit, as it breaks things wherever */
+  word-break: break-all;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
+
+  /* Adds a hyphen where the word breaks, if supported (No Blink) */
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+.emg-bottom-text text {
+  word-break: break-all;
+  display: inline-block;
+  word-break: break-word;
+
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  -ms-word-break: break-all;
+  /* This is the dangerous one in WebKit, as it breaks things wherever */
+  word-break: break-all;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
+
+  /* Adds a hyphen where the word breaks, if supported (No Blink) */
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.range-maxmin{
+  margin-left: 39px;
+}
+
+
+.image-logo{
+  height: : 70;
+  width: 160;
+}
+
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+  text-align: center;
+  vertical-align: middle;
+  margin-bottom: 20px;
+}
+
+//p, h1, h2, h3, h4, h5, h6, div{
+  font-family: "calibri";
+}

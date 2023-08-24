@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Count</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        .container {
+            margin-top: 50px;
+        }
+        
+        .fixed-top {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 999;
+        }
+        
+        .table-container {
+            margin-top: 30px;
+            margin: 20px;
+        }
+        
+        .table-wrapper {
+            overflow-y: auto;
+            height: 800px; /* Set the desired height for the table */
+        }
+        
+        .table-wrapper thead {
+            position: sticky;
+            top: 0;
+            background-color: #343a40; /* Adjust the background color as needed */
+            z-index: 1;
+        }
+        
+        .table-wrapper th {
+            white-space: nowrap; /* Prevent wrapping of table header text */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="http://13.127.78.38:3000/dashboard/device_records_api">Device List</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="http://13.127.78.38:3000/dashboard/user_report_count_api">User Report<span class="sr-only">(current)</span></a>
+      </li>
+        <li class="nav-item">
+        <a class="nav-link" href="http://13.127.78.38:3000/dashboard/report_all_user_api">User All Report</a>
+      </li>
+      </li>
+        <li class="nav-item">
+        <a class="nav-link" href="http://13.127.78.38:3000/dashboard/kranthi_sub_testing">Report Counts</a>
+      </li>
+      <!--<li class="nav-item">-->
+      <!--  <a class="nav-link" href="http://13.127.78.38:3000/dashboard/user_name_password_api">User Information</a>-->
+    
+      <!--</li>-->
+      
+      
+    </ul>
+    <form class="form-inline my-2 my-lg-0">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search..." style="margin-right: 25px;">
+        <button class="btn btn-primary" styles="margin-right:30px;" type="button" id="searchButton">Search</button>
+    </form>
+  </div>
+</nav>
+    <!--<div class="container">-->
+    <!--    <div class="fixed-top">-->
+    <!--        <h2 class="mb-4">User With Report Count</h2>-->
+    <!--        <div class="input-group mb-3">-->
+    <!--            <input type="text" id="searchInput" class="form-control" placeholder="Search...">-->
+    <!--            <button class="btn btn-primary" type="button" id="searchButton">Search</button>-->
+    <!--        </div>-->
+    <!--    </div>-->
+        <div class="table-container">
+            <div class="table-wrapper">
+            <table id="deviceRecordsTable" class="table table-striped">
+                <thead  class="thead-dark">
+                    <tr>
+                        <th>Phizioemail</th>
+                        <th>Report Count</th>
+                        <!--<th>Phizioemail</th>-->
+                        <!--<th>Time Stamp</th>-->
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    <!--</div>-->
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Fetch data from the API
+            $.post('http://13.127.78.38:3000/api/user_report_count', function(data) {
+                // Populate table with fetched data
+                var table = $('#deviceRecordsTable tbody');
+                $.each(data, function(index, record) {
+                    var row = $('<tr>').appendTo(table);
+                    $('<td>').text(record.phizioemail).appendTo(row);
+                    $('<td>').text(record.sessiondetails).appendTo(row);
+                    // $('<td>').text(record.phizioemail).appendTo(row);
+                    // $('<td>').text(record.time_stamp).appendTo(row);
+                });
+            });
+
+            // Search functionality
+            $('#searchButton').on('click', function() {
+                var value = $('#searchInput').val().toLowerCase();
+                $('#deviceRecordsTable tbody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

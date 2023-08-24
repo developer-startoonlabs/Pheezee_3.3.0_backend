@@ -1,0 +1,17 @@
+<%
+var data_filter = deviceData.filter(e => e.status=="Sold")
+finalDeviceUserData = [];
+
+deviceData.map((eone, i) => {
+      deviceDatas.map((etwo, iOne) => {
+		if(eone.macid == etwo.mac) {
+			finalDeviceUserData.push(...e, ...eOne);
+		}
+	})
+})
+ 
+ console.log(finalDeviceUserData)
+
+
+%>
+

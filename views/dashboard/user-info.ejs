@@ -1,0 +1,929 @@
+<% layout('layout/template') %>
+
+
+	<% let activeUsers=0, inactiveUsers=0; dataFromSessionData.map((e)=> {
+		if((new Date() - new Date(e.timestamps.sort(function (a,b) {
+		return new Date(b).valueOf() - new Date(a).valueOf()
+		})[0]))/(1000 * 3600 * 24) < 30){ activeUsers++ }else{inactiveUsers++} }) %>
+
+			<% let faultyUsers=0; let usersDataWithSessionDetails=[]; usersData.map((e)=> {
+				if(e.numberOfPatients == 0) { faultyUsers++ }})
+
+				usersData.map((e,i) => {
+				if(e.numberOfPatients !== 0) {
+				dataFromSessionData.map((el, idx) => {
+				if(e.phizioemail == el._id){
+				usersDataWithSessionDetails.push({...e, ...el})
+				}
+				})}else{
+				usersDataWithSessionDetails.push({...e})
+				}
+				})
+
+
+				data.sort((a, b) => b.numberOfSessions - a.numberOfSessions )
+				console.log(data)
+				%>
+
+				<div class="container-fluid dashboard-content">
+					<div class="row userReport mb-3">
+						<div class="col-xl-3 col-lg-4 col-md-12 col-sm-12 col-12">
+							<div class="card userActivityCard">
+								<div class="card-body py-0">
+									<div class="row userActivity">
+										<div class="col-6 border rounded">
+											<h1 class="text-center mb-0">
+												<%= usersData.length %>
+											</h1>
+										</div>
+										<div class="col-6 border rounded d-flex flex-column justify-content-center">
+											<h3 class="text-center mb-0">TOTAL</h3>
+											<h5 class="text-muted text-center mb-0">USERS</h5>
+
+										</div>
+									</div>
+									<div class="row userActivity">
+										<div class="col-6 border rounded">
+											<h1 class="text-center mb-0">
+												<%= activeUsers %>
+											</h1>
+										</div>
+										<div
+											class="col-6 btn active-users border rounded d-flex flex-column justify-content-center">
+											<h3 class="text-success text-center mb-0">ACTIVE</h3>
+											<h5 class="text-muted text-center mb-0">USERS</h5>
+
+										</div>
+									</div>
+									<div class="row userActivity">
+										<div class="col-6 border rounded">
+											<h1 class="text-center mb-0">
+												<%= inactiveUsers %>
+											</h1>
+										</div>
+										<div
+											class="col-6 btn inactive-users border rounded d-flex flex-column justify-content-center">
+											<h3 class="text-warning text-center mb-0">INACTIVE</h3>
+											<h5 class="text-muted text-center mb-0">USERS</h5>
+											<a href=""><i class="fas fa-circle text-warning"
+													style="position: absolute; top: 5px; right:5px"></i></a>
+										</div>
+									</div>
+									<div class="row userActivity">
+										<div class="col-6 border rounded">
+											<h1 class="text-center mb-0">
+												<%= faultyUsers %>
+											</h1>
+										</div>
+										<div
+											class="col-6 btn faulty-users border rounded d-flex flex-column justify-content-center">
+											<h3 class="text-danger text-center mb-0">FAULTY</h3>
+											<h5 class="text-muted text-center mb-0">USERS</h5>
+											<a href=""><i class="fas fa-circle text-danger"
+													style="position: absolute; top:5px; right:5px"></i></a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-xl-9 col-lg-8 col-md-12 col-sm-12 col-12">
+							<div class="card pb-3 h-100">
+								<div class="card-body">
+									<div class="d-flex justify-content-between align-items-center"
+										style="margin-bottom: 1rem;">
+										<h3 class="mb-1" style="font-size: 3vh;"> <span class="userName">OVERALL</span>
+											ACTIVITY
+											<span class="text-muted" id="activityChartSubHead"
+												style="font-size: .8em"></span>
+										</h3>
+										<div class="reference d-flex align-items-center justify-content-between">
+											LOW
+											<div class="less"></div>
+											<div class="medium"></div>
+											<div class="high"></div>
+											HIGH
+										</div>
+										<select name="firstRowOptions" id="filterByYearOfFirstRow"
+											class="custom-select px-3"
+											style="width: 150px; padding: 0 12px; height: inherit;">
+										</select>
+									</div>
+									<div id="userActivityChartByUser"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="card">
+						<div class="card-body p-0">
+							<div class="d-flex flex-row-reverse py-1 pr-3 border-bottom">
+								<select name="secondRowOptions" id="filterByUsers" class="custom-select px-3"
+									style="width: 150px; padding: 0 12px; height: inherit;">
+									<option value="overallUsers" class="text-secondary">Overall</option>
+									<option value="activeUsers" class="text-success">Active</option>
+									<option value="inactiveUsers" class="text-warning">Inactive</option>
+									<option value="faultyUsers" class="text-danger">Faulty</option>
+								</select>
+							</div>
+							<div class="table-responsive" id="by-user-id-table"
+								style="height: 440px; overflow-y: scroll;">
+								<table class="table" style="table-layout: fixed; border-collapse: separate;">
+									<thead class="bg-light">
+										<tr class="mb-1">
+											<!-- <th class="border-right border-left">Image</th> -->
+											<th class="border rounded">NAME</th>
+											<th class="border rounded">PRODUCT ID</th>
+											<th class="border rounded">ACTIVITY</th>
+											<th class="border rounded">STATUS</th>
+											<th class="border rounded">DETAILS</th>
+										</tr>
+									</thead>
+									<tbody>
+										<% data.map((e, i)=> { %>
+											<% if(e.numberOfPatients> 0) { %>
+												<tr class="usersWiseRow" data="<%= e.timestamps %> <%= e.phizioname %>">
+													<td class="border rounded">
+														<%= e.phizioname.toUpperCase() %>
+													</td>
+													<td class="border rounded">
+														<% if( typeof e.devices=="object" ) {%>
+															<%= e.devices[0].uid %>
+																<% if(e.devices.length> 1) {%>
+																	<span class="tooltip-info" data-toggle="tooltip"
+																		title="<%= e.devices.length %> devices registered">
+																		<%= e.devices.length %>
+																	</span>
+																	<% }else{}} else { %>
+																		<%= "NO DEVICES" %>
+																			<% } %>
+													</td>
+													<td class="border rounded">
+														<button class="btn user-activity-<%= i %> user-activity"
+															title="Click to check activity">CHECK</button>
+													</td>
+													<% if((new Date() - new Date(e.timestamps.sort(function (a,b) {
+														return new Date(b).valueOf() - new Date(a).valueOf()
+														})[0]))/(1000 * 3600 * 24) < 30){ %>
+														<td class="text-success border rounded active">
+															ACTIVE
+														</td>
+
+														<%}else{ %>
+															<td class="text-warning border rounded inactive">
+																INACTIVE
+															</td>
+															<% } %>
+
+																<td class="border rounded">
+																	<button class="btn <%= 'details-' + i%>">CHECK
+																		<i
+																			class="fas fa-chevron-down pl-2"></i></button>
+																</td>
+												<tr class="details-row-<%= i %> d-none details-row">
+													<td class="border rounded">
+														<div class="">
+															<div class="rowOne">
+																<h6 class="text-muted">TOTAL</h6>
+																<h4 class="">PATIENTS</h4>
+															</div>
+															<hr class="my-0" style="width: 70%;" />
+															<div class="rowTow ">
+																<h4 class="px-3 pt-2">
+																	<%=e.numberOfPatients%>
+																</h4>
+															</div>
+														</div>
+													</td>
+													<td class="border rounded">
+														<div class="">
+															<div class="rowOne">
+																<h6 class="text-muted">TOTAL</h6>
+																<h4 class="">SESSIONS</h4>
+															</div>
+															<hr class="my-0" style="width: 70%;" />
+															<div class="rowTow">
+																<div class="px-5">
+																	<h4 style="margin-bottom: 0;">
+																		<% if(typeof e.numberOfSessions=='number' ) { %>
+																			<%=e.numberOfSessions%>
+																				<% } else { %>
+																					<%= 0 %>
+																						<% } %>
+																	</h4>
+																</div>
+															</div>
+														</div>
+													</td>
+													<td class="border rounded">
+														<div class="">
+															<div class="rowOne">
+																<h6 class="text-muted">AVERAGE</h6>
+																<h4 class="">SESSION TIME</h4>
+															</div>
+															<hr class="my-0" style="width: 70%; height: 2px;" />
+															<div class="rowTow ">
+																<h4 class="px-3">
+																	<% if(e.sessiontimes !=undefined) {%>
+																		<% let sessionTime=0 %>
+																			<% e.sessiontimes.map((e, i)=> {
+																				sessionTime += Number(e.slice(0,2)) * 60
+																				+
+																				Number(e.slice(5,7))
+																				})%>
+																				<%
+																					sessionTime=sessionTime/e.numberOfSessions%>
+																					<%=Math.floor(sessionTime /60)
+																						+ "m : " +
+																						parseInt(sessionTime%60) + "s"
+																						%>
+																						<%} else { %>
+																							<%= "00m : 00s" %>
+																								<% } %>
+																</h4>
+															</div>
+														</div>
+													</td>
+													<td class="border rounded">
+														<div class="">
+															<div class="rowOne">
+																<h6 class="text-muted">AVERAGE</h6>
+																<h4 class="">ENGAGEMENT TIME</h4>
+															</div>
+															<hr class="my-0" style="width: 70%; height: 2px;" />
+															<div class="rowTow ">
+																<h4 class="px-5">
+																	<%="0"%>
+																</h4>
+															</div>
+														</div>
+													</td>
+													<td class="border rounded">
+														<div class="">
+															<div class="rowOne">
+																<h6 class="text-muted">USER</h6>
+																<h4 class="">ERRORS</h4>
+															</div>
+															<hr class="my-0" style="width: 70%; height: 2px;" />
+															<div class="rowTow ">
+																<h4 class="px-5">
+																	<%="0" %>
+																</h4>
+															</div>
+														</div>
+													</td>
+												</tr>
+												<tr class="details-row-<%= i %> d-none details-row">
+													<td class="border rounded">
+														<div class="">
+															<div class="rowOne">
+																<h4 class="">USER</h4>
+																<h6 class="text-muted">RATINGS</h6>
+															</div>
+															<hr class="my-0" style="width: 70%; height: 2px;" />
+															<div class="rowTow ">
+																<h4 class="px-5">
+																	4.6/<span class="text-muted">5</span>
+																</h4>
+																<h6 class="text-muted">RATINGS PER SESSION</h6>
+															</div>
+														</div>
+													</td>
+													<td class="border rounded">
+														<div class="">
+															<div class="rowOne">
+																<h4 class="">COMPLAINTS</h4>
+																<h6 class="text-muted">RAISED</h6>
+															</div>
+															<hr class="my-0" style="width: 70%; height: 2px;" />
+															<div class="rowTow ">
+																<h4 class="px-5">
+																	NO
+																</h4>
+															</div>
+														</div>
+													</td>
+													<td class="border rounded" style="position: relative;">
+														<div class="">
+															<div class="rowOne">
+																<h4 class="">MAC ID</h4>
+															</div>
+															<hr class="my-0" style="width: 70%; height: 2px;" />
+															<div class="rowTow ">
+																<h4 class="px-5">
+																	<% if(typeof e.devices==='object' ){ %>
+																		<%= e.devices[0].mac %>
+																			<%} else {%>
+																				<%= "NO DEVICES" %>
+																					<% } %>
+																</h4>
+															</div>
+														</div>
+													</td>
+													<td class="border rounded">
+														<div class="">
+															<div class="rowOne">
+																<h4 class="">LAST SESSION</h4>
+																<h6 class="text-muted">DATE</h6>
+															</div>
+															<hr class="my-0" style="width: 70%; height: 2px;" />
+															<div class="rowTow ">
+																<h4 class="px-5">
+																	<%= new Date(e.timestamps.sort(function (a,b) {
+																		return new Date(b) - new Date(a)
+																		})[0]).toLocaleDateString()%>
+																</h4>
+															</div>
+														</div>
+													</td>
+													<td class="border rounded">
+														<div class="">
+															<div class="rowOne">
+																<h4 class="">RAISE</h4>
+																<h6 class="text-muted">ISSUE</h6>
+															</div>
+															<hr class="my-0" style="width: 70%; height: 2px;" />
+															<div class="rowTow ">
+																<h5 class="py-0 px-0 btn border rounded"
+																	style="width: 50%; margin: 0 auto;">
+																	REPORT
+																</h5>
+															</div>
+														</div>
+													</td>
+
+												</tr>
+												</tr>
+												<% }else{ %>
+													<tr class="usersWiseRow"
+														data="<%= e.timestamps %> <%= e.phizioname %>">
+														<td class="border rounded">
+															<%= e.phizioname.toUpperCase() %>
+														</td>
+														<td class="border rounded">
+															<% if( typeof e.devices=="object" ) {%>
+																<%= e.devices[0].uid %>
+																	<% if(e.devices.length> 1) {%>
+																		<span class="tooltip-info" data-toggle="tooltip"
+																			title="<%= e.devices.length %> devices registered">
+																			<%= e.devices.length %>
+																		</span>
+																		<% }else{}} else { %>
+																			<%= "NO DEVICES" %>
+																				<% } %>
+														</td>
+														<td class="border rounded">
+															<button
+																class="btn user-activity-<%= i %> user-activity">CHECK</button>
+														</td>
+
+														<td class="text-danger border rounded faultyUsers">
+															FAULTY
+														</td>
+
+														<td class="border rounded">
+															<button class="btn <%= 'details-' + i%>">CHECK
+																<i class="fas fa-chevron-down pl-2"></i></button>
+														</td>
+													<tr class="details-row-<%= i %> d-none details-row">
+														<td class="border rounded">
+															<div class="">
+																<div class="rowOne">
+																	<h6 class="text-muted">TOTAL</h6>
+																	<h4 class="">PATIENTS</h4>
+																</div>
+																<hr class="my-0" style="width: 70%;" />
+																<div class="rowTow ">
+																	<h4 class="px-3 pt-2">
+																		<%=e.numberOfPatients%>
+																	</h4>
+																</div>
+															</div>
+														</td>
+														<td class="border rounded">
+															<div class="">
+																<div class="rowOne">
+																	<h6 class="text-muted">TOTAL</h6>
+																	<h4 class="">SESSIONS</h4>
+																</div>
+																<hr class="my-0" style="width: 70%;" />
+																<div class="rowTow">
+																	<div class="px-5">
+																		<h4 style="margin-bottom: 0;">
+																			<%=e.numberOfSessions%>
+																		</h4>
+																	</div>
+																</div>
+															</div>
+														</td>
+														<td class="border rounded">
+															<div class="">
+																<div class="rowOne">
+																	<h6 class="text-muted">AVERAGE</h6>
+																	<h4 class="">SESSION TIME</h4>
+																</div>
+																<hr class="my-0" style="width: 70%; height: 2px;" />
+																<div class="rowTow ">
+																	<h4 class="px-3">
+																		<%= "00m : 00s" %>
+																	</h4>
+																</div>
+															</div>
+														</td>
+														<td class="border rounded">
+															<div class="">
+																<div class="rowOne">
+																	<h6 class="text-muted">AVERAGE</h6>
+																	<h4 class="">ENGAGEMENT TIME</h4>
+																</div>
+																<hr class="my-0" style="width: 70%; height: 2px;" />
+																<div class="rowTow ">
+																	<h4 class="px-5">
+																		<%="0"%>
+																	</h4>
+																</div>
+															</div>
+														</td>
+														<td class="border rounded" style="position: relative;">
+															<div class="">
+																<div class="rowOne">
+																	<h6 class="text-muted">USER</h6>
+																	<h4 class="">ERRORS<span class=""
+																			data-toggle="tooltip" data-placement="top"
+																			title="No Patients Registered"
+																			style="position: absolute; top:5px; right: 5px">
+																			<i
+																				class="fas fa-exclamation-circle text-danger"></i></a>
+																		</span></h4>
+																	</h4>
+
+																</div>
+																<hr class="my-0" style="width: 70%; height: 2px;" />
+																<div class="rowTow ">
+																	<h4 class="px-5 text-danger">
+																		<%="1" %>
+																	</h4>
+																</div>
+															</div>
+														</td>
+													</tr>
+													<tr class="details-row-<%= i %> d-none details-row">
+														<td class="border rounded">
+															<div class="">
+																<div class="rowOne">
+																	<h4 class="">USER</h4>
+																	<h6 class="text-muted">RATINGS</h6>
+																</div>
+																<hr class="my-0" style="width: 70%; height: 2px;" />
+																<div class="rowTow ">
+																	<h4 class="px-5">
+																		4.6/<span class="text-muted">5</span>
+																	</h4>
+																	<h6 class="text-muted">RATINGS PER SESSION</h6>
+																</div>
+															</div>
+														</td>
+														<td class="border rounded">
+															<div class="">
+																<div class="rowOne">
+																	<h4 class="">COMPLAINTS</h4>
+																	<h6 class="text-muted">RAISED</h6>
+																</div>
+																<hr class="my-0" style="width: 70%; height: 2px;" />
+																<div class="rowTow ">
+																	<h4 class="px-5">
+																		NO
+																	</h4>
+																</div>
+															</div>
+														</td>
+														<td class="border rounded" style="position: relative;">
+															<div class="">
+																<div class="rowOne">
+																	<h4 class="">MAC ID</h4>
+																</div>
+																<hr class="my-0" style="width: 70%; height: 2px;" />
+																<div class="rowTow ">
+																	<h4 class="px-5">
+																		<%= "NO DEVICES" %>
+																	</h4>
+																</div>
+															</div>
+														</td>
+														<td class="border rounded">
+															<div class="">
+																<div class="rowOne">
+																	<h4 class="">LAST SESSION</h4>
+																	<h6 class="text-muted">DATE</h6>
+																</div>
+																<hr class="my-0" style="width: 70%; height: 2px;" />
+																<div class="rowTow ">
+																	<h4 class="px-5">
+																		--/--/----
+																	</h4>
+																</div>
+															</div>
+														</td>
+														<td class="border rounded">
+															<div class="">
+																<div class="rowOne">
+																	<h4 class="">RAISE</h4>
+																	<h6 class="text-muted">ISSUE</h6>
+																</div>
+																<hr class="my-0" style="width: 70%; height: 2px;" />
+																<div class="rowTow ">
+																	<h5 class="py-0 px-0 btn border rounded"
+																		style="width: 50%;margin: 0 auto;">
+																		REPORT
+																	</h5>
+																</div>
+															</div>
+														</td>
+
+													</tr>
+													</tr>
+													<%}}) %>
+									</tbody>
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+				<script>
+					document.addEventListener("DOMContentLoaded", theDomHasLoaded, false);
+					function theDomHasLoaded(e) {
+						function getTimeStampArray(anArrayOfTimeStamps) {
+							timeStampArray = [];
+							anArrayOfTimeStamps.map((element) => {
+								timeStampArray.push(new Date(element).getTime())
+							})
+							return timeStampArray;
+						}
+						
+						function filterOnLoad(location) {
+		                    if (location.includes('activeusers')) {
+		                        $('#filterByUsers').val('activeUsers').change()
+		                    }
+		                    if (location.includes('inactiveusers')) {
+		                        $('#filterByUsers').val('inactiveUsers').change()
+		                    }
+		                    if (location.includes('faultyusers')) {
+		                        $('#filterByUsers').val('faultyUsers').change()
+		                    }
+		                }
+		
+		                $(function () {
+		                    filterOnLoad($(location).attr('search'))
+		                })
+
+						var activityFilter = $('#filterByYearOfFirstRow'),
+							date = new Date,
+							years = [],
+							year = date.getFullYear();
+
+						for (var i = year; i > year - 5; i--) {
+							activityFilter.append(`<option value="year-${i}">${i}</option>`)
+						}
+
+						start_date = year
+						$('#activityChartSubHead').text(`in the year ${start_date}`)
+
+						$('.usersWiseRow').map((index, element) => {
+							$(this).find(".user-activity-" + index).click(function () {
+
+								$('#userActivityChartByUser').github_graph({
+									//Generate random entries from 10-> 100 entries
+									data: getTimeStampArray($(this).closest('tr').attr('data').split(" ")[0].split(",")),
+									texts: ['Session', 'Sessions'],
+									//override colours
+									colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+									start_date: new Date(start_date, 0, 1)
+								});
+
+								activityFilter.change(function () {
+									start_date = Number($('#filterByYearOfFirstRow option:selected').text())
+									$('#activityChartSubHead').text(`in the year ${start_date}`)
+									$('#userActivityChartByUser').github_graph({
+										//Generate random entries from 10-> 100 entries
+										data: getTimeStampArray($('.usersWiseRow').find('.user-activity-' + index).closest('tr').attr('data').split(" ")[0].split(",")),
+										texts: ['Session', 'Sessions'],
+										//override colours
+										colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+										start_date: new Date(start_date, 0, 1)
+									});
+								})
+
+								$('.userName')
+									.text($(this)
+										.closest('tr')
+										.attr('data')
+										.split(" ")[0]
+										.length > 0 ? "Dr. " +
+										$(this)
+											.closest('tr')
+											.attr('data')
+											.split(" ")[1]
+											.toUpperCase() + "'s" :
+										'NO'
+									)
+
+								$(this).addClass('btn-primary').closest('tr').siblings().find('.btn').removeClass('btn-primary');
+
+								$('#filterByYearOfFirstRow option').prop('selected', function () {
+									this.defaultSelected
+								});
+
+							})
+							$(this).find(".details-" + index).click(function () {
+								$('.details-row-' + index).toggleClass('d-none')
+								$(this).toggleClass('btn-primary').closest('tr').siblings().find('.btn').removeClass('btn-primary');
+								$(this).find('i').toggleClass('fa-chevron-up')
+							})
+						})
+
+
+						$('#userActivityChartByUser').github_graph({
+							//Generate random entries from 10-> 100 entries
+							data: getTimeStampArray($('.user-activity-0').closest('tr').attr('data').split(" ")[0].split(",")),
+							texts: ['Session', 'Sessions'],
+							//override colours
+							colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+							start_date: new Date(start_date, 0, 1)
+						});
+
+						activityFilter.change(function () {
+							start_date = Number($('#filterByYearOfFirstRow option:selected').text())
+							$('#activityChartSubHead').text(`in the year ${start_date}`)
+							$('#userActivityChartByUser').github_graph({
+								//Generate random entries from 10-> 100 entries
+								data: getTimeStampArray($('.usersWiseRow').find('.user-activity-0').closest('tr').attr('data').split(" ")[0].split(",")),
+								texts: ['Session', 'Sessions'],
+								//override colours
+								colors: ['#f1f3f4', '#71c9f8', '#007dd1'],
+								start_date: new Date(start_date, 0, 1)
+							});
+						})
+
+						$('.userName')
+							.text($('.user-activity-0')
+								.closest('tr')
+								.attr('data')
+								.split(" ")[0]
+								.length > 0 ? "Dr. " +
+								$('.user-activity-0')
+									.closest('tr')
+									.attr('data')
+									.split(" ")[1]
+									.toUpperCase() + "'s" :
+								'NO'
+							)
+
+						$('.user-activity-0').addClass('btn-primary');
+
+
+						$('.active-users').click(function () {
+							$('#filterByUsers').val('activeUsers').change()
+
+							if ($('#filterByUsers').hasClass('text-danger') || $('#filterByUsers').hasClass('text-warning')) {
+								$('#filterByUsers').removeClass('text-danger')
+								$('#filterByUsers').removeClass('text-warning')
+							} else {
+								$('#filterByUsers').addClass('text-success')
+								$('#filterByUsers').removeClass('text-danger')
+								$('#filterByUsers').removeClass('text-warning')
+							}
+						})
+						$('.inactive-users').click(function () {
+							$('#filterByUsers').val('inactiveUsers').change()
+
+							if ($('#filterByUsers').hasClass('text-danger') || $('#filterByUsers').hasClass('text-success')) {
+								$('#filterByUsers').removeClass('text-danger')
+								$('#filterByUsers').removeClass('text-success')
+							} else {
+								$('#filterByUsers').removeClass('text-success')
+								$('#filterByUsers').removeClass('text-danger')
+								$('#filterByUsers').addClass('text-warning')
+							}
+						})
+						$('.faulty-users').click(function () {
+							$('#filterByUsers').val('faultyUsers').change()
+
+							if ($('#filterByUsers').hasClass('text-success') || $('#filterByUsers').hasClass('text-warning')) {
+								$('#filterByUsers').removeClass('text-success')
+								$('#filterByUsers').removeClass('text-warning')
+							} else {
+								$('#filterByUsers').removeClass('text-success')
+								$('#filterByUsers').addClass('text-danger')
+								$('#filterByUsers').removeClass('text-warning')
+							}
+						})
+
+
+						$("#filterByUsers").change(function () {
+
+							$('.usersWiseRow').map((index, element) => {
+								if (!$('.details-row-' + index).hasClass('d-none')) {
+									$('.details-row-' + index).addClass('d-none')
+								}
+								if ($('.usersWiseRow').find(".details-" + index).find('i').hasClass('fa-chevron-up')) {
+									$('.usersWiseRow').find(".details-" + index).find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down')
+								}
+								if ($('.usersWiseRow').find('.details-' + index).hasClass('btn-primary')) {
+									console.log($('.usersWiseRow').find('.details-' + index))
+									$('.usersWiseRow').find('.details-' + index).removeClass('btn-primary')
+								}
+							})
+
+							if ($("#filterByUsers option:selected").val() == "overallUsers") {
+
+								if ($('.user-activity-0').hasClass('btn-primary')) { } else {
+									$('.user-activity-0').toggleClass('btn-primary').closest('tr').siblings().find('.btn').removeClass('btn-primary'); $('.text-warning.inactive').closest('tr').addClass('d-none')
+								}
+
+								$('.text-warning.inactive').closest('tr').removeClass('d-none')
+								$('.text-success.active').closest('tr').removeClass('d-none')
+								$('.text-danger.faultyUsers').closest('tr').removeClass('d-none')
+								$(this).removeClass('text-success')
+								$(this).removeClass('text-danger')
+								$(this).removeClass('text-warning')
+
+
+								$('#userActivityChartByUser').github_graph({
+									//Generate random entries from 10-> 100 entries
+									data: getTimeStampArray($('.user-activity-0').closest('tr').attr('data').split(" ")[0].split(",")),
+									texts: ['Session', 'Sessions'],
+									//override colours
+									colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+									start_date: new Date(start_date, 0, 1)
+								});
+
+								activityFilter.change(function () {
+									start_date = Number($('#filterByYearOfFirstRow option:selected').text())
+									$('#activityChartSubHead').text(`in the year ${start_date}`)
+									$('#userActivityChartByUser').github_graph({
+										//Generate random entries from 10-> 100 entries
+										data: getTimeStampArray($('.user-activity-0').closest('tr').attr('data').split(" ")[0].split(",")),
+										texts: ['Session', 'Sessions'],
+										//override colours
+										colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+										start_date: new Date(start_date, 0, 1)
+									});
+								})
+
+								$('.userName')
+									.text($('.user-activity-0')
+										.closest('tr')
+										.attr('data')
+										.split(" ")[0]
+										.length > 0 ? "Dr. " +
+										$('.user-activity-0')
+											.closest('tr')
+											.attr('data')
+											.split(" ")[1]
+											.toUpperCase() + "'s" :
+										'NO'
+									)
+							}
+							if ($("#filterByUsers option:selected").val() == "activeUsers") {
+								if ($($('.text-success.active').closest('tr')[0]).find('.user-activity').hasClass('btn-primary')) { } else {
+									$($('.text-success.active').closest('tr')[0]).find('.user-activity').toggleClass('btn-primary').closest('tr').siblings().find('.btn').removeClass('btn-primary'); $('.text-warning.inactive').closest('tr').addClass('d-none')
+								}
+								$('.text-danger.faultyUsers').closest('tr').addClass('d-none')
+								$('.text-success.active').closest('tr').removeClass('d-none')
+								$(this).addClass('text-success')
+
+								$('#userActivityChartByUser').github_graph({
+									//Generate random entries from 10-> 100 entries
+									data: getTimeStampArray($($('.text-success.active').closest('tr')[0]).closest('tr').attr('data').split(" ")[0].split(",")),
+									texts: ['Session', 'Sessions'],
+									//override colours
+									colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+									start_date: new Date(start_date, 0, 1)
+								});
+
+								activityFilter.change(function () {
+									start_date = Number($('#filterByYearOfFirstRow option:selected').text())
+									$('#activityChartSubHead').text(`in the year ${start_date}`)
+									$('#userActivityChartByUser').github_graph({
+										//Generate random entries from 10-> 100 entries
+										data: getTimeStampArray($($('.text-success.active').closest('tr')[0]).closest('tr').attr('data').split(" ")[0].split(",")),
+										texts: ['Session', 'Sessions'],
+										//override colours
+										colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+										start_date: new Date(start_date, 0, 1)
+									});
+								})
+
+								$('.userName')
+									.text($($('.text-success.active').closest('tr')[0])
+										.attr('data')
+										.split(" ")[0]
+										.length > 0 ? "Dr. " +
+										$($('.text-success.active').closest('tr')[0])
+											.attr('data')
+											.split(" ")[1]
+											.toUpperCase() + "'s" :
+										'NO'
+									)
+							}
+							if ($("#filterByUsers option:selected").val() == "inactiveUsers") {
+								if ($($('.text-warning.inactive').closest('tr')[0]).find('.user-activity').hasClass('btn-primary')) { } else {
+									$($('.text-warning.inactive').closest('tr')[0]).find('.user-activity').toggleClass('btn-primary').closest('tr').siblings().find('.btn').removeClass('btn-primary');
+								}
+								$('.text-warning.inactive').closest('tr').removeClass('d-none')
+								$('.text-danger.faultyUsers').closest('tr').addClass('d-none')
+								$('.text-success.active').closest('tr').addClass('d-none')
+								$(this).addClass('text-warning')
+
+								$('#userActivityChartByUser').github_graph({
+									//Generate random entries from 10-> 100 entries
+									data: getTimeStampArray($($('.text-warning.inactive').closest('tr')[0]).closest('tr').attr('data').split(" ")[0].split(",")),
+									texts: ['Session', 'Sessions'],
+									//override colours
+									colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+									start_date: new Date(start_date, 0, 1)
+								});
+
+								activityFilter.change(function () {
+									start_date = Number($('#filterByYearOfFirstRow option:selected').text())
+									$('#activityChartSubHead').text(`in the year ${start_date}`)
+									$('#userActivityChartByUser').github_graph({
+										//Generate random entries from 10-> 100 entries
+										data: getTimeStampArray($($('.text-warning.inactive').closest('tr')[0]).closest('tr').attr('data').split(" ")[0].split(",")),
+										texts: ['Session', 'Sessions'],
+										//override colours
+										colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+										start_date: new Date(start_date, 0, 1)
+									});
+								})
+
+								$('.userName')
+									.text($($('.text-warning.inactive').closest('tr')[0])
+										.attr('data')
+										.split(" ")[0]
+										.length > 0 ? "Dr. " +
+										$($('.text-warning.inactive').closest('tr')[0])
+											.attr('data')
+											.split(" ")[1]
+											.toUpperCase() + "'s" :
+										'NO'
+									)
+							}
+							if ($("#filterByUsers option:selected").val() == "faultyUsers") {
+								$($('.text-danger.faultyUsers').closest('tr')[0]).find('.user-activity').toggleClass('btn-primary').closest('tr').siblings().find('.btn').removeClass('btn-primary'); $('.text-warning.inactive').closest('tr').addClass('d-none')
+								$('.text-danger.faultyUsers').closest('tr').removeClass('d-none')
+								$('.text-success.active').closest('tr').addClass('d-none')
+								$(this).addClass('text-danger')
+
+								$('#userActivityChartByUser').github_graph({
+									//Generate random entries from 10-> 100 entries
+									data: getTimeStampArray($($('.text-danger.faultyUsers').closest('tr')[0]).closest('tr').attr('data').split(" ")[0].split(",")),
+									texts: ['Session', 'Sessions'],
+									//override colours
+									colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+									start_date: new Date(start_date, 0, 1)
+								});
+
+								activityFilter.change(function () {
+									start_date = Number($('#filterByYearOfFirstRow option:selected').text())
+									$('#activityChartSubHead').text(`in the year ${start_date}`)
+									$('#userActivityChartByUser').github_graph({
+										//Generate random entries from 10-> 100 entries
+										data: getTimeStampArray($($('.text-danger.faultyUsers').closest('tr')[0]).closest('tr').attr('data').split(" ")[0].split(",")),
+										texts: ['Session', 'Sessions'],
+										//override colours
+										colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+										start_date: new Date(start_date, 0, 1)
+									});
+								})
+
+								$('.userName')
+									.text($($('.text-danger.faultyUsers').closest('tr')[0])
+										.attr('data')
+										.split(" ")[0]
+										.length > 0 ? "Dr. " +
+										$($('.text-danger.faultyUsers').closest('tr')[0])
+											.attr('data')
+											.split(" ")[1]
+											.toUpperCase() + "'s" :
+										'NO'
+									)
+							}
+							
+							
+						})
+
+					}
+					
+					$(document).ready(function () {
+						$('#custom-search .form-control').on('keyup', (function(e) {
+	                    let value = $(this).val().toLowerCase(); console.log(value);
+		                    $("table tbody tr").filter(function() {
+		                        $(this).toggle($(this).text()
+		                        .toLowerCase().indexOf(value) > -1)
+		                    });
+		                }))
+						
+					})
+
+				</script>

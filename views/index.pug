@@ -1,0 +1,113 @@
+extends layout
+
+block content
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js")
+  script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js")
+  div(id="searchView")
+
+  div(style="margin:0 auto; width:100%; height:300px;")
+    canvas(id="myChart" style="margin:0 auto; width:100%; height:600px;")
+  script.
+      $(document).ready(function () {
+          $('#searchView').val()
+          $("#getReport").click(function () {
+              var patientId = $('#patientId').val();
+              var phizioEmail = $('#phizioEmail').val();
+              var phizioPassword = $('#phizioPassword').val();
+              if(!(patientId==""||patientId==null)) {
+                  $.post("/report/" + patientId+"/"+phizioEmail+"/"+phizioPassword, function (result, status) {
+                      if(result!="no data found") {
+                          var labels = [];
+                          for (var i = 0; i < result[0].length; i++) {
+                              labels[i] = "Session" + (i + 1);
+                          }
+                          chart.data.labels = labels;
+                          chart.data.datasets[1].data = result[1];
+                          chart.data.datasets[0].data = result[0];
+                          chart.update();
+                      }else {
+                          alert("No data found for the give patientId: "+patientId);
+                          chart.data.labels = [];
+                          chart.data.datasets[1].data=[];
+                          chart.data.datasets[0].data=[];
+                          chart.update();
+
+                      }
+                  });
+              }
+              else{
+                  alert("patientId field should not be empty");
+                  return false;
+              }
+          });
+      });
+
+      var ctx = document.getElementById("myChart");
+      var chart = new Chart(ctx, {
+          // The type of chart we want to create
+          type: 'line',
+
+          // The data for our dataset
+          data: {
+              labels: [],
+              datasets: [{
+                  fill:false,
+                  label: "Total repetitions",
+                  backgroundColor: 'rgb(255, 99, 132)',
+                  borderColor: 'rgb(255, 99, 132)',
+                  data: [],
+              }
+              , {
+                  fill:false,
+                  label: "Strength",
+                  backgroundColor: 'rgb(255,165,0)',
+                  borderColor: 'rgb(255,165,0)',
+                  data: [],
+              }
+              ]
+          },
+
+          // Configuration options go here
+          options: {
+              responsive: true,
+              title: {
+                  display: true,
+                  text: 'Session Graph'
+              },
+              tooltips: {
+                  mode: 'index',
+                  intersect: false,
+              },
+              hover: {
+                  mode: 'nearest',
+                  intersect: true
+              },
+              scales: {
+                  xAxes: [{
+                      display: true,
+                      scaleLabel: {
+                          display: true,
+                          labelString: 'Sessions'
+                      }
+                  }],
+                  yAxes: [{
+                      display: true,
+                      scaleLabel: {
+                          display: true,
+                          labelString: 'Repetitions'
+                      }
+                  }]
+              },
+              plugins: {
+                  filler: {
+                      areas: [{
+                          from: 'start',
+                          to: 'end'
+                      }, {
+                          from: 3,
+                          to: 'origin'     // or 'start' (left or bottom) or 'end' (right or top)
+                      }]
+                  }
+              }
+          }
+      });

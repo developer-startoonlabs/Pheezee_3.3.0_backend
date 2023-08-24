@@ -1,0 +1,8 @@
+# Add any directories, files, or patterns you don't want to be tracked by version control
+.DS_Store
+.idea/
+node_modules
+*.log
+package-lock.json
+output.txt
+sftp-config.json

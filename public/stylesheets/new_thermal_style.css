@@ -1,0 +1,127 @@
+/* Haaris Css */
+
+*{
+  font-family: 'Avenir';
+}
+
+#chartdiv11 {
+  float: left;
+  margin: 0 20px 20px 0;
+  width: 350.13pt;
+  height:165pt;
+}
+
+#chartdiv12 {
+  float: left;
+  margin: 0 20px 20px 0;
+  width: 350.13pt;
+  height:165pt;
+}
+
+
+  .ldBar path.mainline {
+    stroke-width: 10;
+    stroke: #006ab1;
+    stroke-linecap: round;
+    
+  }
+  .ldBar path.baseline {
+    stroke-width: 11;
+    stroke: #d4d4d4;
+    stroke-linecap: round;
+  }
+
+  .ldBar-label {
+    
+    
+    text-align: center;
+    font-size: 16pt;
+  }
+
+.checked {
+  color: #0069B1 !important;
+  
+
+}
+
+
+
+.unchecked {
+  color:#D4D4D4 !important;
+
+}
+
+    th,td{
+
+      padding-top:2px;
+        padding-bottom:2px;
+        text-align: center;
+    }
+
+.header {
+
+  height: 10pt;
+  width: 100%;
+  background-color: #000000 !important;
+  position: relative;
+
+}
+
+    .page {
+        width: inherit;
+        min-height: 29.7cm;
+        
+        margin: 1cm auto;
+        border: 1px #D3D3D3 solid;
+        border-radius: 5px;
+        background: white;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    
+
+
+
+@page {
+  size: A7;
+  margin: 0.5;
+}
+
+@media print {
+  /* Override the @page property for printing */
+  @page {
+    size: A8;
+  }
+
+  /* Add any other styles needed for printing */
+  /*body {*/
+  /*  font-size: 12pt;*/
+  /*}*/
+}
+
+
+
+@font-face {
+  font-family: 'Avenir';
+  src: url("Avenir Roman.otf") format("opentype");
+
+  font-family: 'Helvetica'
+  src: url("HelveticaNeue-Regular.otf") format("opentype");
+}
+
+    @media print {
+        .page {
+            margin: 0;
+            border: initial;
+            border-radius: initial;
+            width: initial;
+            min-height: initial;
+            box-shadow: initial;
+            background: initial;
+            page-break-after: always;
+      -webkit-print-color-adjust: exact;
+        }
+    }
+
+
+

@@ -1,0 +1,876 @@
+<% layout('layout/template') %>
+
+
+    <% let activeDevices=0; let inactiveDevices=0; let faultyDevices=0; let totalDevices=0; let
+        dailyDeviceActivityTimeStampArray=[]; let dataByWeek={}; deviceActivity.recentDeviceHealthData.map((element,
+        index)=> {
+        if(((new Date() - new Date(element.lastHealthArrayElement.time_stamp))/(1000 * 3600 * 24)) > 30){
+        inactiveDevices++;
+        }else{
+        activeDevices++;
+        }
+        if(element.lastHealthArrayElement.health_info !== undefined) {
+        if(element.lastHealthArrayElement.health_info.u_lsm_ini == 1 ||
+        element.lastHealthArrayElement.health_info.l_lsm_ini == 1 ||
+        element.lastHealthArrayElement.health_info.gain_amplifier == 1 ||
+        element.lastHealthArrayElement.health_info.atiny_init_status == 1 ||
+        element.lastHealthArrayElement.health_info.adc_status == 1 ||
+        element.lastHealthArrayElement.health_info.u_lsm_regi == 1 ||
+        element.lastHealthArrayElement.health_info.l_lsm_regi == 1 ||
+        element.lastHealthArrayElement.health_info.ble_status == 1 ||
+        element.lastHealthArrayElement.health_info.charger_status == 1 ||
+        element.lastHealthArrayElement.health_info.pow_btn_status == 1 ||
+        element.lastHealthArrayElement.health_info.over_current_protection_status
+        == 1 ||
+        element.lastHealthArrayElement.health_info.main_ldo_status == 1 ||
+        element.lastHealthArrayElement.health_info.over_current_protection_status
+        == 1 ||
+        element.lastHealthArrayElement.health_info.u_lesm_read == 1 ||
+        element.lastHealthArrayElement.health_info.l_lsm_read == 1 ||
+        element.lastHealthArrayElement.health_info.atiny_read_status == 1 ||
+        element.lastHealthArrayElement.health_info.u_mag_ini == 1 ||
+        element.lastHealthArrayElement.health_info.u_mag_ini == 1 ||
+        element.lastHealthArrayElement.health_info.u_mag_read == 1 ||
+        element.lastHealthArrayElement.health_info.l_mag_read == 1 ) {
+        faultyDevices++;
+        }
+        totalDevices++;
+        }})
+        
+        dailyDeviceActivity.map((element) => {
+        dailyDeviceActivityTimeStampArray.push(new Date(element.timeStamps).getTime());
+        })
+
+
+        function deviceWiseTimeStampArray(anArrayOfTimeStamps) {
+        timeStampArray = [];
+        anArrayOfTimeStamps.map((element) => {
+        timeStampArray.push(new Date(element).getTime())
+        })
+        return timeStampArray;
+        }
+
+        deviceWiseTimeStamps = []
+        deviceDetails.map((e, i) => {
+        deviceWiseTimeStamps.push({i: e.deviceActivity})
+        })
+
+        function getKeys(params) {
+        var arr = [],
+        obj = Object.keys(params);
+        for(var x in obj){
+        if(params[obj[x]] == 1){
+        arr.push(obj[x].toUpperCase())
+        }
+        }
+        return arr
+        }
+        %>
+
+        <div class="container-fluid dashboard-content">
+            <div class="row deviceReport mb-3">
+                <div class="col-xl-3 col-lg-4 col-md-12 col-sm-12 col-12">
+                    <div class="card deviceActivityCard">
+                        <div class="card-body py-0">
+                            <div class="row deviceActivity">
+                                <div class="col-6 border rounded">
+                                    <h1 class="text-center mb-0">
+                                        <%= totalDevices %>
+                                    </h1>
+                                </div>
+                                <div class="col-6 border rounded d-flex flex-column justify-content-center">
+                                    <h3 class="text-center mb-0">TOTAL SOLD</h3>
+                                    <h5 class="text-muted text-center mb-0">DEVICES</h5>
+
+                                </div>
+                            </div>
+                            <div class="row deviceActivity">
+                                <div class="col-6 border rounded">
+                                    <h1 class="text-center mb-0">
+                                        <%= activeDevices %>
+                                    </h1>
+                                </div>
+                                <div
+                                    class="col-6 btn active-device border rounded d-flex flex-column justify-content-center">
+                                    <h3 class="text-success text-center mb-0">ACTIVE</h3>
+                                    <h5 class="text-muted text-center mb-0">DEVICES</h5>
+
+                                </div>
+                            </div>
+                            <div class="row deviceActivity">
+                                <div class="col-6 border rounded">
+                                    <h1 class="text-center mb-0">
+                                        <%= inactiveDevices %>
+                                    </h1>
+                                </div>
+                                <div
+                                    class="col-6 btn inactive-device border rounded d-flex flex-column justify-content-center">
+                                    <h3 class="text-warning text-center mb-0">INACTIVE</h3>
+                                    <h5 class="text-muted text-center mb-0">DEVICES</h5>
+                                    <a href=""><i class="fas fa-circle text-warning"
+                                            style="position: absolute; top: 5px; right:5px"></i></a>
+                                </div>
+                            </div>
+                            <div class="row deviceActivity">
+                                <div class="col-6 border rounded">
+                                    <h1 class="text-center mb-0">
+                                        <%= faultyDevices %>
+                                    </h1>
+                                </div>
+                                <div
+                                    class="col-6 btn faulty-device border rounded d-flex flex-column justify-content-center">
+                                    <h3 class="text-danger text-center mb-0">FAULTY</h3>
+                                    <h5 class="text-muted text-center mb-0">DEVICES</h5>
+                                    <a href=""><i class="fas fa-circle text-danger"
+                                            style="position: absolute; top:5px; right:5px"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-9 col-lg-8 col-md-12 col-sm-12 col-12">
+                    <div class="card pb-3 h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center" style="margin-bottom: 1rem;">
+                                <h3 class="mb-1" style="font-size: 3vh;"> <span class="deviceID">OVERALL</span> ACTIVITY
+                                    <span class="text-muted" id="activityChartSubHead" style="font-size: .8em"></span>
+                                </h3>
+                                <select name="firstRowOptions" id="filterByYearOfFirstRow" class="custom-select px-3"
+                                    style="width: 150px; padding: 0 12px; height: inherit;">
+                                </select>
+                            </div>
+                            <div id="deviceActivityChartByDevice"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="d-flex flex-row-reverse py-1 pr-3 border-bottom">
+                        <select name="firstRowOptions" id="filterByDevices" class="custom-select px-3"
+                            style="width: 150px; padding: 0 12px; height: inherit;">
+                            <option value="overallDevices">Overall</option>
+                            <option value="activeDevices" class="text-success">Active</option>
+                            <option value="inactiveDevices" class="text-warning">Inactive</option>
+                            <option value="faultyDevices" class="text-danger">Faulty</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive" id="by-user-id-table" style="height: 440px; overflow-y: scroll;">
+                        <table class="table" style="table-layout: fixed; border-collapse: separate;">
+                            <thead class="bg-light">
+                                <tr class="mb-1">
+                                    <!-- <th class="border-right border-left">Image</th> -->
+                                     <th class="border rounded">MAC ID</th>
+                                    <th class="border rounded">PRODUCT ID (UID)</th>
+                                    <th class="border rounded">OWNER</th>
+                                    <th class="border rounded">ACTIVITY</th>
+                                    <th class="border rounded">STATUS</th>
+                                    <th class="border rounded">DETAILS</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% deviceDetails.map((e, i)=> { %>
+                                    <% if(e.doc.health_status.health_info !== undefined) { %>
+                                      <% if(e.doc.health_status.health_info.u_lsm_ini==1 ||
+                                        e.doc.health_status.health_info.l_lsm_ini==1 ||
+                                        e.doc.health_status.health_info.gain_amplifier==1 ||
+                                        e.doc.health_status.health_info.atiny_init_status==1 ||
+                                        e.doc.health_status.health_info.adc_status==1 ||
+                                        e.doc.health_status.health_info.u_lsm_regi==1 ||
+                                        e.doc.health_status.health_info.l_lsm_regi==1 ||
+                                        e.doc.health_status.health_info.ble_status==1 ||
+                                        e.doc.health_status.health_info.charger_status==1 ||
+                                        e.doc.health_status.health_info.pow_btn_status==1 ||
+                                        e.doc.health_status.health_info.over_current_protection_status==1 ||
+                                        e.doc.health_status.health_info.main_ldo_status==1 ||
+                                        e.doc.health_status.health_info.over_current_protection_status==1 ||
+                                        e.doc.health_status.health_info.u_lesm_read==1 ||
+                                        e.doc.health_status.health_info.l_lsm_read==1 ||
+                                        e.doc.health_status.health_info.atiny_read_status==1 ||
+                                        e.doc.health_status.health_info.u_mag_ini==1 ||
+                                        e.doc.health_status.health_info.u_mag_ini==1 ||
+                                        e.doc.health_status.health_info.u_mag_read==1 ||
+                                        e.doc.health_status.health_info.l_mag_read==1 ) {%>
+
+                                        <tr class="<%= 'faultyDevice' %> deviceWiseRow"
+                                            data="<%= deviceDetails[i].deviceActivity %> <%= deviceDetails[i]._id %>">
+                                             <td class="border rounded">
+                                                    <%=e.doc.mac%>
+                                                </td>
+                                            <td class="border rounded">
+                                                <%= e._id.toUpperCase().slice(0, 10) %>
+                                            </td>
+                                            <td class="border rounded">
+
+                                                <% usersWithPatients.map((el)=> { %>
+                                                    <% if(e.users[0]==el.phizioemail) {%>
+                                                        <%= el.phizioname.toUpperCase() %>
+                                                            <% }}) %>
+                                                                <% if(e.users.length> 1) {%>
+                                                                    <span class="tooltip-info" data-toggle="tooltip"
+                                                                        title="<%= e.users.length %> registered users on this device">
+                                                                        <%= e.users.length %>
+                                                                    </span>
+                                                                    <% }else{ %>
+                                                                        <% } %>
+                                            </td>
+                                            <td class="border rounded">
+                                                <button class="btn <%= 'activity-' + i%> device-activity"
+                                                    title="Click to check activity">CHECK</button>
+                                            </td>
+
+                                            <% if((new Date() - new Date(e.doc.health_status.time_stamp))/(1000 * 3600 *
+                                                24)> 30) { %>
+                                                <td class="text-warning border rounded d-none inactive">
+                                                    INACTIVE
+                                                </td>
+                                                <td class="text-danger border rounded  faultyDevice">
+                                                    FAULTY
+                                                </td>
+                                                <% } else { %>
+                                                    <td class="text-success border rounded active">
+                                                        ACTIVE
+                                                    </td>
+                                                    <td class="text-danger border rounded d-none faultyDevice">
+                                                        FAULTY
+                                                    </td>
+                                                    <% } %>
+                                                        <td class="border rounded">
+                                                            <button class="btn <%= 'details-' + i%>">CHECK <i
+                                                                    class="fas fa-chevron-down pl-2"></i></button>
+                                                        </td>
+
+                                        <tr class="details-row-<%= i %> d-none details-row">
+                                            <td class="border rounded">
+                                                <div class="">
+                                                    <div class="rowOne">
+                                                        <h4 class="">UID</h4>
+                                                    </div>
+                                                    <hr class="my-0" style="width: 70%;" />
+                                                    <div class="rowTow ">
+                                                        <h4 class="px-3 pt-2">
+                                                            <%=e._id%>
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="border rounded">
+                                                <div class="">
+                                                    <div class="rowOne">
+                                                        <h6 class="text-muted">TOTAL</h6>
+                                                        <h4 class="">USERS</h4>
+                                                    </div>
+                                                    <hr class="my-0" style="width: 70%;" />
+                                                    <div class="rowTow">
+                                                        <div class="px-5">
+                                                            <h4 style="margin-bottom: 0;">
+                                                                <%=e.users.length%>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="border rounded">
+                                                <div class="">
+                                                    <div class="rowOne">
+                                                        <h4 class="">MAC ID</h4>
+                                                    </div>
+                                                    <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                    <div class="rowTow ">
+                                                        <h4 class="px-3">
+                                                            <%=e.doc.mac%>
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="border rounded">
+                                                <div class="">
+                                                    <div class="rowOne">
+                                                        <h4 class="">HARDWARE</h4>
+                                                        <h6 class="text-muted">VERSION</h6>
+                                                    </div>
+                                                    <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                    <div class="rowTow ">
+                                                        <h4 class="px-5">
+                                                            <%=e.doc.hardware_version%>
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="border rounded">
+                                                <div class="">
+                                                    <div class="rowOne">
+                                                        <h4 class="">SERIAL</h4>
+                                                    </div>
+                                                    <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                    <div class="rowTow ">
+                                                        <h4 class="px-5">
+                                                            <%=e.doc.serial_version %>
+                                                        </h4>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="details-row-<%= i %> d-none details-row">
+                                            <td class="border rounded">
+                                                <div class="">
+                                                    <div class="rowOne">
+                                                        <h4>FIRMWARE</h4>
+                                                        <h6 class="text-muted">VERSION</h6>
+                                                    </div>
+                                                    <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                    <div class="rowTow ">
+                                                        <div class="px-5 pt-2">
+                                                            <h4>
+                                                                <%=e.doc.firmware_version%>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="border rounded">
+                                                <div class="">
+                                                    <div class="rowOne">
+                                                        <h4 class="">ATINY</h4>
+                                                    </div>
+                                                    <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                    <div class="rowTow">
+                                                        <div class="px-5">
+                                                            <h4 style="margin-bottom: 0;">
+                                                                <%=e.doc.atiny_version%>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="border rounded" style="position: relative;">
+                                                <div class="">
+                                                    <div class="rowOne">
+                                                        <h4 class="">DEVELOPMENT<span class="" data-toggle="tooltip"
+                                                                data-placement="top"
+                                                                title="<%= getKeys(e.doc.health_status.health_info) %>"
+                                                                style="position: absolute; top: 5px; right: 5px;">
+                                                                <% if(Object.values(e.doc.health_status.health_info).reduce(function(sum,
+                                                                    num){return sum + num}) !=0) {%>
+                                                                    <i
+                                                                        class="fas fa-exclamation-circle text-danger"></i></a>
+                                                                    <% } %>
+                                                            </span></h4>
+                                                        <h6 class="text-muted">ERRORS</h6>
+
+                                                    </div>
+                                                    <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                    <div class="rowTow ">
+                                                        <% if(Object.values(e.doc.health_status.health_info).reduce(function(sum,
+                                                            num){return sum + num}) !=0) {%>
+                                                            <h4 class="px-3 text-danger">
+                                                                <%= Object.values(e.doc.health_status.health_info).reduce(function(sum,
+                                                                    num){return sum + num}) %>
+                                                            </h4>
+                                                            <% } else { %>
+                                                                <h4 class="px-3 text-success">
+                                                                    No Errors
+                                                                </h4>
+                                                                <% } %>
+
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="border rounded">
+                                                <div class="">
+                                                    <div class="rowOne">
+                                                        <h4 class="">USER</h4>
+                                                        <h6 class="text-muted">RATINGS</h6>
+                                                    </div>
+                                                    <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                    <div class="rowTow ">
+                                                        <h4 class="px-5">
+                                                            4.6/<span class="text-muted">5</span>
+                                                        </h4>
+                                                        <h6 class="text-muted">RATINGS PER SESSION</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="border rounded">
+                                                <div class="">
+                                                    <div class="rowOne">
+                                                        <h4 class="">SERVICE</h4>
+                                                        <h6 class="text-muted">VISIT</h6>
+                                                    </div>
+                                                    <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                    <div class="rowTow ">
+                                                        <h5 class="px-5 text-danger">
+                                                            DUE
+                                                        </h5>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                        </tr>
+                                        </tr>
+                                        <% } else { %>
+                                            <tr class="<%= 'notFaultyDevice' %> deviceWiseRow"
+                                                data="<%= deviceDetails[i].deviceActivity %> <%= deviceDetails[i]._id %>">
+                                                 <td class="border rounded">
+                                                    <%=e.doc.mac%>
+                                                </td>
+                                                <td class="border rounded">
+                                                    <%= e._id.toUpperCase().slice(0, 10) %>
+                                                </td>
+                                                <td class="border rounded" style="line-height: 1;">
+
+                                                    <% usersWithPatients.map((el)=> { %>
+                                                        <% if(e.users[0]==el.phizioemail) {%>
+                                                            <%= el.phizioname.toUpperCase() %>
+                                                                <% }}) %>
+                                                                    <% if(e.users.length> 1) {%>
+                                                                        <span class="tooltip-info" data-toggle="tooltip"
+                                                                            title="<%= e.users.length %> registered users on this device">
+                                                                            <%= e.users.length %>
+                                                                        </span>
+                                                                        <% }else{ %>
+                                                                            <% } %>
+                                                </td>
+                                                <td class="border rounded">
+                                                    <button class="btn <%= 'activity-' + i%> device-activity"
+                                                        title="Click to check activity">CHECK</button>
+                                                </td>
+
+                                                <% if((new Date() - new Date(e.doc.health_status.time_stamp))/(1000 *
+                                                    3600 * 24)> 30) { %>
+                                                    <td class="text-warning border rounded inactive">
+                                                        INACTIVE
+                                                    </td>
+                                                    <% } else { %>
+                                                        <td class="text-success border rounded active">
+                                                            ACTIVE
+                                                        </td>
+                                                        <% } %>
+                                                            <td class="border rounded">
+                                                                <button class="btn <%= 'details-' + i%>">CHECK <i
+                                                                        class="fas fa-chevron-down pl-2"></i></button>
+                                                            </td>
+
+                                            <tr class="details-row-<%= i %> d-none details-row">
+                                                <td class="border rounded">
+                                                    <div class="">
+                                                        <div class="rowOne">
+                                                            <h4 class="">UID</h4>
+                                                        </div>
+                                                        <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                        <div class="rowTow ">
+                                                            <h4 class="px-3 pt-2">
+                                                                <%=e._id%>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="border rounded">
+                                                    <div class="">
+                                                        <div class="rowOne">
+                                                            <h6 class="text-muted">TOTAL</h6>
+                                                            <h4 class="">USERS</h4>
+                                                        </div>
+                                                        <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                        <div class="rowTow">
+                                                            <div class="px-5">
+                                                                <h4 style="margin-bottom: 0;">
+                                                                    <%=e.users.length%>
+                                                                </h4>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="border rounded">
+                                                    <div class="">
+                                                        <div class="rowOne">
+                                                            <h4 class="">MAC ID</h4>
+                                                        </div>
+                                                        <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                        <div class="rowTow ">
+                                                            <h4 class="px-3">
+                                                                <%=e.doc.mac%>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="border rounded">
+                                                    <div class="">
+                                                        <div class="rowOne">
+                                                            <h4 class="">HARDWARE</h4>
+                                                            <h6 class="text-muted">VERSION</h6>
+                                                        </div>
+                                                        <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                        <div class="rowTow ">
+                                                            <h4 class="px-5">
+                                                                <%=e.doc.hardware_version%>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="border rounded">
+                                                    <div class="">
+                                                        <div class="rowOne">
+                                                            <h4 class="">SERIAL</h4>
+                                                        </div>
+                                                        <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                        <div class="rowTow ">
+                                                            <h4 class="px-5">
+                                                                <%=e.doc.serial_version %>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="details-row-<%= i %> d-none details-row">
+                                                <td class="border rounded">
+                                                    <div class="">
+                                                        <div class="rowOne">
+                                                            <h4>FIRMWARE</h4>
+                                                            <h6 class="text-muted">VERSION</h6>
+                                                        </div>
+                                                        <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                        <div class="rowTow ">
+                                                            <div class="px-5 pt-2">
+                                                                <h4>
+                                                                    <%=e.doc.firmware_version%>
+                                                                </h4>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="border rounded">
+                                                    <div class="">
+                                                        <div class="rowOne">
+                                                            <h4 class="">ATINY</h4>
+                                                        </div>
+                                                        <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                        <div class="rowTow">
+                                                            <div class="px-5">
+                                                                <h4 style="margin-bottom: 0;">
+                                                                    <%=e.doc.atiny_version%>
+                                                                </h4>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="border rounded" style="position: relative;">
+                                                    <div class="">
+                                                        <div class="rowOne">
+                                                            <h4 class="">DEVELOPMENT<span class=""
+                                                                    style="position: absolute; top:5px; right: 5px">
+                                                                    <% if(Object.values(e.doc.health_status.health_info).reduce(function(sum,
+                                                                        num){return sum + num}) !=0) {%>
+                                                                        <i class="fas fa-circle text-danger"></i></a>
+                                                                        <% } %>
+                                                                </span></h4>
+                                                            <h6 class="text-muted">ERRORS</h6>
+
+                                                        </div>
+                                                        <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                        <div class="rowTow ">
+                                                            <% if(Object.values(e.doc.health_status.health_info).reduce(function(sum,
+                                                                num){return sum + num}) !=0) {%>
+                                                                <h4 class="px-3 text-danger">
+                                                                    <%= Object.values(e.doc.health_status.health_info).reduce(function(sum,
+                                                                        num){return sum + num}) %>
+                                                                </h4>
+                                                                <% } else { %>
+                                                                    <h4 class="px-3 text-success">
+                                                                        No Errors
+                                                                    </h4>
+                                                                    <% } %>
+
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="border rounded">
+                                                    <div class="">
+                                                        <div class="rowOne">
+                                                            <h4 class="">USER</h4>
+                                                            <h6 class="text-muted">RATINGS</h6>
+                                                        </div>
+                                                        <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                        <div class="rowTow ">
+                                                            <h4 class="px-5">
+                                                                4.6/<span class="text-muted">5</span>
+                                                            </h4>
+                                                            <h6 class="text-muted">RATINGS PER SESSION</h6>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="border rounded">
+                                                    <div class="">
+                                                        <div class="rowOne">
+                                                            <h4 class="">SERVICE</h4>
+                                                            <h6 class="text-muted">VISIT</h6>
+                                                        </div>
+                                                        <hr class="my-0" style="width: 70%; height: 2px;" />
+                                                        <div class="rowTow ">
+                                                            <h5 class="px-5 text-danger">
+                                                                DUE
+                                                            </h5>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                            </tr>
+                                            </tr>
+                                            <% }}}) %>
+                            </tbody>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+
+
+
+
+
+        <script>
+
+            $(document).ready(function () {
+                function deviceWiseTimeStampArray(anArrayOfTimeStamps) {
+                    timeStampArray = [];
+                    anArrayOfTimeStamps.map((element) => {
+                        timeStampArray.push(new Date(element).getTime())
+                    })
+                    return timeStampArray;
+                }
+
+                function filterOnLoad(location) {
+                    if (location.includes('activedevice')) {
+                        $('#filterByDevices').val('activeDevices').change()
+                    }
+                    if (location.includes('inactivedevice')) {
+                        $('#filterByDevices').val('inactiveDevices').change()
+                    }
+                    if (location.includes('faultydevice')) {
+                        $('#filterByDevices').val('faultyDevices').change()
+                    }
+                }
+
+                $(function () {
+                    filterOnLoad($(location).attr('search'))
+                })
+
+                var activityFilter = $('#filterByYearOfFirstRow'),
+                    date = new Date,
+                    years = [],
+                    year = date.getFullYear();
+
+                for (var i = year; i > year - 5; i--) {
+                    activityFilter.append(`<option value="year-${i}">${i}</option>`)
+                }
+
+                start_date = year
+                $('#activityChartSubHead').text(`in the year ${start_date}`)
+
+
+                $('.deviceWiseRow').map((index, element) => {
+                    $(this).find(".activity-" + index).click(function () {
+
+                        $('#deviceActivityChartByDevice').github_graph({
+                            //Generate random entries from 10-> 100 entries
+                            data: deviceWiseTimeStampArray($(this).closest('tr').attr('data').split(" ")[0].split(",")),
+                            texts: ['Active Device', 'Active Devices'],
+                            //override colours
+                            colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+                            start_date: new Date(start_date, 0, 1)
+                        });
+
+                        activityFilter.change(function () {
+                            start_date = Number($('#filterByYearOfFirstRow option:selected').text())
+                            $('#activityChartSubHead').text(`in the year ${start_date}`)
+                            $('#deviceActivityChartByDevice').github_graph({
+                                //Generate random entries from 10-> 100 entries
+                                data: deviceWiseTimeStampArray($('.deviceWiseRow').find('.activity-' + index).closest('tr').attr('data').split(" ")[0].split(",")),
+                                texts: ['Active Device', 'Active Devices'],
+                                //override colours
+                                colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+                                start_date: new Date(start_date, 0, 1)
+                            });
+                        })
+
+                        $('.deviceID')
+                            .text($(this)
+                                .closest('tr')
+                                .attr('data')
+                                .split(" ")[1]
+                                .length > 0 ?
+                                $(this)
+                                    .closest('tr')
+                                    .attr('data')
+                                    .split(" ")[1]
+                                    .toUpperCase()
+                                    .slice(0, 3) :
+                                'STH'
+                            )
+
+                        $(this).addClass('btn-primary').closest('tr').siblings().find('.btn').removeClass('btn-primary');
+
+                        $('#filterByYearOfFirstRow option').prop('selected', function () {
+                            this.defaultSelected
+                        });
+
+                    })
+                    $(this).find(".details-" + index).click(function () {
+                        $('.details-row-' + index).toggleClass('d-none')
+                        $(this).toggleClass('btn-primary').closest('tr').siblings().find('.btn').removeClass('btn-primary');
+                        $(this).find('i').toggleClass('fa-chevron-up')
+                    })
+                })
+
+                $('.activity-0').addClass('btn-primary');
+                $('#deviceActivityChartByDevice').github_graph({
+                    //Generate random entries from 10-> 100 entries
+                    data: deviceWiseTimeStampArray($('.activity-0').closest('tr').attr('data').split(" ")[0].split(",")),
+                    texts: ['Active Device', 'Active Devices'],
+                    //override colours
+                    colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+                    start_date: new Date(start_date, 0, 1)
+                });
+
+                activityFilter.change(function () {
+                    start_date = Number($('#filterByYearOfFirstRow option:selected').text())
+                    $('#activityChartSubHead').text(`in the year ${start_date}`)
+                    $('#deviceActivityChartByDevice').github_graph({
+                        //Generate random entries from 10-> 100 entries
+                        data: deviceWiseTimeStampArray($('.deviceWiseRow').find('.activity-0').closest('tr').attr('data').split(" ")[0].split(",")),
+                        texts: ['Active Device', 'Active Devices'],
+                        //override colours
+                        colors: ['#f1f3f4', '#71c9f8', '#007dd1',],
+                        start_date: new Date(start_date, 0, 1)
+                    });
+                })
+
+                $('.deviceID')
+                    .text($('.activity-0')
+                        .closest('tr')
+                        .attr('data')
+                        .split(" ")[1]
+                        .length > 0 ?
+                        $('.activity-0')
+                            .closest('tr')
+                            .attr('data')
+                            .split(" ")[1]
+                            .toUpperCase()
+                            .slice(0, 3) :
+                        'STH'
+                    )
+
+                $('.active-device').click(function () {
+                    $('#filterByDevices').val('activeDevices').change()
+                    $('.text-warning.inactive').closest('tr').addClass('d-none')
+                    $('.text-success.active').closest('tr').removeClass('d-none')
+
+                    if ($('#filterByDevices').hasClass('text-danger') || $('#filterByDevices').hasClass('text-warning')) {
+                        $('#filterByDevices').removeClass('text-danger')
+                        $('#filterByDevices').removeClass('text-warning')
+                    } else {
+                        $('#filterByDevices').addClass('text-success')
+                        $('#filterByDevices').removeClass('text-danger')
+                        $('#filterByDevices').removeClass('text-warning')
+                    }
+                })
+                $('.inactive-device').click(function () {
+                    $('#filterByDevices').val('inactiveDevices').change()
+                    $('.text-warning.inactive').closest('tr').removeClass('d-none')
+                    $('.text-success.active').closest('tr').addClass('d-none')
+                    $('#filterByDevices').addClass('text-warning')
+
+                    if ($('#filterByDevices').hasClass('text-success') || $('#filterByDevices').hasClass('text-danger')) {
+                        $('#filterByDevices').removeClass('text-danger')
+                        $('#filterByDevices').removeClass('text-success')
+                    } else {
+                        $('#filterByDevices').removeClass('text-success')
+                        $('#filterByDevices').removeClass('text-danger')
+                        $('#filterByDevices').addClass('text-warning')
+                    }
+                })
+                $('.faulty-device').click(function () {
+                    $('#filterByDevices').val('faultyDevices').change()
+                    $('.notFaultyDevice').addClass('d-none')
+                    $('.text-danger.faultyDevice').removeClass('d-none')
+                    $('.text-warning.inactive').addClass('d-none')
+                    $('.text-success.active').addClass('d-none')
+                    $('#filterByDevices').addClass('text-danger')
+
+                    if ($('#filterByDevices').hasClass('text-success') || $('#filterByDevices').hasClass('text-warning')) {
+                        $('#filterByDevices').removeClass('text-success')
+                        $('#filterByDevices').removeClass('text-warning')
+                    } else {
+                        $('#filterByDevices').removeClass('text-success')
+                        $('#filterByDevices').addClass('text-danger')
+                        $('#filterByDevices').removeClass('text-success')
+                    }
+                })
+
+
+                $("#filterByDevices").change(function () {
+
+                    $('.deviceWiseRow').map((index, element) => {
+                        if (!$('.details-row-' + index).hasClass('d-none')) {
+                            $('.details-row-' + index).addClass('d-none')
+                        }
+                        if ($('.deviceWiseRow').find(".details-" + index).find('i').hasClass('fa-chevron-up')) {
+                            $('.deviceWiseRow').find(".details-" + index).find('i').removeClass('fa-chevron-up').addClass('fa-chevron-down')
+                        }
+                        if ($('.deviceWiseRow').find('.details-' + index).hasClass('btn-primary')) {
+                            console.log($('.deviceWiseRow').find('.details-' + index))
+                            $('.deviceWiseRow').find('.details-' + index).removeClass('btn-primary')
+                        }
+                    })
+
+                    if ($("#filterByDevices option:selected").val() == "overallDevices") {
+                        $('.notFaultyDevice').removeClass('d-none')
+                        $('.text-danger.faultyDevice').addClass('d-none')
+                        $('.text-warning.inactive').removeClass('d-none')
+                        $('.text-success.active').removeClass('d-none')
+                        $('.text-warning.inactive').closest('tr').removeClass('d-none')
+                        $('.text-success.active').closest('tr').removeClass('d-none')
+                        $(this).removeClass('text-success')
+                        $(this).removeClass('text-danger')
+                        $(this).removeClass('text-warning')
+                    }
+                    if ($("#filterByDevices option:selected").val() == "activeDevices") {
+                        $('.text-warning.inactive').closest('tr').addClass('d-none')
+                        $('.text-success.active').closest('tr').removeClass('d-none')
+                        $('.text-success.active').removeClass('d-none')
+                        $('.text-warning.inactive').addClass('d-none')
+                        $('.text-danger.faultyDevice').addClass('d-none')
+                        $(this).addClass('text-success')
+                    }
+                    if ($("#filterByDevices option:selected").val() == "inactiveDevices") {
+                        $('.text-warning.inactive').closest('tr').removeClass('d-none')
+                        $('.text-success.active').closest('tr').addClass('d-none')
+                        $('.text-warning.inactive').removeClass('d-none')
+                        $('.text-danger.faultyDevice').addClass('d-none')
+                        $(this).addClass('text-warning')
+                    }
+                    if ($("#filterByDevices option:selected").val() == "faultyDevices") {
+                        $('.notFaultyDevice').addClass('d-none')
+                        $('.text-danger.faultyDevice').closest('tr').removeClass('d-none')
+                        $('.text-danger.faultyDevice').removeClass('d-none')
+                        $('.text-warning.inactive').addClass('d-none')
+                        $('.text-success.active').addClass('d-none')
+                        $(this).addClass('text-danger')
+                    }
+                })
+                
+                $('#custom-search .form-control').on('keyup', (function(e) {
+                    let value = $(this).val().toLowerCase(); console.log(value);
+                    $("table tbody tr").filter(function() {
+                        $(this).toggle($(this).text()
+                        .toLowerCase().indexOf(value) > -1)
+                    });
+                }))
+
+            });
+        </script>

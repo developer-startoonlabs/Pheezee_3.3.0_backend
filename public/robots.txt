@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: http://13.127.78.38:3000/dashboard/
+	    http://13.127.78.38:3000/dashboard/users
+	    http://13.127.78.38:3000/dashboard/devicereport

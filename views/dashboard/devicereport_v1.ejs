@@ -1,0 +1,573 @@
+<% layout('layout/template') %>
+
+    <% let totalNumberOfDevices=deviceHealthData.length; let deviceWithMultipleUsers=0; let registeredDevices=0;
+        numberOfUsersToEachDevice=[]; deviceHealthData.sort((a, b)=> b.phizioemails.length - a.phizioemails.length)
+        deviceActivityByDay.sort((a,b) => new Date(b._id) - new Date(a._id))
+        deviceHealthData.map((e,i)=> {
+        if(e.phizioemails.length > 1){
+        deviceWithMultipleUsers++;
+        }
+        numberOfUsersToEachDevice.push(e.phizioemails.length);
+        registeredDevices += (e.phizioemails.length != 0)
+        })
+        numberOfUsersToEachDevice.sort((a, b) => b - a)
+        var sortedMonthActivity = deviceActivityByMonth.sort(function(a, b){
+        a = a._id.split("-");
+        b = b._id.split("-");
+        return new Date(b[0], b[1], 1) - new Date(a[0], a[1], 1)
+        })
+
+        function getMonth(monthInNumber) {
+        switch (monthInNumber.substr(5, 7)) {
+        case "01":
+        return "JAN"
+        break;
+        case "02":
+        return "FEB"
+        break;
+        case "03":
+        return "MAR"
+        break;
+        case "04":
+        return "APR"
+        break;
+        case "05":
+        return "MAY"
+        break;
+        case "06":
+        return "JUN"
+        break;
+        case "07":
+        return "JUL"
+        break;
+        case "08":
+        return "AUG"
+        break;
+        case "09":
+        return "SEP"
+        break;
+        case "10":
+        return "OCT"
+        break;
+        case "11":
+        return "NOV"
+        break;
+        case "12":
+        return "DEC"
+        break;
+        default:
+        break;
+        }
+        }
+        console.log(getMonth(sortedMonthActivity[0]._id))
+        %>
+        <div class="page-header">
+            <h1 class="pageheader-title">Dashboard | Device Report</h1>
+            <p class="pageheader-text">
+                Nulla euismod urna eros, sit amet scelerisque torton lectus vel mauris
+                facilisis faucibus at enim quis massa lobortis rutrum.
+            </p>
+            <div class="page-breadcrumb">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#" class="breadcrumb-link">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Device Report
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="text-muted">Total Devices</h5>
+                        <div class="metric-value d-inline-block">
+                            <h1 class="mb-1">
+                                <%= totalNumberOfDevices %>
+                            </h1>
+                        </div>
+                        <div class="
+						metric-label
+						d-inline-block
+						float-right
+						text-success
+						font-weight-bold
+					">
+                            <!-- <span><i class="fa fa-fw fa-arrow-up"></i></span><span>5.86%</span> -->
+                        </div>
+                    </div>
+                    <!-- <div id="sparkline-revenue"></div> -->
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="text-muted">Devices with multiple users</h5>
+                        <div class="metric-value d-inline-block">
+                            <h1 class="mb-1">
+                                <%= deviceWithMultipleUsers %>
+                            </h1>
+                        </div>
+                        <div class="
+						metric-label
+						d-inline-block
+						float-right
+						text-success
+						font-weight-bold
+					">
+                            <!-- <span><i class="fa fa-fw fa-arrow-up"></i></span><span>5.86%</span> -->
+                        </div>
+                    </div>
+                    <!-- <div id="sparkline-revenue2"></div> -->
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="text-muted">Number of Active Devices</h5>
+                        <div class="metric-value d-inline-block">
+                            <h1 class="mb-1">
+                                <%= registeredDevices %>
+                            </h1>
+                        </div>
+                        <!-- <div class="metric-label d-inline-block float-right text-secondary font-weight-bold">
+							<span>-2.00%</span>
+						</div> -->
+                    </div>
+                    <!-- <div id="sparkline-revenue4"></div> -->
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="text-muted">Active Devices this Month</h5>
+                        <div class="metric-value d-inline-block">
+                            <h1 class="mb-1">
+                                <%= sortedMonthActivity[0].numberOfActiveDevices %>
+
+                            </h1>
+                        </div>
+                        <!-- <div class="metric-label d-inline-block float-right text-secondary font-weight-bold">
+							<span>-2.00%</span>
+						</div> -->
+                    </div>
+                    <!-- <div id="sparkline-revenue4"></div> -->
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                <div class="card">
+                    <div class="row justify-content-between card-header align-items-center" style="margin: auto 0">
+                        <h3 class="mb-0 py-3">Pheezee Device Details</h3>
+                    </div>
+                    <!-- <div id="chart"></div> -->
+                    <div class="card-body p-0">
+                        <div class="table-responsive" id="by-user-id-table">
+                            <table class="table">
+                                <thead class="bg-light">
+                                    <tr class="border-0">
+                                        <th class="border-0">Sr. No.</th>
+                                        <!-- <th class="border-0">Image</th> -->
+                                        <th class="border-0 text-left">Device ID (UID)</th>
+                                        <th class="border-0">FW Version</th>
+                                        <th class="border-0">HW Version</th>
+                                        <th class="border-0">No of Users</th>
+                                        <th class="border-0">Status</th>
+                                        <th class="border-0"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <% deviceHealthData.map((e, i)=> {
+                                            if(e.health.length> 0) {
+                                            %>
+                                            <td>
+                                                <%= i+1 %>
+                                            </td>
+                                            <td class="text-left">
+                                                <%= e.uid %>
+                                            </td>
+                                            <td>
+                                                <%= e.firmware_version %>
+                                            </td>
+
+                                            <td>
+                                                <%= e.hardware_version %>
+                                            </td>
+                                            <td>
+                                                <strong>
+                                                    <%= e.phizioemails.length %>
+                                                </strong>
+                                            </td>
+                                            <td>
+                                                <% if(e.health.length> 0) {
+                                                    if(e.health.slice(-1).pop().health_info.u_lsm_ini == 1 ||
+                                                    e.health.slice(-1).pop().health_info.l_lsm_ini == 1 ||
+                                                    e.health.slice(-1).pop().health_info.gain_amplifier == 1 ||
+                                                    e.health.slice(-1).pop().health_info.atiny_init_status == 1 ||
+                                                    e.health.slice(-1).pop().health_info.adc_status == 1 ||
+                                                    e.health.slice(-1).pop().health_info.u_lsm_regi == 1 ||
+                                                    e.health.slice(-1).pop().health_info.l_lsm_regi == 1 ||
+                                                    e.health.slice(-1).pop().health_info.ble_status == 1 ||
+                                                    e.health.slice(-1).pop().health_info.over_current_protection_status
+                                                    == 1 ||
+                                                    e.health.slice(-1).pop().health_info.main_ldo_status == 1 ||
+                                                    e.health.slice(-1).pop().health_info.over_current_protection_status
+                                                    == 1 ||
+                                                    e.health.slice(-1).pop().health_info.pow_btn_status == 1 ||
+                                                    e.health.slice(-1).pop().health_info.u_lesm_read == 1 ||
+                                                    e.health.slice(-1).pop().health_info.l_lsm_read == 1 ||
+                                                    e.health.slice(-1).pop().health_info.atiny_read_status == 1 ||
+                                                    e.health.slice(-1).pop().health_info.u_mag_ini == 1 ||
+                                                    e.health.slice(-1).pop().health_info.u_mag_ini == 1 ||
+                                                    e.health.slice(-1).pop().health_info.u_mag_read == 1 ||
+                                                    e.health.slice(-1).pop().health_info.l_mag_read == 1 ) {%>
+
+                                                    <i class="fas fa-times-circle text-danger"></i>
+                                                    <% } else { %>
+                                                        <i class="fas fa-check-circle text-success"></i>
+                                                        <% }} %>
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn" data-toggle="modal"
+                                                    data-target="#deviceModal-<%= e.uid %>">
+                                                    Details
+                                                </button>
+                                                <div class="modal fade" id="deviceModal-<%= e.uid %>" tabindex="-1"
+                                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-xl modal-dialog-centered"
+                                                        style="max-width: 1080px;">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h3 class="modal-title" id="exampleModalLabel">
+                                                                    Device Details
+                                                                </h3>
+                                                                <button type="button" class="close" data-dismiss="modal"
+                                                                    aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="row">
+                                                                    <div class="col-md-6 text-left">
+                                                                        <strong>Mac
+                                                                            ID</strong>: <%= e.mac %>
+                                                                    </div>
+                                                                    <div class="col-md-6 text-left">
+
+                                                                        <strong>Device ID (UID)</strong>:
+                                                                        <%= e.uid %>
+
+                                                                    </div>
+                                                                    <div class="col-md-6 text-left">
+                                                                        <strong>FW
+                                                                            Version</strong>: <%= e.firmware_version %>
+
+                                                                    </div>
+                                                                    <div class="col-md-6 text-left">
+                                                                        <strong>HW
+                                                                            Version</strong>: <%= e.hardware_version %>
+
+                                                                    </div>
+                                                                    <div class="col-md-6 text-left">
+
+                                                                        <strong>Serial
+                                                                            Version</strong>: <%= e.serial_version %>
+
+                                                                    </div>
+                                                                    <div class="col-md-6 text-left">
+
+                                                                        <strong>Atiny
+                                                                            Version</strong>: <%= e.atiny_version %>
+
+                                                                    </div>
+                                                                </div>
+                                                                <hr />
+                                                                <h3 class="text-left">Users</h3>
+                                                                <div class="row">
+                                                                    <% e.phizioemails.map((ele, idx)=> {
+                                                                        %>
+                                                                        <div class="col-lg-4 col-md-6 text-left">
+                                                                            <p>
+                                                                                <%= ele.phizioemail %>
+                                                                            </p>
+                                                                        </div>
+                                                                        <% }) %>
+                                                                </div>
+                                                                <hr />
+                                                                <h3 class="text-left">Device Issues</h3>
+                                                                <div class="text-left">
+                                                                    <% Object.entries(e.health[e.health.length -
+                                                                        1].health_info).forEach(element=> {
+                                                                        if(element[1] == 1 ){
+                                                                        if(!element[0].includes("$")){ %>
+                                                                        <%= element[0]+ " : " + element[1] %>
+                                                                            &nbsp;&nbsp;
+                                                                            <% }}}); %>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-danger"
+                                                                    data-dismiss="modal">Close</button>
+                                                                <!--<button type="button" class="btn btn-primary">Save
+                                                                changes</button>-->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                    </tr>
+                                    <% } else { %>
+                                        <td>
+                                            <%= i+1 %>
+                                        </td>
+                                        <td class="text-left">
+                                            <%= e.uid %>
+                                        </td>
+                                        <td>
+                                            <%= e.firmware_version %>
+                                        </td>
+
+                                        <td>
+                                            <%= e.hardware_version %>
+                                        </td>
+                                        <td>
+                                            <strong>
+                                                <%= e.phizioemails.length %>
+                                            </strong>
+                                        </td>
+                                        <td>No health data</td>
+                                        <td>
+                                            <button type="button" class="btn" data-toggle="modal"
+                                                data-target="#deviceModal-<%= e.uid %>">
+                                                Details
+                                            </button>
+                                            <div class="modal fade" id="deviceModal-<%= e.uid %>" tabindex="-1"
+                                                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog modal-xl modal-dialog-centered"
+                                                    style="max-width: 1080px;">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h3 class="modal-title" id="exampleModalLabel">
+                                                                Device Details
+                                                            </h3>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="row">
+                                                                <div class="col-md-6 text-left">
+                                                                    <strong>Mac
+                                                                        ID</strong>: <%= e.mac %>
+                                                                </div>
+                                                                <div class="col-md-6 text-left">
+
+                                                                    <strong>Device ID (UID)</strong>:
+                                                                    <%= e.uid %>
+
+                                                                </div>
+                                                                <div class="col-md-6 text-left">
+                                                                    <strong>FW
+                                                                        Version</strong>: <%= e.firmware_version %>
+
+                                                                </div>
+                                                                <div class="col-md-6 text-left">
+                                                                    <strong>HW
+                                                                        Version</strong>: <%= e.hardware_version %>
+
+                                                                </div>
+                                                                <div class="col-md-6 text-left">
+
+                                                                    <strong>Serial
+                                                                        Version</strong>: <%= e.serial_version %>
+
+                                                                </div>
+                                                                <div class="col-md-6 text-left">
+
+                                                                    <strong>Atiny
+                                                                        Version</strong>: <%= e.atiny_version %>
+
+                                                                </div>
+                                                            </div>
+                                                            <hr />
+                                                            <h3 class="text-left">Users</h3>
+                                                            <div class="row">
+                                                                <% if(e.phizioemails.length> 0){
+                                                                    e.phizioemails.map((ele, idx)=> {
+                                                                    %>
+                                                                    <div class="col-lg-4 col-md-6 text-left">
+                                                                        <p>
+                                                                            <%= ele.phizioemail %>
+                                                                        </p>
+                                                                    </div>
+                                                                    <% })} else { %>
+                                                                        <div class="col-lg-4 col-md-6 text-left">
+                                                                            <p>
+                                                                                No Users Registered
+                                                                            </p>
+                                                                        </div>
+                                                                        <% } %>
+                                                            </div>
+                                                            <hr />
+                                                            <h3 class="text-left">Recent Health Details</h3>
+                                                            <p class="text-left">No health records for this device</p>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-danger"
+                                                                data-dismiss="modal">Close</button>
+                                                            <!--<button type="button" class="btn btn-primary">Save
+                                                                changes</button>-->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <% }}) %>
+                                            <!--<tr>
+                                                <td colspan="9">
+                                                    <a href="#" class="btn btn-outline-light float-right">View
+                                                        Details</a>
+                                                </td>
+                                            </tr>-->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="text-center border-top" style="margin: auto 0">
+                        <button class="btn my-2 px-5" id="btnToExpand">More</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                <div class="card">
+                    <div class="row justify-content-between card-header align-items-center" style="margin: auto 0">
+                        <h3 class="mb-0 py-3">Pheezee Active Devices by Month</h3>
+                    </div>
+                    <div id="chartTwo"></div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive" id="by-user-id-table">
+                            <table class="table">
+                                <thead class="bg-light">
+                                    <tr class="border-0">
+                                        <th class="border-0">Sr. No.</th>
+                                        <th class="border-0 text-left">Month</th>
+                                        <th class="border-0">No of Devices Active</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% deviceActivityByMonth.map((e, i)=> { %>
+                                        <tr>
+                                            <td>
+                                                <%= i+1 %>
+                                            </td>
+                                            <td class="text-left">
+                                                <%= getMonth(e._id) %> - <%= e._id.substr(0,4) %>
+                                            </td>
+
+                                            <td>
+                                                <%= e.numberOfActiveDevices %>
+                                            </td>
+
+                                        </tr>
+                                        <% }) %>
+                                            <tr>
+                                                <!--<td colspan="9">
+                                                    <a href="#" class="btn btn-outline-light float-right">View
+                                                        Details</a>
+                                                </td>-->
+                                            </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="text-center border-top" style="margin: auto 0">
+                        <button class="btn my-2 px-5" id="btnToExpand">More</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
+                <div class="card">
+                    <div class="row justify-content-between card-header align-items-center" style="margin: auto 0">
+                        <h3 class="mb-0 py-3">Pheezee Device Activity By Day</h3>
+                    </div>
+                    <div id="chartThree"></div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive" id="by-user-id-table">
+                            <table class="table">
+                                <thead class="bg-light">
+                                    <tr class="border-0">
+                                        <th class="border-0">Sr. No.</th>
+                                        <!-- <th class="border-0">Image</th> -->
+                                        <th class="border-0">Date</th>
+                                        <th class="border-0">Total No of Users</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% deviceActivityByDay.map((e, i)=> { %>
+                                        <tr>
+                                            <td>
+                                                <%= i+1 %>
+                                            </td>
+                                            <td>
+                                                <%= e._id %>
+                                            </td>
+
+                                            <td>
+                                                <%= e.phizioUsers.length %>
+                                            </td>
+
+                                        </tr>
+                                        <% }) %>
+                                            <tr>
+                                                <!--<td colspan="9">
+                                                    <a href="#" class="btn btn-outline-light float-right">View
+                                                        Details</a>
+                                                </td>-->
+                                            </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="text-center border-top" style="margin: auto 0">
+                        <button class="btn my-2 px-5" id="btnToExpand">More</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", theDomHasLoaded, false);
+
+            function theDomHasLoaded(e) {
+                var chart = c3.generate({
+                    bindto: '#chart',
+                    data: {
+                        columns: [
+                            ['Number of User Per Device', ...'<%- numberOfUsersToEachDevice %>'.split(',')]
+                        ]
+                    },
+                });
+            }
+
+            var elements = document.querySelectorAll('.card-body.p-0');
+            var buttons = document.querySelectorAll('#btnToExpand');
+            Array.from(buttons).forEach((button, index) => {
+                Array.from(elements).forEach((element, idx) => {
+                    if (index == idx) {
+                        button.addEventListener('click', function () {
+                            element.style.overflowY = 'scroll'
+                        })
+                    }
+                })
+            })
+        </script>

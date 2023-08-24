@@ -1,0 +1,118 @@
+<% layout('layout/template') %>
+
+<div class="container-fluid" style="padding-left: 3rem">
+    <div>
+        
+    </div>
+    
+    <div style="float: right;">
+       
+        <a type="button" class="btn  btn-lg"  href="../dashboard/device-status-info">+ Add Device</a>
+        <a type="button" class="btn  btn-lg" href="../dashboard/edit-device-info"><i class='fas fa-pencil-alt'></i> Edit Status Device</a>
+        <a type="button" class="btn btn-lg"  id="export_button"><i class='fas fa-file-alt'></i> Export</a>
+        </div>
+
+</div>
+
+<div  id="wrap" class="container-fluid" style="overflow-x: scroll">
+<div class="row" style="padding-left: 2rem; padding-right: 1.0rem; margin-top: 2.0rem;">
+    <div class="col-sm-12 col-md-12 col-lg-12">
+            <table id="employee_data" class="sortable table table-striped table-bordered">
+                    <thead style="background-color:#007BFF;">
+                        <tr>
+                            <th scope="col" style="white-space: nowrap;"><b>MAC ID</b></th>
+                            <!--<th scope="col" style="white-space: nowrap;"><b>UUID</b></th>-->
+                            <th scope="col" style="white-space: nowrap;"><b>LOT</b></th>
+                            <th scope="col" style="white-space: nowrap;"><b>MODEL</b></th>
+                            <th scope="col" style="white-space: nowrap;"><b>STATUS</b></th>
+                            <th scope="col" style="white-space: nowrap;"><b>DEVICE SERIAL</b></th>
+                            <!--<th scope="col" style="white-space: nowrap;"><b>Edit</b></th>-->
+                        </tr>
+                    </thead>
+                    <tbody id="geeks">
+                        <% deviceData.map( (e,i)=> { %>
+                            <tr>
+                                <td value="<%= e.macId%>" class="macId" style="white-space: nowrap;">
+                                    <%= e.macId %>
+                                </td>
+                                <!--<td  value="<%= e.uuId%>" class="uuId" style="white-space: nowrap;">-->
+                                <!--    <%= e.uuId %>-->
+                                <!--</td>-->
+                                <td value="<%= e.lot %>" class="lot" style="white-space: nowrap;">
+                                    <%= e.lot %>
+                                </td>
+                                <td value="<%= e.model%>" class="model" style="white-space: nowrap;">
+                                    <%= e.model %>
+                                </td>
+                                <td value="<%= e.status %>" class="status" style="white-space: nowrap;">
+                                    <%= e.status %>
+                                </td>
+                                <td value="<%= e.devicemodel %>" class="devicemodel" style="white-space: nowrap;">
+                                    <%= e.devicemodel %>
+                                </td>
+                                <!--<td>-->
+                                <!--    <a type="submit" class="btn btn-danger btn-block" href="../dashboard/edit-device-info?macId=<%= e.macId %>">Edit</a>-->
+                                <!--</td>-->
+                                
+                            </tr>
+                            <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        
+        </div>
+    </div>
+    
+  <script>
+        function myFunction() {
+          document.getElementById("employee_data").classList.add("mystyle");
+        }
+        </script>
+    
+    
+    <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+    
+    <script>
+            $(document).ready(function() {
+                $("#gfg").on("keyup", function() {
+                    var value = $(this).val().toLowerCase();
+                    $("#geeks tr").filter(function() {
+                        $(this).toggle($(this).text()
+                        .toLowerCase().indexOf(value) > -1)
+                    });
+                });
+            });
+        </script>
+    
+    
+    
+    <!--Export Data  Script-->
+    <script>
+        
+        function html_table_to_excel(type)
+    {
+        var data = document.getElementById('employee_data');
+
+        var file = XLSX.utils.table_to_book(data, {sheet: "sheet1"});
+
+        XLSX.write(file, { bookType: type, bookSST: true, type: 'base64' });
+
+        XLSX.writeFile(file, 'file.' + type);
+    }
+
+    const export_button = document.getElementById('export_button');
+
+    export_button.addEventListener('click', () =>  {
+        html_table_to_excel('xlsx');
+    });
+
+        
+        
+    </script>
+    
+    <script>
+    document.getElementById("wrap").addEventListener("scroll",function(){
+    var translate = "translate(0,"+this.scrollTop+"px)";
+    this.querySelector("thead").style.transform = translate;
+    });
+    </script>

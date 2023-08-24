@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Report Count based user INput</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  
+   <nav class="navbar navbar-expand-lg navbar-light bg-light">
+     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+    <li class="nav-item">
+        <a class="nav-link" href="http://13.127.78.38:3000/dashboard/device_records_api">Device List</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="http://13.127.78.38:3000/dashboard/user_report_count_api">User Report</a>
+      </li>
+      </li>
+        <li class="nav-item">
+        <a class="nav-link" href="http://13.127.78.38:3000/dashboard/report_all_user_api">User All Report</a>
+      </li>
+      </li>
+        <li class="nav-item active">
+        <a class="nav-link" href="http://13.127.78.38:3000/dashboard/kranthi_sub_testing">Report Counts<span class="sr-only">(current)</span></a>
+      </li>
+      <!--<li class="nav-item">-->
+      <!--  <a class="nav-link" href="http://13.127.78.38:3000/dashboard/device_records_api">Device List</a>-->
+      <!--</li>-->
+      <!--<li class="nav-item">-->
+      <!--  <a class="nav-link" href="http://13.127.78.38:3000/dashboard/user_report_count_api">User Report</a>-->
+      <!--</li>-->
+      <!--<li class="nav-item active">-->
+      <!--  <a class="nav-link" href="http://13.127.78.38:3000/dashboard/user_name_password_api">User Information <span class="sr-only">(current)</span></a>-->
+    
+      <!--</li>-->
+      
+      
+      
+      
+    </ul>
+    <form class="form-inline my-2 my-lg-0">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search..." style="margin-right: 25px;">
+        <button class="btn btn-primary" styles="margin-right:30px;" type="button" id="searchButton">Search</button>
+    </form>
+  </div>
+    </nav>
+
+  <div class="container" style="margin-top:25px;">
+    <form id="postForm">
+      <div class="form-group">
+        <label for="phizioemail">Phizio Email:</label>
+        <input type="email" class="form-control" id="phizioemail" placeholder="Enter email" required>
+      </div>
+      <div class="form-group">
+        <label for="start_time">Start Time:</label>
+        <input type="text" class="form-control" id="start_time" placeholder="MM-DD-YYYY" required>
+      </div>
+      <div class="form-group">
+        <label for="end_time">End Time:</label>
+        <input type="text" class="form-control" id="end_time" placeholder="MM-DD-YYYY" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#postForm').submit(function(event) {
+        event.preventDefault();
+
+        var phizioemail = $('#phizioemail').val();
+        var start_time = $('#start_time').val();
+        var end_time = $('#end_time').val();
+
+        var requestData = {
+          phizioemail: phizioemail,
+          start_time: start_time,
+          end_time: end_time
+        };
+
+        $.ajax({
+          url: 'http://13.127.78.38:3000/api/session_summary_opt',
+          type: 'POST',
+          data: JSON.stringify(requestData),
+          contentType: 'application/json',
+          success: function(response) {
+            alert('Response: ' + JSON.stringify(response));
+          },
+          error: function(error) {
+            alert('Error: ' + JSON.stringify(error));
+          }
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
